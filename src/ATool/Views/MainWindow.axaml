@@ -140,7 +140,7 @@
                          HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Border>
             <TextBlock Text="A工具" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" />
-            <TextBlock Text="版本 6.0" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
+            <TextBlock Text="版本 6.5" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
             <TextBlock Text="作者：小泽" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
           </StackPanel>
         </Border>

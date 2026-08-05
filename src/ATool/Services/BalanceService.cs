@@ -100,17 +100,21 @@ public sealed class BalanceService
         if (result.Success)
         {
             var prev = _history.GetLatest(key.Id);
-            var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            _history.Insert(new BalanceRecord
+            // 余额与上一条相同 → 不重复记录（明细去重，避免无变化刷屏）
+            if (prev is null || prev.TotalBalance != result.TotalBalance)
             {
-                ApiKeyId = key.Id,
-                TotalBalance = result.TotalBalance,
-                GrantedBalance = result.Granted,
-                ToppedUpBalance = result.ToppedUp,
-                Currency = result.Currency,
-                QueriedAt = now,
-                Delta = prev is null ? null : result.TotalBalance - prev.TotalBalance,
-            });
+                var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                _history.Insert(new BalanceRecord
+                {
+                    ApiKeyId = key.Id,
+                    TotalBalance = result.TotalBalance,
+                    GrantedBalance = result.Granted,
+                    ToppedUpBalance = result.ToppedUp,
+                    Currency = result.Currency,
+                    QueriedAt = now,
+                    Delta = prev is null ? null : result.TotalBalance - prev.TotalBalance,
+                });
+            }
             key.LastError = null;
             Log.Information("余额刷新成功: Key#{Id} {Alias} = {Balance} {Currency}", key.Id, key.Alias, result.TotalBalance, result.Currency);
         }
