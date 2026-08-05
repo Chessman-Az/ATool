@@ -71,6 +71,7 @@ public partial class ApiKeysViewModel : ObservableObject
     /// <summary>单 Key 独立刷新：仅刷新该 Key，完成后刷新列表显示；失败给出可见提示。</summary>
     private async Task OnRefreshRequested(ApiKeyItemVm item)
     {
+        item.IsRefreshingItem = true;
         try
         {
             await _balance.RefreshKeyAsync(item.Key.Id);
@@ -81,6 +82,10 @@ public partial class ApiKeysViewModel : ObservableObject
         catch (Exception ex)
         {
             Message = $"{item.Key.Alias} 刷新异常：{ex.Message}";
+        }
+        finally
+        {
+            item.IsRefreshingItem = false;
         }
     }
 
@@ -171,6 +176,10 @@ public partial class ApiKeyItemVm : ObservableObject
 
     [ObservableProperty]
     private decimal? _delta;
+
+    /// <summary>该 Key 正在刷新（行内「刷新」按钮显示旋转动画）。</summary>
+    [ObservableProperty]
+    private bool _isRefreshingItem;
 
     [RelayCommand]
     private void Delete() => _onDelete(this);
