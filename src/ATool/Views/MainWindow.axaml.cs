@@ -13,6 +13,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        // 版本戳：标题显示构建时间，便于确认运行的是否为最新发布版
+        var stamp = File.GetLastWriteTime(typeof(MainWindow).Assembly.Location).ToString("MM-dd HH:mm");
+        Title = $"A工具 v{stamp}";
         Closing += OnClosing;
         Opened += OnOpened;
     }

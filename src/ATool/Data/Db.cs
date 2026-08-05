@@ -14,6 +14,10 @@ public sealed class Db
     {
         DataPath = dataPath;
         Directory.CreateDirectory(dataPath);
+        // 关键修复：SQLite 列名均为下划线风格（total_balance/trigger_time...），
+        // Dapper 默认不匹配下划线 → 映射静默失败返回默认值（余额恒 0、重复规则恒 Single）。
+        // 全局开启下划线匹配，一次修复所有实体的列映射。
+        Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
     }
 
     /// <summary>路径迁移后切换数据目录（连接串按当前路径实时构造）。</summary>
