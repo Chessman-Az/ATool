@@ -58,9 +58,16 @@
         <ItemsControl.ItemTemplate>
           <DataTemplate>
             <Button Command="{Binding SelectCommand}" Background="Transparent" BorderThickness="0"
-                    Padding="2" Margin="2" HorizontalContentAlignment="Center"
+                    Padding="2" Margin="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                     IsEnabled="{Binding HasDate}" CornerRadius="8">
-              <Border Width="38" Height="34" CornerRadius="8" Padding="0,3">
+              <Button.Styles>
+                <!-- 非当月（disabled）格子：背景/边框/内容全透明，不留黑框 -->
+                <Style Selector="Button:disabled /template/ ContentPresenter">
+                  <Setter Property="Background" Value="Transparent" />
+                  <Setter Property="BorderBrush" Value="Transparent" />
+                </Style>
+              </Button.Styles>
+              <Border MinWidth="34" Height="32" CornerRadius="8" Padding="0,2" IsVisible="{Binding HasDate}">
                 <Border.Background>
                   <MultiBinding Converter="{StaticResource DayBrush}" ConverterParameter="bg">
                     <Binding Path="IsSelected" />

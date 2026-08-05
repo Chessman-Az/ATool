@@ -19,7 +19,14 @@ public partial class BalanceChartViewModel : ObservableObject
     private readonly BalanceHistoryRepository _history;
     private readonly ApiKeysViewModel _keys;
 
-    public ISeries[] Series { get; private set; } = [];
+    /// <summary>图表序列（带通知，赋值时同步通知 HasData）。</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasData))]
+    private ISeries[] _series = [];
+
+    /// <summary>是否有数据可画（图表可见 / 空提示可见的开关）。</summary>
+    public bool HasData => Series.Length > 0;
+
     public Axis[] XAxes { get; private set; } = [];
     public Axis[] YAxes { get; private set; } = [];
 
