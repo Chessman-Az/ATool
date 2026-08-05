@@ -61,11 +61,19 @@ public class FloatReminderTests
 
         settings.SetFloatReminderCorner(9); // 非法值
         Assert.Equal(0, settings.GetFloatReminderCorner());
+
+        // 透明度：默认 100，合法区间 10-100，非法回退
+        Assert.Equal(100, settings.GetFloatReminderOpacity());
+        settings.SetFloatReminderOpacity(60);
+        Assert.Equal(60, settings.GetFloatReminderOpacity());
+        settings.SetFloatReminderOpacity(5);
+        Assert.Equal(100, settings.GetFloatReminderOpacity());
     }
 
     [Theory]
     [InlineData(123u, "Progman", 456u, true)]   // 桌面
     [InlineData(123u, "WorkerW", 456u, true)]   // 桌面（Win11）
+    [InlineData(123u, "Shell_TrayWnd", 456u, true)] // 任务栏（最小化后点任务栏回到桌面环境）
     [InlineData(456u, "ATool", 456u, true)]     // 本进程窗口（主窗口/浮窗自身）→ 不隐藏
     [InlineData(123u, "Chrome_WidgetWin_1", 456u, false)] // 其他软件 → 隐藏
     [InlineData(0u, "", 456u, true)]            // 无前台窗口 → 按桌面处理

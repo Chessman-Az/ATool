@@ -32,6 +32,10 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private int _floatCorner;
 
+    /// <summary>浮窗透明度（10-100，百分比）。</summary>
+    [ObservableProperty]
+    private int _floatOpacity = 100;
+
     [ObservableProperty]
     private string? _message;
 
@@ -49,6 +53,7 @@ public partial class SettingsViewModel : ObservableObject
         AutoStart = _settings.IsAutoStartEnabled();
         FloatEnabled = _settings.GetFloatReminderEnabled();
         FloatCorner = _settings.GetFloatReminderCorner();
+        FloatOpacity = _settings.GetFloatReminderOpacity();
     }
 
     [RelayCommand]
@@ -60,7 +65,8 @@ public partial class SettingsViewModel : ObservableObject
             _settings.SetAutoStart(AutoStart);
             _settings.SetFloatReminderEnabled(FloatEnabled);
             _settings.SetFloatReminderCorner(FloatCorner);
-            _floatReminder.Apply(); // 立即应用浮窗开关/位置
+            _settings.SetFloatReminderOpacity(FloatOpacity);
+            _floatReminder.Apply(); // 立即应用浮窗开关/位置/透明度
             Message = "设置已保存";
         }
         catch (Exception ex)

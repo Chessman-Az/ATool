@@ -24,6 +24,11 @@
       <ComboBoxItem Content="屏幕右下" />
       <ComboBoxItem Content="屏幕左下" />
     </ComboBox>
+    <TextBlock Text="浮窗透明度" Foreground="Gray" FontSize="12" Margin="0,6,0,0" />
+    <StackPanel Orientation="Horizontal" Spacing="10">
+      <Slider Minimum="10" Maximum="100" Value="{Binding FloatOpacity}" Width="220" VerticalAlignment="Center" />
+      <TextBlock Text="{Binding FloatOpacity, StringFormat='{}{0}%'}" VerticalAlignment="Center" FontSize="13" />
+    </StackPanel>
     <Button Content="保存设置" Command="{Binding SaveCommand}" HorizontalAlignment="Left" Margin="0,8,0,0" Classes="accent" />
     <TextBlock Text="{Binding Message}" Foreground="#2E9E5B" />
   </StackPanel>

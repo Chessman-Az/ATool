@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using Serilog;
 using ATool.Data;
@@ -24,6 +25,7 @@ public sealed class FloatReminderService
     private readonly DispatcherTimer _pollTimer;   // 前台窗口 + 鼠标热区轮询
     private readonly DispatcherTimer _animTimer;   // 展开/缩回位置插值
     private readonly DispatcherTimer _refreshTimer; // 提醒列表定时刷新
+    private Window? _mainWindow;                   // 主窗口（全屏/最大化时隐藏浮窗）
 
     private double _curX, _curY;
     private double _targetX, _targetY;
@@ -61,6 +63,9 @@ public sealed class FloatReminderService
         _refreshTimer.Tick += (_, _) => RefreshReminders();
     }
 
+    /// <summary>绑定主窗口（用于检测全屏/最大化状态）。</summary>
+    public void SetMainWindow(Window w) => _mainWindow = w;
+
     /// <summary>应用当前设置（启动时 / 保存设置后调用）。</summary>
     public void Apply()
     {
@@ -83,6 +88,7 @@ public sealed class FloatReminderService
             _visible = true;
             _window.Width = WindowW;
             _window.Height = WindowH;
+            _window.Opacity = _settings.GetFloatReminderOpacity() / 100.0;
             PlaceWindow();
             _running = true;
             _pollTimer.Start();
@@ -143,7 +149,13 @@ public sealed class FloatReminderService
         if (!_running) return;
         try
         {
-            // 前台是本进程窗口（主窗口/浮窗自身）或桌面 → 显示；其他软件 → 隐藏
+            // 主窗口全屏/最大化 → 隐藏浮窗（避免被遮挡的半截框显示在角落）
+            if (_mainWindow is { WindowState: WindowState.Maximized or WindowState.FullScreen })
+            {
+                if (_visible) { _window.Hide(); _visible = false; }
+                return;
+            }
+            // 前台是本进程窗口（主窗口/浮窗自身）、桌面或任务栏 → 显示；其他软件 → 隐藏
             var visible = IsDesktopForeground();
             if (visible && !_visible)
             {
@@ -264,9 +276,9 @@ public sealed class FloatReminderService
         public int Y;
     }
 
-    /// <summary>前台窗口是否可见浮窗（静态纯函数，可测）：本进程窗口（主窗口/浮窗自身）或桌面（Progman/WorkerW）→ 可见；其他软件 → 隐藏。</summary>
+    /// <summary>前台窗口是否可见浮窗（静态纯函数，可测）：本进程窗口（主窗口/浮窗自身）、桌面（Progman/WorkerW）或任务栏（Shell_TrayWnd）→ 可见；其他软件 → 隐藏。</summary>
     public static bool IsForegroundVisible(uint fgPid, string fgClass, uint ownPid)
-        => fgPid == 0 || fgPid == ownPid || fgClass is "Progman" or "WorkerW";
+        => fgPid == 0 || fgPid == ownPid || fgClass is "Progman" or "WorkerW" or "Shell_TrayWnd";
 
     /// <summary>前台窗口是否允许浮窗显示（Win32 实读 + 纯函数判定）。</summary>
     private static bool IsDesktopForeground()

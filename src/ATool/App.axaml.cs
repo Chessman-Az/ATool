@@ -39,8 +39,10 @@ public partial class App : Application
             balance.StartAutoRefresh();
             var toast = services.GetRequiredService<ToastService>();
             toast.Initialize();
-            // 桌面提醒浮窗（设置开启才显示）
-            services.GetRequiredService<FloatReminderService>().Apply();
+            // 桌面提醒浮窗（设置开启才显示；绑定主窗口以检测全屏状态）
+            var floatReminder = services.GetRequiredService<FloatReminderService>();
+            floatReminder.SetMainWindow(desktop.MainWindow);
+            floatReminder.Apply();
 
             desktop.Exit += (_, _) =>
             {
