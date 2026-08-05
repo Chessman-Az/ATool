@@ -7,13 +7,7 @@
         <TextBox Text="{Binding NewAlias}" Watermark="别名（如：个人主Key）" Width="170" />
         <TextBox Text="{Binding NewKey}" Watermark="sk-…（添加时自动验证）" Width="300" />
         <Button Content="添加 Key" Command="{Binding AddKeyCommand}" Classes="accent" />
-        <Button Command="{Binding RefreshAsyncCommand}" Classes="accent">
-          <StackPanel Orientation="Horizontal" Spacing="6">
-            <ProgressBar IsIndeterminate="True" Width="14" Height="14" VerticalAlignment="Center"
-                         IsVisible="{Binding IsRefreshing}" Foreground="White" />
-            <TextBlock Text="立即刷新全部" VerticalAlignment="Center" />
-          </StackPanel>
-        </Button>
+        <Button Content="立即刷新全部" Command="{Binding RefreshAsyncCommand}" Classes="accent" />
       </StackPanel>
       <TextBlock Text="{Binding Message}" Classes="danger" TextWrapping="Wrap" />
     </StackPanel>
@@ -33,14 +27,8 @@
               <TextBlock Text="{Binding LastError}" Classes="danger" TextWrapping="Wrap" />
             </StackPanel>
             <!-- 右侧：独立刷新 + 删除（最右） -->
-            <Button Grid.Column="1" Command="{Binding RefreshCommand}"
-                    FontSize="11" Padding="10,4" Margin="8,0,0,0" VerticalAlignment="Center">
-              <StackPanel Orientation="Horizontal" Spacing="5">
-                <ProgressBar IsIndeterminate="True" Width="12" Height="12" VerticalAlignment="Center"
-                             IsVisible="{Binding IsRefreshingItem}" />
-                <TextBlock Text="刷新" VerticalAlignment="Center" />
-              </StackPanel>
-            </Button>
+            <Button Grid.Column="1" Content="刷新" Command="{Binding RefreshCommand}"
+                    FontSize="11" Padding="12,4" Margin="8,0,0,0" VerticalAlignment="Center" />
             <Button Grid.Column="2" Content="删除" Command="{Binding DeleteCommand}" Classes="danger"
                     FontSize="11" Padding="12,4" Margin="8,0,0,0" VerticalAlignment="Center" />
           </Grid>

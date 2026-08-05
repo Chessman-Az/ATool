@@ -63,47 +63,82 @@
         </Grid>
 
         <!-- DeepSeek 余额：开干 → 全部余额 → Key 列表 → 选中 Key 的图表(左)+明细(右) -->
-        <DockPanel IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=1}">
-          <Border DockPanel.Dock="Top" Margin="0,0,0,8" Background="{DynamicResource CardBrush}" CornerRadius="10"
-                  BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12,8">
-            <views:PeakHourPanel DataContext="{Binding PeakHour}" />
-          </Border>
-          <Border DockPanel.Dock="Top" Margin="0,0,0,8" Background="{DynamicResource CardBrush}" CornerRadius="10"
-                  BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,8">
-            <StackPanel Spacing="4">
-              <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBlock Text="全部余额" Classes="h2" VerticalAlignment="Center" />
-                <TextBlock Text="{Binding ApiKeys.TotalBalance, StringFormat='¥{0:F2}'}" FontSize="17"
-                           FontWeight="Bold" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" />
+        <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=1}">
+          <DockPanel>
+            <Border DockPanel.Dock="Top" Margin="0,0,0,8" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12,8">
+              <views:PeakHourPanel DataContext="{Binding PeakHour}" />
+            </Border>
+            <Border DockPanel.Dock="Top" Margin="0,0,0,8" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,8">
+              <StackPanel Spacing="4">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="全部余额" Classes="h2" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding ApiKeys.TotalBalance, StringFormat='¥{0:F2}'}" FontSize="17"
+                             FontWeight="Bold" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" />
+                </StackPanel>
+                <ItemsControl ItemsSource="{Binding ApiKeys.Keys}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Text="{Binding Alias}" Classes="hint" />
+                        <TextBlock Text="{Binding BalanceText, StringFormat='¥{0}'}" Classes="hint"
+                                   Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
               </StackPanel>
-              <ItemsControl ItemsSource="{Binding ApiKeys.Keys}">
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate>
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                      <TextBlock Text="{Binding Alias}" Classes="hint" />
-                      <TextBlock Text="{Binding BalanceText, StringFormat='¥{0}'}" Classes="hint"
-                                 Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" />
-                    </StackPanel>
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-            </StackPanel>
-          </Border>
-          <Border DockPanel.Dock="Top" Margin="0,0,0,8" Background="{DynamicResource CardBrush}" CornerRadius="10"
-                  BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="8" MaxHeight="220">
-            <views:ApiKeyPanel DataContext="{Binding ApiKeys}" />
-          </Border>
-          <Grid ColumnDefinitions="1*,1*">
-            <Border MaxHeight="300" Background="{DynamicResource CardBrush}" CornerRadius="10"
-                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="10">
-              <views:BalanceChartView DataContext="{Binding Chart}" />
             </Border>
-            <Border Grid.Column="1" Margin="10,0,0,0" MaxHeight="300" Background="{DynamicResource CardBrush}"
-                    CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12">
-              <views:BalanceDetailPanel DataContext="{Binding BalanceDetail}" />
+            <Border DockPanel.Dock="Top" Margin="0,0,0,8" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="8" MaxHeight="220">
+              <views:ApiKeyPanel DataContext="{Binding ApiKeys}" />
             </Border>
+            <Grid ColumnDefinitions="1*,1*">
+              <Border MaxHeight="300" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                      BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="10">
+                <views:BalanceChartView DataContext="{Binding Chart}" />
+              </Border>
+              <Border Grid.Column="1" Margin="10,0,0,0" MaxHeight="300" Background="{DynamicResource CardBrush}"
+                      CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12">
+                <views:BalanceDetailPanel DataContext="{Binding BalanceDetail}" />
+              </Border>
+            </Grid>
+          </DockPanel>
+
+          <!-- 刷新中：界面中央旋转圆圈（半透明遮罩 + 旋转圆环动画） -->
+          <Grid Background="#33FFFFFF" IsVisible="{Binding IsRefreshing}">
+            <Path Width="46" Height="46" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="5"
+                  StrokeDashArray="28 44" StrokeLineCap="Round"
+                  RenderTransformOrigin="50%,50%" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Path.Data>
+                <EllipseGeometry RadiusX="20" RadiusY="20" />
+              </Path.Data>
+              <Path.Styles>
+                <Style>
+                  <Style.Animations>
+                    <Animation Duration="0:0:0.8" RepeatCount="infinite">
+                      <KeyFrame Cue="0%">
+                        <Setter Property="RenderTransform">
+                          <Setter.Value>
+                            <RotateTransform Angle="0" />
+                          </Setter.Value>
+                        </Setter>
+                      </KeyFrame>
+                      <KeyFrame Cue="100%">
+                        <Setter Property="RenderTransform">
+                          <Setter.Value>
+                            <RotateTransform Angle="360" />
+                          </Setter.Value>
+                        </Setter>
+                      </KeyFrame>
+                    </Animation>
+                  </Style.Animations>
+                </Style>
+              </Path.Styles>
+            </Path>
           </Grid>
-        </DockPanel>
+        </Grid>
 
         <!-- 系统设置 -->
         <Border IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=2}"
