@@ -126,6 +126,7 @@ public partial class ReminderItemVm : ObservableObject
         _ => "每周几"
     };
     public bool IsDone => Reminder.Status == ReminderStatus.Done;
+    public string StatusText => IsDone ? "已完成" : "待提醒";
 
     public ReminderItemVm(Reminder r, Action<ReminderItemVm> onComplete)
     {

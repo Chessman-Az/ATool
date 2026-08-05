@@ -19,28 +19,36 @@
       <ListBox.ItemTemplate>
         <DataTemplate>
           <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
-                  BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,3">
-            <Grid ColumnDefinitions="*,Auto">
-              <StackPanel Spacing="3">
+                  BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,3">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <!-- 圆圈：未完成=空心圆可点击完成；已完成=绿色实心对勾 -->
+              <Button Grid.Column="0" Command="{Binding CompleteCommand}" Background="Transparent"
+                      BorderThickness="0" Padding="6,2" VerticalAlignment="Center"
+                      IsVisible="{Binding IsDone, Converter={x:Static BoolConverters.Not}}"
+                      ToolTip.Tip="点击标记完成">
+                <Ellipse Width="16" Height="16" Stroke="{DynamicResource TextSecondaryBrush}"
+                         StrokeThickness="1.5" Fill="Transparent" />
+              </Button>
+              <Border Grid.Column="0" Width="18" Height="18" CornerRadius="9"
+                      Background="{DynamicResource SuccessBrush}" VerticalAlignment="Center"
+                      IsVisible="{Binding IsDone}">
+                <TextBlock Text="✓" FontSize="11" Foreground="White"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <StackPanel Grid.Column="1" Spacing="3" Margin="10,0,0,0">
                 <StackPanel Orientation="Horizontal" Spacing="10">
                   <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
                              Foreground="{DynamicResource TextPrimaryBrush}" />
                   <Border Background="{DynamicResource PrimarySoftBrush}" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
-                    <TextBlock Classes="hint" Foreground="{DynamicResource PrimaryBrush}">
-                      <TextBlock.Text>
-                        <MultiBinding StringFormat="{}{0}">
-                          <Binding Path="RepeatType" />
-                        </MultiBinding>
-                      </TextBlock.Text>
-                    </TextBlock>
+                    <TextBlock Classes="hint" Foreground="{DynamicResource PrimaryBrush}" Text="{Binding RepeatText}" />
                   </Border>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="14">
                   <TextBlock Text="{Binding TriggerTime}" Classes="hint" />
-                  <TextBlock Text="{Binding TriggeredCount, StringFormat='已触发 {0} 次'}" Classes="hint" />
+                  <TextBlock Text="{Binding TriggeredCountText}" Classes="hint" />
                 </StackPanel>
               </StackPanel>
-              <TextBlock Grid.Column="1" VerticalAlignment="Center" Classes="hint" Text="{Binding Status}" />
+              <TextBlock Grid.Column="2" VerticalAlignment="Center" Classes="hint" Text="{Binding StatusText}" />
             </Grid>
           </Border>
         </DataTemplate>
