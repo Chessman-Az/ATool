@@ -93,4 +93,16 @@ public sealed class SettingsService
 
     public bool IsAutoStartEnabled() => AutoStartService.IsEnabled();
     public void SetAutoStart(bool enabled) => AutoStartService.SetEnabled(enabled);
+
+    // ---- 桌面提醒浮窗 ----
+
+    public bool GetFloatReminderEnabled() => _repo.Get("float_reminder_enabled") == "1";
+
+    public void SetFloatReminderEnabled(bool enabled) => _repo.Set("float_reminder_enabled", enabled ? "1" : "0");
+
+    /// <summary>浮窗角落：0=左上 1=右上 2=右下 3=左下（非法值回退左上）。</summary>
+    public int GetFloatReminderCorner() =>
+        int.TryParse(_repo.Get("float_reminder_corner"), out var c) && c is >= 0 and <= 3 ? c : 0;
+
+    public void SetFloatReminderCorner(int corner) => _repo.Set("float_reminder_corner", corner.ToString());
 }

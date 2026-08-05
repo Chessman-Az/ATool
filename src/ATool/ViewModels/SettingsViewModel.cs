@@ -8,6 +8,7 @@ namespace ATool.ViewModels;
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly SettingsService _settings;
+    private readonly FloatReminderService _floatReminder;
 
     [ObservableProperty]
     private string _dataPath = "";
@@ -25,9 +26,20 @@ public partial class SettingsViewModel : ObservableObject
     private bool _autoStartSupported = OperatingSystem.IsWindows();
 
     [ObservableProperty]
+    private bool _floatEnabled;
+
+    /// <summary>浮窗角落：0=左上 1=右上 2=右下 3=左下。</summary>
+    [ObservableProperty]
+    private int _floatCorner;
+
+    [ObservableProperty]
     private string? _message;
 
-    public SettingsViewModel(SettingsService settings) => _settings = settings;
+    public SettingsViewModel(SettingsService settings, FloatReminderService floatReminder)
+    {
+        _settings = settings;
+        _floatReminder = floatReminder;
+    }
 
     public void Load()
     {
@@ -35,6 +47,8 @@ public partial class SettingsViewModel : ObservableObject
         LogPath = _settings.LogPath;
         RefreshMinutes = _settings.GetRefreshMinutes();
         AutoStart = _settings.IsAutoStartEnabled();
+        FloatEnabled = _settings.GetFloatReminderEnabled();
+        FloatCorner = _settings.GetFloatReminderCorner();
     }
 
     [RelayCommand]
@@ -44,6 +58,9 @@ public partial class SettingsViewModel : ObservableObject
         {
             _settings.SetRefreshMinutes(RefreshMinutes);
             _settings.SetAutoStart(AutoStart);
+            _settings.SetFloatReminderEnabled(FloatEnabled);
+            _settings.SetFloatReminderCorner(FloatCorner);
+            _floatReminder.Apply(); // 立即应用浮窗开关/位置
             Message = "设置已保存";
         }
         catch (Exception ex)

@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ATool.Views.FloatReminderWindow"
+        Width="260" Height="320"
+        SystemDecorations="None"
+        ShowInTaskbar="False" Topmost="False" CanResize="False"
+        ShowActivated="False" Focusable="False"
+        Background="#F8FAFF">
+  <Border Background="#F8FAFF" BorderBrush="#DCE3F0" BorderThickness="1" CornerRadius="12" Margin="3">
+    <DockPanel>
+      <Border DockPanel.Dock="Top" Background="#EAF1FE" CornerRadius="10,10,0,0" Padding="14,10">
+        <TextBlock Text="提醒事项" FontWeight="Bold" FontSize="14" Foreground="#3B6FE0" />
+      </Border>
+      <TextBlock x:Name="EmptyText" Text="暂无待办提醒" Classes="hint"
+                 HorizontalAlignment="Center" VerticalAlignment="Center" />
+      <ListBox x:Name="ReminderList" Background="Transparent" BorderThickness="0"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <Border Background="#FFFFFF" BorderBrush="#E4E8F0" BorderThickness="1"
+                    CornerRadius="8" Padding="10,7" Margin="4,3">
+              <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="13"
+                         Foreground="#1F2430" />
+            </Border>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </DockPanel>
+  </Border>
+</Window>

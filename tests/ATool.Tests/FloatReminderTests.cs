@@ -1,0 +1,65 @@
+using ATool.Data;
+using ATool.Services;
+using Xunit;
+
+namespace ATool.Tests;
+
+/// <summary>桌面提醒浮窗：角落位置计算（纯函数）+ 设置读写（临时目录，不污染真实数据）。</summary>
+public class FloatReminderTests
+{
+    private const double W = 260, H = 320, Edge = 10;
+    private const double SX = 0, SY = 0, SW = 1920, SH = 1080;
+
+    [Theory]
+    [InlineData(FloatReminderService.Corner.TopLeft, false, -250, 0)]
+    [InlineData(FloatReminderService.Corner.TopLeft, true, 0, 0)]
+    [InlineData(FloatReminderService.Corner.TopRight, false, 1910, 0)]
+    [InlineData(FloatReminderService.Corner.TopRight, true, 1660, 0)]
+    [InlineData(FloatReminderService.Corner.BottomRight, false, 1910, 760)]
+    [InlineData(FloatReminderService.Corner.BottomRight, true, 1660, 760)]
+    [InlineData(FloatReminderService.Corner.BottomLeft, false, -250, 760)]
+    [InlineData(FloatReminderService.Corner.BottomLeft, true, 0, 760)]
+    public void ComputeTarget_四角落缩回与展开位置(FloatReminderService.Corner corner, bool expanded, double ex, double ey)
+    {
+        var (x, y) = FloatReminderService.ComputeTarget(corner, SX, SY, SW, SH, W, H, Edge, expanded);
+        Assert.Equal(ex, x, 3);
+        Assert.Equal(ey, y, 3);
+    }
+
+    [Theory]
+    [InlineData(FloatReminderService.Corner.TopLeft, 10, 10, true)]
+    [InlineData(FloatReminderService.Corner.TopLeft, 100, 100, false)]
+    [InlineData(FloatReminderService.Corner.TopRight, 1910, 10, true)]
+    [InlineData(FloatReminderService.Corner.TopRight, 1800, 100, false)]
+    [InlineData(FloatReminderService.Corner.BottomRight, 1910, 1070, true)]
+    [InlineData(FloatReminderService.Corner.BottomRight, 1070, 1070, false)]
+    [InlineData(FloatReminderService.Corner.BottomLeft, 10, 1070, true)]
+    [InlineData(FloatReminderService.Corner.BottomLeft, 100, 1070, false)]
+    public void InHotZone_仅对应角落热区命中(FloatReminderService.Corner corner, double mx, double my, bool expected)
+    {
+        Assert.Equal(expected, FloatReminderService.InHotZone(corner, mx, my, SX, SY, SW, SH, 20));
+    }
+
+    [Fact]
+    public void 浮窗设置读写_默认关闭且角落为左上()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "atool-float-" + Guid.NewGuid().ToString("N"));
+        var db = new Db(dir);
+        db.InitializeSchema();
+        var repo = new SettingsRepository(db);
+        repo.Set("data_path", dir); // 防止 SettingsService 构造时切到用户真实默认路径
+        repo.Set("log_path", Path.Combine(dir, "logs"));
+        var settings = new SettingsService(repo, db);
+
+        Assert.False(settings.GetFloatReminderEnabled());
+        Assert.Equal(0, settings.GetFloatReminderCorner());
+
+        settings.SetFloatReminderEnabled(true);
+        settings.SetFloatReminderCorner(2);
+        Assert.True(settings.GetFloatReminderEnabled());
+        Assert.Equal(2, settings.GetFloatReminderCorner());
+
+        settings.SetFloatReminderCorner(9); // 非法值
+        Assert.Equal(0, settings.GetFloatReminderCorner());
+    }
+}

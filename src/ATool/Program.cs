@@ -66,6 +66,7 @@ internal static class Program
     services.AddSingleton<ToastService>();
         services.AddSingleton<ReminderPopupService>();
         services.AddSingleton<ReminderSchedulerService>();
+        services.AddSingleton<FloatReminderService>();
 
         // 表现层 VM
     services.AddSingleton<ReminderEditViewModel>();

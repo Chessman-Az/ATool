@@ -40,8 +40,10 @@
         </DockPanel>
       </Border>
 
-      <!-- 右侧内容区（按 NavIndex 切换） -->
+      <!-- 右侧内容区（按 NavIndex 切换）；窗口缩小时纵向滚动，避免文字错位/裁剪 -->
       <Grid Grid.Column="1" Margin="12,0,0,0">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid>
         <!-- 提醒事项：日历（上）+ 列表/编辑（下） -->
         <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=0}">
           <Grid RowDefinitions="Auto,*">
@@ -151,10 +153,12 @@
                          HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Border>
             <TextBlock Text="A工具" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" />
-            <TextBlock Text="版本 7.5" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
+            <TextBlock Text="版本 8" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
             <TextBlock Text="作者：小泽" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
           </StackPanel>
         </Border>
+        </Grid>
+        </ScrollViewer>
       </Grid>
     </Grid>
   </DockPanel>
