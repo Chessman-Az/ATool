@@ -61,4 +61,54 @@ public class ApiKeysReloadTests
         Assert.Equal(0m, vm.TotalBalance);
         Assert.Equal("—", vm.Keys[0].BalanceText);
     }
+
+    [Fact]
+    public void Reload_默认选中第一个Key_折线图默认有数据可显示()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "atool-relsel-" + Guid.NewGuid().ToString("N"));
+        var db = new Db(dir);
+        db.InitializeSchema();
+        var keys = new ApiKeyRepository(db);
+        var history = new BalanceHistoryRepository(db);
+        var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        var a = keys.Insert(new ApiKey { Alias = "a", EncryptedKey = KeyProtection.Protect("sk-a"), CreatedAt = now });
+        keys.Insert(new ApiKey { Alias = "b", EncryptedKey = KeyProtection.Protect("sk-b"), CreatedAt = now });
+        history.Insert(new BalanceRecord { ApiKeyId = a, TotalBalance = 100.25m, QueriedAt = now });
+
+        var http = new HttpClient(new OkHandler());
+        var client = new DeepSeekClient(http);
+        var vm = new ApiKeysViewModel(keys, new BalanceService(client, keys, history), client, history);
+
+        vm.Reload();
+
+        Assert.NotNull(vm.SelectedKey);
+        Assert.Equal("a", vm.SelectedKey!.Alias);
+    }
+
+    [Fact]
+    public void Reload_原选中Key已被删除_重新默认选中第一个()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "atool-relsels-" + Guid.NewGuid().ToString("N"));
+        var db = new Db(dir);
+        db.InitializeSchema();
+        var keys = new ApiKeyRepository(db);
+        var history = new BalanceHistoryRepository(db);
+        var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        var a = keys.Insert(new ApiKey { Alias = "a", EncryptedKey = KeyProtection.Protect("sk-a"), CreatedAt = now });
+        var b = keys.Insert(new ApiKey { Alias = "b", EncryptedKey = KeyProtection.Protect("sk-b"), CreatedAt = now });
+        history.Insert(new BalanceRecord { ApiKeyId = a, TotalBalance = 100.25m, QueriedAt = now });
+
+        var http = new HttpClient(new OkHandler());
+        var client = new DeepSeekClient(http);
+        var vm = new ApiKeysViewModel(keys, new BalanceService(client, keys, history), client, history);
+        vm.Reload();
+        var selectedB = vm.Keys.First(k => k.Key.Id == b);
+        vm.SelectedKey = selectedB;
+
+        keys.Delete(b);
+        vm.Reload();
+
+        Assert.NotNull(vm.SelectedKey);
+        Assert.Equal("a", vm.SelectedKey!.Alias);
+    }
 }

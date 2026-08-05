@@ -78,6 +78,9 @@ public partial class CalendarDayVm : ObservableObject
     public string DayNumberText => DayNumber == 0 ? "" : DayNumber.ToString();
     public bool HasDate => IsCurrentMonth;
 
+    /// <summary>今天（日历美化：红色高亮）。</summary>
+    public bool IsToday => Date == DateOnly.FromDateTime(DateTime.Now);
+
     [ObservableProperty]
     private bool _isMarked;
 

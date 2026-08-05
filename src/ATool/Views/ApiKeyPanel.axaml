@@ -44,7 +44,7 @@
                   <TextBlock Text="{Binding Alias}" FontWeight="SemiBold" FontSize="13" />
                   <TextBlock Text="{Binding BalanceText, StringFormat='余额 ¥{0}'}" FontSize="13"
                              Foreground="{DynamicResource PrimaryBrush}" FontWeight="SemiBold" />
-                  <TextBlock Text="{Binding DeltaText, StringFormat='({0})'}" Classes="hint" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding DeltaText}" Classes="hint" VerticalAlignment="Center" />
                 </StackPanel>
                 <TextBlock Text="{Binding LastError}" Classes="danger" TextWrapping="Wrap" />
               </StackPanel>

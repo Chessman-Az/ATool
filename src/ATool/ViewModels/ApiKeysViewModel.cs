@@ -64,6 +64,8 @@ public partial class ApiKeysViewModel : ObservableObject
             Keys.Add(new ApiKeyItemVm(k, latest?.TotalBalance, latest?.Delta, OnDeleteRequested, OnRefreshRequested));
         }
         TotalBalance = BalanceSummaryService.Sum(Keys.Select(k => k.Balance));
+        // 选中保持：原选中 Key 仍在列表中则维持；否则默认选中第一个（折线图/明细默认即有数据显示）
+        SelectedKey = Keys.FirstOrDefault(k => k.Key.Id == SelectedKey?.Key.Id) ?? Keys.FirstOrDefault();
     }
 
     private void OnDeleteRequested(ApiKeyItemVm item) => DeleteRequested?.Invoke(item);
