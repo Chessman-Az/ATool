@@ -16,10 +16,19 @@ internal static class Program
     public static string LogDirectory { get; private set; } =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ATool", "logs");
 
+    /// <summary>单实例锁：程序已在运行时新实例直接退出（防止旧进程的浮窗/托盘与新版并存）。</summary>
+    private static Mutex? _singleInstance;
+
     [STAThread]
     public static void Main(string[] args)
     {
         ConfigureLogger();
+        _singleInstance = new Mutex(true, @"Local\ATool_SingleInstance", out var createdNew);
+        if (!createdNew)
+        {
+            Log.Information("ATool 已在运行，新实例退出（如需更新请先退出托盘旧实例）");
+            return;
+        }
         try
         {
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
@@ -30,6 +39,7 @@ internal static class Program
         }
         finally
         {
+            _singleInstance.ReleaseMutex();
             Log.CloseAndFlush();
         }
     }
