@@ -107,6 +107,7 @@ public sealed class FloatReminderService
             _expanded = false;
             _window.Show();
             _visible = true;
+            _window.EnsureHiddenFromTaskbar(); // 任务栏隐藏兜底（Win32 工具窗口样式）
             _window.Width = WindowW;
             _window.Height = WindowH;
             // 透明度只作用于背景，文字保持不透明

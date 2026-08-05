@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -21,7 +22,26 @@ public partial class FloatReminderWindow : Window
     {
         InitializeComponent();
         ReminderList.ItemsSource = Items;
+        Opened += (_, _) => EnsureHiddenFromTaskbar();
     }
+
+    /// <summary>强制从系统任务栏隐藏（Win32 WS_EX_TOOLWINDOW；ShowInTaskbar=False 在部分环境下不可靠）。</summary>
+    public void EnsureHiddenFromTaskbar()
+    {
+        var h = TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
+        if (h == IntPtr.Zero) return;
+        var style = GetWindowLong(h, GWL_EXSTYLE);
+        SetWindowLong(h, GWL_EXSTYLE, style | WS_EX_TOOLWINDOW);
+    }
+
+    private const int GWL_EXSTYLE = -20;
+    private const int WS_EX_TOOLWINDOW = 0x00000080;
+
+    [DllImport("user32.dll")]
+    private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+    [DllImport("user32.dll")]
+    private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
     /// <summary>刷新提醒列表内容（UI 线程调用）。</summary>
     public void SetReminders(IEnumerable<FloatReminderItem> items)
