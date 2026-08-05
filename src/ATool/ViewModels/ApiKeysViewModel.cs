@@ -63,11 +63,20 @@ public partial class ApiKeysViewModel : ObservableObject
 
     private void OnDeleteRequested(ApiKeyItemVm item) => DeleteRequested?.Invoke(item);
 
-    /// <summary>单 Key 独立刷新：仅刷新该 Key，完成后刷新列表显示。</summary>
+    /// <summary>单 Key 独立刷新：仅刷新该 Key，完成后刷新列表显示；失败给出可见提示。</summary>
     private async Task OnRefreshRequested(ApiKeyItemVm item)
     {
-        await _balance.RefreshKeyAsync(item.Key.Id);
-        Reload();
+        try
+        {
+            await _balance.RefreshKeyAsync(item.Key.Id);
+            Reload();
+            if (item.LastError is not null)
+                Message = $"{item.Key.Alias} 刷新失败：{item.LastError}";
+        }
+        catch (Exception ex)
+        {
+            Message = $"{item.Key.Alias} 刷新异常：{ex.Message}";
+        }
     }
 
     /// <summary>添加 Key：先调余额接口验证有效性；无效拒绝保存并报错。</summary>
@@ -118,8 +127,17 @@ public partial class ApiKeysViewModel : ObservableObject
     [RelayCommand]
     private async Task RefreshAsync()
     {
-        await _balance.RefreshAllAsync();
-        Reload();
+        try
+        {
+            await _balance.RefreshAllAsync();
+            Reload();
+            var failed = Keys.Count(k => k.LastError is not null);
+            Message = failed > 0 ? $"{failed} 个 Key 刷新失败（详见列表）" : null;
+        }
+        catch (Exception ex)
+        {
+            Message = $"刷新异常：{ex.Message}";
+        }
     }
 }
 

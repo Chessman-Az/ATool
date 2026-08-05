@@ -75,6 +75,8 @@ public partial class CalendarDayVm : ObservableObject
     public DateOnly Date { get; }
     public bool IsCurrentMonth { get; }
     public int DayNumber => IsCurrentMonth ? Date.Day : 0;
+    public string DayNumberText => DayNumber == 0 ? "" : DayNumber.ToString();
+    public bool HasDate => IsCurrentMonth;
 
     [ObservableProperty]
     private bool _isMarked;

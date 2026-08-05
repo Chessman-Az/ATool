@@ -54,7 +54,11 @@ public static class ReminderCalendarService
                     break;
 
                 case RepeatType.Weekly:
-                    foreach (var item in r.GetWeeklySchedule())
+                    List<WeeklyScheduleItem>? items = null;
+                    try { items = r.GetWeeklySchedule(); }
+                    catch (Exception) { items = null; } // 防御：损坏 JSON 视为无安排，不崩溃
+                    if (items is null) break;
+                    foreach (var item in items)
                         for (var d = from; d <= to; d = d.AddDays(1))
                             if (DayIndex(d.DayOfWeek) == item.Day)
                                 result.Add(d);
