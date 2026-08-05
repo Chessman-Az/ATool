@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Serilog;
 using ATool.Data;
 using ATool.Models;
 using ATool.Services;
@@ -139,6 +140,7 @@ public partial class ApiKeysViewModel : ObservableObject
     [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task RefreshAsync()
     {
+        Log.Information("RefreshAsyncCommand 已执行（探针）");
         try
         {
             await _balance.RefreshAllAsync();

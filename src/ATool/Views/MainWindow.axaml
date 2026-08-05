@@ -103,7 +103,7 @@
               </StackPanel>
             </Border>
             <Border DockPanel.Dock="Top" Margin="0,0,0,2" Background="{DynamicResource CardBrush}" CornerRadius="10"
-                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="8">
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="8,6">
               <views:ApiKeyPanel DataContext="{Binding ApiKeys}" />
             </Border>
             <Grid ColumnDefinitions="1*,1*">

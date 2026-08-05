@@ -1,13 +1,14 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="ATool.Views.ApiKeyPanel">
-  <DockPanel Margin="12">
+  <DockPanel Margin="12,12,12,4">
     <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,12">
       <StackPanel Orientation="Horizontal" Spacing="8">
         <TextBox Text="{Binding NewAlias}" Watermark="别名（如：个人主Key）" Width="170" />
         <TextBox Text="{Binding NewKey}" Watermark="sk-…（添加时自动验证）" Width="300" />
         <Button Content="添加 Key" Command="{Binding AddKeyCommand}" Classes="accent" />
-        <Button Content="立即刷新全部" Command="{Binding RefreshAsyncCommand}" Classes="accent" />
+        <Button Content="立即刷新全部" Command="{Binding RefreshAsyncCommand}" Classes="accent"
+                Click="OnRefreshAllClick" />
       </StackPanel>
       <TextBlock Text="{Binding Message}" Classes="danger" TextWrapping="Wrap" />
     </StackPanel>

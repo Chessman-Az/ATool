@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using SkiaSharp;
 using ATool.Data;
 using ATool.Services;
 
@@ -59,12 +61,17 @@ public partial class BalanceChartViewModel : ObservableObject
 
     private void BuildAxes()
     {
+        // 坐标轴美化：文字浅灰、分隔线浅灰实线，X 轴显示日期（MM-dd）
+        var labelPaint = new SolidColorPaint(SKColor.Parse("#6B7280"));
+        var sepPaint = new SolidColorPaint(SKColor.Parse("#E4E8F0")) { StrokeThickness = 1 };
         XAxes = new[]
         {
             new Axis
             {
-                Labeler = v => new DateTime((long)v).ToString("MM-dd HH:mm"),
+                Labeler = v => new DateTime((long)v).ToString("MM-dd"),
                 TextSize = 11,
+                LabelsPaint = labelPaint,
+                SeparatorsPaint = sepPaint,
             }
         };
         YAxes = new[]
@@ -73,6 +80,8 @@ public partial class BalanceChartViewModel : ObservableObject
             {
                 Labeler = v => v.ToString("F2"),
                 TextSize = 11,
+                LabelsPaint = labelPaint,
+                SeparatorsPaint = sepPaint,
             }
         };
     }
@@ -105,14 +114,22 @@ public partial class BalanceChartViewModel : ObservableObject
         }
 
         var points = ChartDataConverter.BuildPoints(records);
+        var lineColor = SKColor.Parse("#3B6FE0");
         Series = new ISeries[]
         {
             new LineSeries<DateTimePoint>
             {
                 Values = points,
                 Name = item.Alias,
-                GeometrySize = 6,
-                LineSmoothness = 0.6,
+                GeometrySize = 7,
+                GeometryFill = new SolidColorPaint(SKColors.White),
+                GeometryStroke = new SolidColorPaint(lineColor) { StrokeThickness = 2 },
+                Stroke = new SolidColorPaint(lineColor) { StrokeThickness = 2.5f },
+                // 线下方淡蓝渐变填充
+                Fill = new LinearGradientPaint(
+                    new SKColor(59, 111, 224, 45),
+                    new SKColor(59, 111, 224, 0)),
+                LineSmoothness = 0.7,
             }
         };
         EmptyHint = "";
