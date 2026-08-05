@@ -62,4 +62,15 @@ public class FloatReminderTests
         settings.SetFloatReminderCorner(9); // 非法值
         Assert.Equal(0, settings.GetFloatReminderCorner());
     }
+
+    [Theory]
+    [InlineData(123u, "Progman", 456u, true)]   // 桌面
+    [InlineData(123u, "WorkerW", 456u, true)]   // 桌面（Win11）
+    [InlineData(456u, "ATool", 456u, true)]     // 本进程窗口（主窗口/浮窗自身）→ 不隐藏
+    [InlineData(123u, "Chrome_WidgetWin_1", 456u, false)] // 其他软件 → 隐藏
+    [InlineData(0u, "", 456u, true)]            // 无前台窗口 → 按桌面处理
+    public void IsForegroundVisible_桌面或本进程可见_其他软件隐藏(uint fgPid, string cls, uint ownPid, bool expected)
+    {
+        Assert.Equal(expected, FloatReminderService.IsForegroundVisible(fgPid, cls, ownPid));
+    }
 }

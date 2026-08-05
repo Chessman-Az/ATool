@@ -29,6 +29,7 @@ public sealed class FloatReminderService
     private double _targetX, _targetY;
     private bool _expanded;
     private bool _running;
+    private bool _visible;
     private Corner _corner = Corner.TopLeft;
     private int _hotStreak;
 
@@ -73,6 +74,7 @@ public sealed class FloatReminderService
                 _animTimer.Stop();
                 _refreshTimer.Stop();
                 _window.Hide();
+                _visible = false;
                 return;
             }
             _corner = (Corner)_settings.GetFloatReminderCorner();
@@ -80,6 +82,7 @@ public sealed class FloatReminderService
             _expanded = false;
             _hotStreak = 0;
             _window.Show();
+            _visible = true;
             _window.Width = WindowW;
             _window.Height = WindowH;
             PlaceWindow();
@@ -142,14 +145,19 @@ public sealed class FloatReminderService
         if (!_running) return;
         try
         {
-            // 只在桌面显示：前台窗口不是桌面（Progman/WorkerW）→ 隐藏浮窗
-            if (!IsDesktopForeground())
+            // 前台是本进程窗口（主窗口/浮窗自身）或桌面 → 显示；其他软件 → 隐藏
+            var visible = IsDesktopForeground();
+            if (visible && !_visible)
+            {
+                _window.Show();
+                _visible = true;
+            }
+            else if (!visible && _visible)
             {
                 _window.Hide();
-                return;
+                _visible = false;
             }
-            _window.Show();
-            if (_window.Width != WindowW) { _window.Width = WindowW; _window.Height = WindowH; }
+            if (!visible) return;
 
             var scr = Screen();
             GetCursorPos(out var pt);
@@ -230,6 +238,12 @@ public sealed class FloatReminderService
     [DllImport("user32.dll")]
     private static extern bool GetCursorPos(out POINT lpPoint);
 
+    [DllImport("user32.dll")]
+    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+    [DllImport("kernel32.dll")]
+    private static extern uint GetCurrentProcessId();
+
     [StructLayout(LayoutKind.Sequential)]
     private struct POINT
     {
@@ -237,14 +251,18 @@ public sealed class FloatReminderService
         public int Y;
     }
 
-    /// <summary>前台窗口是否为桌面（Progman / WorkerW）。句柄无效时按桌面处理（避免误隐藏）。</summary>
+    /// <summary>前台窗口是否可见浮窗（静态纯函数，可测）：本进程窗口（主窗口/浮窗自身）或桌面（Progman/WorkerW）→ 可见；其他软件 → 隐藏。</summary>
+    public static bool IsForegroundVisible(uint fgPid, string fgClass, uint ownPid)
+        => fgPid == 0 || fgPid == ownPid || fgClass is "Progman" or "WorkerW";
+
+    /// <summary>前台窗口是否允许浮窗显示（Win32 实读 + 纯函数判定）。</summary>
     private static bool IsDesktopForeground()
     {
         var h = GetForegroundWindow();
         if (h == IntPtr.Zero) return true;
+        GetWindowThreadProcessId(h, out var pid);
         var sb = new StringBuilder(256);
         GetClassName(h, sb, sb.Capacity);
-        var cls = sb.ToString();
-        return cls is "Progman" or "WorkerW";
+        return IsForegroundVisible(pid, sb.ToString(), GetCurrentProcessId());
     }
 }
