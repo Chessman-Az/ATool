@@ -19,14 +19,8 @@
     <Border DockPanel.Dock="Top" Background="{DynamicResource PrimaryBrush}" Padding="16,10">
       <DockPanel>
         <TextBlock Text="A工具" FontSize="16" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" />
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="10">
-          <Button Content="{Binding PeakStatusText}" FontSize="13" FontWeight="Bold"
-                  Background="White" Foreground="{DynamicResource PrimaryBrush}"
-                  Padding="16,6" Command="{Binding RefreshBalanceCommand}"
-                  ToolTip.Tip="DeepSeek 计价状态（点击刷新全部余额）" />
-          <TextBlock Text="正在刷新余额…" VerticalAlignment="Center" Foreground="#CCFFFFFF" FontSize="12"
-                     IsVisible="{Binding IsRefreshing}" />
-        </StackPanel>
+        <TextBlock DockPanel.Dock="Right" Text="正在刷新余额…" VerticalAlignment="Center" Foreground="#CCFFFFFF" FontSize="12"
+                   IsVisible="{Binding IsRefreshing}" />
       </DockPanel>
     </Border>
 

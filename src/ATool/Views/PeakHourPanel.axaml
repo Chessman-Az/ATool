@@ -1,44 +1,50 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="ATool.Views.PeakHourPanel">
-  <StackPanel Spacing="10">
-    <!-- 当前时段状态横幅 -->
-    <Border CornerRadius="10" Padding="16,12" Background="{Binding StatusBrush}">
-      <StackPanel Orientation="Horizontal" Spacing="12">
-        <TextBlock Text="{Binding StatusIcon}" FontSize="22" VerticalAlignment="Center" />
-        <StackPanel>
-          <TextBlock Text="{Binding StatusText}" FontSize="17" FontWeight="Bold" Foreground="White" />
-          <TextBlock Text="DeepSeek 峰谷计价 · 北京时间" FontSize="11" Foreground="#D9FFFFFF" />
-        </StackPanel>
-      </StackPanel>
-    </Border>
-
-    <!-- 时段表（可折叠） -->
-    <Expander Header="每日峰谷时段表（9:00-12:00 / 14:00-18:00 为高峰，2 倍价）" IsExpanded="True">
-      <StackPanel Spacing="6" Margin="0,10,0,4">
-        <ItemsControl ItemsSource="{Binding Periods}">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <Border CornerRadius="8" Padding="12,8" Margin="0,3" Background="#F4F6FA">
-                <Grid ColumnDefinitions="70,110,*,70">
-                  <TextBlock Text="{Binding Start, StringFormat='{}{0} 起'}" VerticalAlignment="Center" />
-                  <TextBlock Text="{Binding End, StringFormat='至 {0}'}" Grid.Column="1" VerticalAlignment="Center" Foreground="Gray" />
-                  <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                    <TextBlock Text="高峰时段" FontWeight="Bold" Foreground="#D64545" IsVisible="{Binding IsPeak}" />
-                    <TextBlock Text="低谷时段" FontWeight="Bold" Foreground="#2E9E5B"
-                               IsVisible="{Binding IsPeak, Converter={x:Static BoolConverters.Not}}" />
-                  </StackPanel>
-                  <TextBlock Grid.Column="3" Text="{Binding DisplayMultiplier}" HorizontalAlignment="Right"
-                             Foreground="Gray" VerticalAlignment="Center" />
-                </Grid>
-              </Border>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-        <Border CornerRadius="8" Padding="12,8" Margin="0,4,0,0" Background="#EFF6FF">
-          <TextBlock Text="{Binding PriceCompareText}" TextWrapping="Wrap" Foreground="#1E3A5F" FontSize="12" />
+  <!-- 峰谷状态按钮：点击弹出时段表悬浮框（Flyout） -->
+  <Button Background="{Binding StatusBrush}" CornerRadius="10" Padding="16,10"
+          HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+          Foreground="White" FontSize="13">
+    <Button.Flyout>
+      <Flyout Placement="Bottom" ShowMode="Standard">
+        <Border Background="{DynamicResource CardBrush}" CornerRadius="10" Padding="16" MinWidth="380">
+          <StackPanel Spacing="8">
+            <TextBlock Text="每日峰谷时段表（北京时间）" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextPrimaryBrush}" />
+            <TextBlock Text="高峰时段 API 价格为平时的 2 倍" FontSize="11"
+                       Foreground="{DynamicResource TextSecondaryBrush}" />
+            <ItemsControl ItemsSource="{Binding Periods}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border CornerRadius="8" Padding="12,7" Margin="0,3" Background="#F4F6FA">
+                    <Grid ColumnDefinitions="70,90,*,60">
+                      <TextBlock Text="{Binding Start, StringFormat='{}{0} 起'}" VerticalAlignment="Center" />
+                      <TextBlock Text="{Binding End, StringFormat='至 {0}'}" Grid.Column="1"
+                                 VerticalAlignment="Center" Foreground="Gray" />
+                      <TextBlock Grid.Column="2" FontWeight="Bold" VerticalAlignment="Center">
+                        <TextBlock.Text>
+                          <MultiBinding StringFormat="{}{0}">
+                            <Binding Path="IsPeak" />
+                          </MultiBinding>
+                        </TextBlock.Text>
+                      </TextBlock>
+                      <TextBlock Grid.Column="3" Text="{Binding DisplayMultiplier}" HorizontalAlignment="Right"
+                                 Foreground="Gray" VerticalAlignment="Center" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
         </Border>
+      </Flyout>
+    </Button.Flyout>
+    <StackPanel Orientation="Horizontal" Spacing="12">
+      <TextBlock Text="{Binding StatusIcon}" FontSize="22" VerticalAlignment="Center" />
+      <StackPanel>
+        <TextBlock Text="{Binding StatusText}" FontSize="16" FontWeight="Bold" />
+        <TextBlock Text="DeepSeek 峰谷计价 · 点击查看时段表" FontSize="11" Foreground="#D9FFFFFF" />
       </StackPanel>
-    </Expander>
-  </StackPanel>
+    </StackPanel>
+  </Button>
 </UserControl>

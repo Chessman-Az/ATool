@@ -6,25 +6,25 @@ using ATool.Models;
 
 namespace ATool.ViewModels;
 
-/// <summary>提醒列表：状态筛选（待提醒/已完成）+ 增删改入口。编辑面板由 MainWindow 呈现。</summary>
+/// <summary>提醒列表：状态筛选（待提醒/已完成）+ 增删改入口 + 圆圈点击完成。编辑面板由 MainWindow 呈现。</summary>
 public partial class ReminderListViewModel : ObservableObject
 {
     private readonly ReminderRepository _repo;
     private readonly ReminderEditViewModel _edit;
 
-    public ObservableCollection<Reminder> Items { get; } = [];
+    public ObservableCollection<ReminderItemVm> Items { get; } = [];
 
     [ObservableProperty]
     private ReminderStatus _filter = ReminderStatus.Pending;
 
     [ObservableProperty]
-    private Reminder? _selected;
+    private ReminderItemVm? _selected;
 
     /// <summary>请求打开编辑面板（参数：null=新建，Reminder=编辑）。</summary>
     public event Action<Reminder?>? EditRequested;
 
     /// <summary>请求删除确认（视图层弹 ConfirmDialog，确认后调 ConfirmDelete）。</summary>
-    public event Action<Reminder>? DeleteRequested;
+    public event Action<ReminderItemVm>? DeleteRequested;
 
     public event Action? ListChanged;
 
@@ -61,8 +61,18 @@ public partial class ReminderListViewModel : ObservableObject
     {
         Items.Clear();
         foreach (var r in _repo.GetAll(Filter))
-            Items.Add(r);
+            Items.Add(new ReminderItemVm(r, OnCompleteRequested));
     }
+
+    /// <summary>圆圈点击 → 标记完成（单次与周期提醒均适用），完成后刷新列表。</summary>
+    public void Complete(ReminderItemVm item)
+    {
+        _repo.SetStatus(item.Reminder.Id, ReminderStatus.Done);
+        item.Reminder.Status = ReminderStatus.Done;
+        Reload();
+    }
+
+    private void OnCompleteRequested(ReminderItemVm item) => Complete(item);
 
     [RelayCommand]
     private void FilterPending() => SetFilter(ReminderStatus.Pending);
@@ -82,20 +92,47 @@ public partial class ReminderListViewModel : ObservableObject
     [RelayCommand]
     private void Edit()
     {
-        if (Selected is { } r) EditRequested?.Invoke(r);
+        if (Selected is { } item) EditRequested?.Invoke(item.Reminder);
     }
 
     [RelayCommand]
     private void Delete()
     {
-        if (Selected is { } r) DeleteRequested?.Invoke(r);
+        if (Selected is { } item) DeleteRequested?.Invoke(item);
     }
 
     /// <summary>视图层确认后的实际删除。</summary>
-    public void ConfirmDelete(Reminder r)
+    public void ConfirmDelete(ReminderItemVm item)
     {
-        _repo.Delete(r.Id);
-        Items.Remove(r);
+        _repo.Delete(item.Reminder.Id);
+        Items.Remove(item);
         ListChanged?.Invoke();
     }
+}
+
+/// <summary>提醒列表项包装：圆圈完成命令 + 展示文本。</summary>
+public partial class ReminderItemVm : ObservableObject
+{
+    private readonly Action<ReminderItemVm> _onComplete;
+
+    public Reminder Reminder { get; }
+    public string Title => Reminder.Title;
+    public string TriggerTime => Reminder.TriggerTime;
+    public string TriggeredCountText => $"已触发 {Reminder.TriggeredCount} 次";
+    public string RepeatText => Reminder.RepeatType switch
+    {
+        RepeatType.Single => "单次",
+        RepeatType.Daily => "每日",
+        _ => "每周几"
+    };
+    public bool IsDone => Reminder.Status == ReminderStatus.Done;
+
+    public ReminderItemVm(Reminder r, Action<ReminderItemVm> onComplete)
+    {
+        Reminder = r;
+        _onComplete = onComplete;
+    }
+
+    [RelayCommand]
+    private void Complete() => _onComplete(this);
 }

@@ -62,10 +62,10 @@ public partial class MainWindow : Window
         dlg.ShowDialog(this);
     }
 
-    private void ConfirmDeleteReminder(Reminder r)
+    private void ConfirmDeleteReminder(ReminderItemVm item)
     {
-        var dlg = new ConfirmDialog { MessageText = $"确定删除提醒「{r.Title}」吗？" };
-        dlg.Confirmed += () => _vm?.Reminders.ConfirmDelete(r);
+        var dlg = new ConfirmDialog { MessageText = $"确定删除提醒「{item.Title}」吗？" };
+        dlg.Confirmed += () => _vm?.Reminders.ConfirmDelete(item);
         dlg.ShowDialog(this);
     }
 
