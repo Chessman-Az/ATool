@@ -5,64 +5,76 @@
   <UserControl.Resources>
     <views:EnumEqualsConverter x:Key="EnumEq" />
   </UserControl.Resources>
-  <Border BorderBrush="#22FFFFFF" BorderThickness="1" CornerRadius="8" Margin="8">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-      <StackPanel Margin="16" Spacing="10">
-        <TextBlock FontSize="16" FontWeight="Bold" Text="{Binding EditorTitle}" />
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="18" Spacing="12">
+      <TextBlock Text="{Binding EditorTitle}" Classes="h1" />
 
-        <TextBox Text="{Binding Title}" Watermark="标题（必填）" />
-        <TextBox Text="{Binding Description}" Watermark="描述（可选）" AcceptsReturn="True" Height="64" />
+      <StackPanel Spacing="6">
+        <TextBlock Text="标题" Classes="h2" />
+        <TextBox Text="{Binding Title}" Watermark="提醒标题（必填）" />
+      </StackPanel>
 
-        <TextBlock Text="重复规则" FontWeight="SemiBold" />
-        <StackPanel Orientation="Horizontal" Spacing="8">
+      <StackPanel Spacing="6">
+        <TextBlock Text="描述" Classes="h2" />
+        <TextBox Text="{Binding Description}" Watermark="描述（可选）" AcceptsReturn="True" Height="72" />
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock Text="重复规则" Classes="h2" />
+        <StackPanel Orientation="Horizontal" Spacing="10">
           <RadioButton Content="单次" IsChecked="{Binding IsSingle}" GroupName="RepeatType" />
           <RadioButton Content="每日" IsChecked="{Binding IsDaily}" GroupName="RepeatType" />
           <RadioButton Content="自定义每周几" IsChecked="{Binding IsWeekly}" GroupName="RepeatType" />
         </StackPanel>
+      </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Spacing="8"
-                    IsVisible="{Binding RepeatType, Converter={StaticResource EnumEq}, ConverterParameter=Weekly}">
-          <TextBlock Text="触发时间（HH:mm:ss）" VerticalAlignment="Center" />
-          <TextBox Text="{Binding TriggerTime}" Width="110" />
-        </StackPanel>
-
-        <ItemsControl ItemsSource="{Binding WeeklyItems}"
-                      IsVisible="{Binding RepeatType, Converter={StaticResource EnumEq}, ConverterParameter=Weekly}">
+      <StackPanel Spacing="6" IsVisible="{Binding RepeatType, Converter={StaticResource EnumEq}, ConverterParameter=Weekly}">
+        <TextBlock Text="每周触发（每个选中的日子可设独立时间）" Classes="h2" />
+        <ItemsControl ItemsSource="{Binding WeeklyItems}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,4">
-                <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Label}" Width="80" />
-                <TextBox Text="{Binding Time}" Width="100" IsEnabled="{Binding IsSelected}" Watermark="HH:mm:ss" />
+              <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,3">
+                <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Label}" Width="86" />
+                <TextBox Text="{Binding Time}" Width="110" IsEnabled="{Binding IsSelected}" Watermark="HH:mm:ss" />
               </StackPanel>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
+      </StackPanel>
 
-        <TextBlock Text="结束条件" FontWeight="SemiBold" />
-        <StackPanel Orientation="Horizontal" Spacing="8">
+      <StackPanel Spacing="6" IsVisible="{Binding RepeatType, Converter={StaticResource EnumEq}, ConverterParameter=Weekly}">
+        <TextBlock Text="触发时间（HH:mm:ss）" Classes="h2" />
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock Text="单次/每日触发时间（HH:mm:ss）" Classes="h2"
+                   IsVisible="{Binding RepeatType, Converter={StaticResource EnumEq}, ConverterParameter=Weekly}" />
+        <TextBox Text="{Binding TriggerTime}" Watermark="如 09:30:00" Width="140" HorizontalAlignment="Left"
+                 IsVisible="{Binding RepeatType, Converter={StaticResource EnumEq}, ConverterParameter=Weekly}" />
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock Text="结束条件" Classes="h2" />
+        <StackPanel Orientation="Horizontal" Spacing="10">
           <RadioButton Content="永不结束" IsChecked="{Binding IsNever}" GroupName="EndType" />
           <RadioButton Content="截止日期" IsChecked="{Binding IsDate}" GroupName="EndType" />
           <RadioButton Content="触发次数" IsChecked="{Binding IsTimes}" GroupName="EndType" />
         </StackPanel>
-
-        <StackPanel Orientation="Horizontal" Spacing="8"
-                    IsVisible="{Binding EndType, Converter={StaticResource EnumEq}, ConverterParameter=Date}">
-          <TextBlock Text="截止日期（yyyy-MM-dd）" VerticalAlignment="Center" />
-          <TextBox Text="{Binding EndValue}" Width="130" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="8"
-                    IsVisible="{Binding EndType, Converter={StaticResource EnumEq}, ConverterParameter=Times}">
-          <TextBlock Text="触发次数（正整数）" VerticalAlignment="Center" />
-          <TextBox Text="{Binding EndValue}" Width="100" />
-        </StackPanel>
-
-        <TextBlock Text="{Binding Error}" Foreground="#D64545" TextWrapping="Wrap" />
-
-        <StackPanel Orientation="Horizontal" Spacing="8">
-          <Button Content="保存" Command="{Binding SaveCommand}" Classes="accent" />
-          <Button Content="取消" Command="{Binding CancelCommand}" />
-        </StackPanel>
       </StackPanel>
-    </ScrollViewer>
-  </Border>
+
+      <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsDate}">
+        <TextBox Text="{Binding EndValue}" Watermark="yyyy-MM-dd" Width="140" />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsTimes}">
+        <TextBox Text="{Binding EndValue}" Watermark="正整数" Width="120" />
+      </StackPanel>
+
+      <TextBlock Text="{Binding Error}" Classes="danger" TextWrapping="Wrap" />
+
+      <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,6,0,0">
+        <Button Content="保存" Command="{Binding SaveCommand}" Classes="accent" />
+        <Button Content="取消" Command="{Binding CancelCommand}" />
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
 </UserControl>

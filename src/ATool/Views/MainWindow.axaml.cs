@@ -29,7 +29,6 @@ public partial class MainWindow : Window
             Activate();
         };
         vm.QuitRequested += ConfirmQuit;
-        vm.PeakHourRequested += () => new PeakHourWindow().ShowDialog(this);
 
         // 提醒：编辑面板打开 / 删除二次确认
         vm.Reminders.EditRequested += r => vm.Reminders.OpenEditor(r);

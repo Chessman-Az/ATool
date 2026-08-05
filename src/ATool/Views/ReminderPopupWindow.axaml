@@ -5,25 +5,30 @@
         Topmost="True"
         WindowStartupLocation="CenterScreen"
         SizeToContent="WidthAndHeight"
-        MinWidth="380" MaxWidth="560" MaxHeight="520"
-        Icon="/Assets/icon.ico">
-  <StackPanel Margin="16" Spacing="10">
-    <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" />
-    <ScrollViewer MaxHeight="420">
+        MinWidth="400" MaxWidth="580" MaxHeight="540"
+        Icon="/Assets/icon.ico"
+        Background="{DynamicResource BgBrush}">
+  <StackPanel Margin="14" Spacing="10">
+    <!-- 标题条 -->
+    <Border Background="{DynamicResource PrimaryBrush}" CornerRadius="8" Padding="14,9">
+      <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold" Foreground="White" />
+    </Border>
+    <ScrollViewer MaxHeight="430">
       <ItemsControl ItemsSource="{Binding Items}">
         <ItemsControl.ItemTemplate>
           <DataTemplate>
-            <Border BorderBrush="#33000000" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,8">
+            <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
               <StackPanel Spacing="8">
                 <StackPanel Orientation="Horizontal" Spacing="10">
                   <TextBlock Text="{Binding Item.Reminder.Title}" FontWeight="SemiBold" FontSize="15" />
-                  <TextBlock Text="{Binding DisplayTime}" Foreground="Gray" VerticalAlignment="Center" />
-                  <TextBlock Text="{Binding MissedText}" Foreground="#E6A23C" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding DisplayTime}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding MissedText}" Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center" />
                 </StackPanel>
-                <TextBlock Text="{Binding Item.Reminder.Description}" TextWrapping="Wrap" Foreground="#88000000"
+                <TextBlock Text="{Binding Item.Reminder.Description}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}"
                            IsVisible="{Binding Item.Reminder.Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                  <Button Content="完成" Command="{Binding CompleteCommand}" />
+                  <Button Content="完成" Command="{Binding CompleteCommand}" Classes="accent" />
                   <Button Content="延迟 5 分钟" Command="{Binding Snooze5Command}" />
                   <Button Content="15" Command="{Binding Snooze15Command}" />
                   <Button Content="30" Command="{Binding Snooze30Command}" />

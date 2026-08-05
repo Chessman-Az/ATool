@@ -2,30 +2,47 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="ATool.Views.ReminderListView">
   <DockPanel>
-    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="12,12,12,8">
-      <Button Content="待提醒" Command="{Binding FilterPendingCommand}" Classes="accent" />
-      <Button Content="已完成" Command="{Binding FilterDoneCommand}" />
-      <Button Content="＋ 添加" Command="{Binding AddCommand}" HorizontalAlignment="Right" />
-      <Button Content="编辑" Command="{Binding EditCommand}" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}" />
-      <Button Content="删除" Command="{Binding DeleteCommand}" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}" />
-    </StackPanel>
-    <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" Margin="4">
+    <Border DockPanel.Dock="Top" Margin="12,12,12,10" Padding="10"
+            Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+            BorderThickness="1" CornerRadius="{DynamicResource CardRadius}">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Content="待提醒" Command="{Binding FilterPendingCommand}" Classes="accent" />
+        <Button Content="已完成" Command="{Binding FilterDoneCommand}" />
+        <TextBlock VerticalAlignment="Center" Margin="8,0,0,0" Classes="hint"
+                   Text="{Binding Items.Count, StringFormat='共 {0} 条'}" />
+        <Button Content="＋ 添加" Command="{Binding AddCommand}" HorizontalAlignment="Right" Margin="16,0,0,0" Classes="accent" />
+        <Button Content="编辑" Command="{Binding EditCommand}" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        <Button Content="删除" Command="{Binding DeleteCommand}" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}" Classes="danger" />
+      </StackPanel>
+    </Border>
+    <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" Margin="6,0,6,6">
       <ListBox.ItemTemplate>
         <DataTemplate>
-          <StackPanel Spacing="2" Margin="4,6">
-            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14" />
-            <StackPanel Orientation="Horizontal" Spacing="10">
-              <TextBlock Text="{Binding TriggerTime}" Foreground="Gray" />
-              <TextBlock Foreground="Gray">
-                <TextBlock.Text>
-                  <MultiBinding StringFormat="{}{0}">
-                    <Binding Path="RepeatType" />
-                  </MultiBinding>
-                </TextBlock.Text>
-              </TextBlock>
-              <TextBlock Text="{Binding TriggeredCount, StringFormat='已触发 {0} 次'}" Foreground="Gray" />
-            </StackPanel>
-          </StackPanel>
+          <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                  BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,3">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Spacing="3">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                  <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
+                             Foreground="{DynamicResource TextPrimaryBrush}" />
+                  <Border Background="{DynamicResource PrimarySoftBrush}" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                    <TextBlock Classes="hint" Foreground="{DynamicResource PrimaryBrush}">
+                      <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0}">
+                          <Binding Path="RepeatType" />
+                        </MultiBinding>
+                      </TextBlock.Text>
+                    </TextBlock>
+                  </Border>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="14">
+                  <TextBlock Text="{Binding TriggerTime}" Classes="hint" />
+                  <TextBlock Text="{Binding TriggeredCount, StringFormat='已触发 {0} 次'}" Classes="hint" />
+                </StackPanel>
+              </StackPanel>
+              <TextBlock Grid.Column="1" VerticalAlignment="Center" Classes="hint" Text="{Binding Status}" />
+            </Grid>
+          </Border>
         </DataTemplate>
       </ListBox.ItemTemplate>
     </ListBox>

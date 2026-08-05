@@ -131,7 +131,8 @@ public partial class ReminderEditViewModel : ObservableObject
         return true;
     }
 
-    public void Save()
+    [RelayCommand]
+    private void Save()
     {
         if (!Validate()) return;
         var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
