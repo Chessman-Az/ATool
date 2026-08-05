@@ -72,27 +72,38 @@
             </Border>
             <Border DockPanel.Dock="Top" Margin="0,0,0,8" Background="{DynamicResource CardBrush}" CornerRadius="10"
                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,8">
-              <StackPanel Spacing="4">
+              <StackPanel Spacing="8">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                   <TextBlock Text="全部余额" Classes="h2" VerticalAlignment="Center" />
                   <TextBlock Text="{Binding ApiKeys.TotalBalance, StringFormat='¥{0:F2}'}" FontSize="17"
                              FontWeight="Bold" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" />
                 </StackPanel>
+                <!-- 每个别名一个长方形框，自动换行 -->
                 <ItemsControl ItemsSource="{Binding ApiKeys.Keys}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                      <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Text="{Binding Alias}" Classes="hint" />
-                        <TextBlock Text="{Binding BalanceText, StringFormat='¥{0}'}" Classes="hint"
-                                   Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" />
-                      </StackPanel>
+                      <Border Width="200" Background="{DynamicResource PrimarySoftBrush}"
+                              BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                              CornerRadius="8" Padding="14,7" Margin="0,0,8,8">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                          <TextBlock Text="{Binding Alias}" FontSize="13" FontWeight="SemiBold"
+                                     Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" />
+                          <TextBlock Text="{Binding BalanceText, StringFormat='¥{0}'}" FontSize="13" FontWeight="Bold"
+                                     Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" />
+                        </StackPanel>
+                      </Border>
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
               </StackPanel>
             </Border>
             <Border DockPanel.Dock="Top" Margin="0,0,0,8" Background="{DynamicResource CardBrush}" CornerRadius="10"
-                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="8" MaxHeight="220">
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="8">
               <views:ApiKeyPanel DataContext="{Binding ApiKeys}" />
             </Border>
             <Grid ColumnDefinitions="1*,1*">
@@ -140,7 +151,7 @@
                          HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Border>
             <TextBlock Text="A工具" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" />
-            <TextBlock Text="版本 6.55" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
+            <TextBlock Text="版本 7.0" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
             <TextBlock Text="作者：小泽" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
           </StackPanel>
         </Border>

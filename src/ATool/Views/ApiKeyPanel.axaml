@@ -12,26 +12,44 @@
       <TextBlock Text="{Binding Message}" Classes="danger" TextWrapping="Wrap" />
     </StackPanel>
 
+    <!-- 每个 Key 一个长方形框（WrapPanel 自动换行，不滚动）；点击框选中 → 图表/明细联动 -->
     <ListBox ItemsSource="{Binding Keys}" SelectedItem="{Binding SelectedKey}">
+      <ListBox.ItemsPanel>
+        <ItemsPanelTemplate>
+          <WrapPanel />
+        </ItemsPanelTemplate>
+      </ListBox.ItemsPanel>
+      <ListBox.Styles>
+        <Style Selector="ListBoxItem">
+          <Setter Property="Padding" Value="0" />
+          <Setter Property="Margin" Value="2" />
+        </Style>
+      </ListBox.Styles>
       <ListBox.ItemTemplate>
         <DataTemplate>
-          <Grid ColumnDefinitions="*,Auto,Auto" Margin="2,2">
-            <!-- 左侧：信息 -->
-            <StackPanel Spacing="4" VerticalAlignment="Center">
-              <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBlock Text="{Binding Alias}" FontWeight="SemiBold" FontSize="14" />
-                <TextBlock Text="{Binding BalanceText, StringFormat='余额 ¥{0}'}" FontSize="14"
-                           Foreground="{DynamicResource PrimaryBrush}" FontWeight="SemiBold" />
-                <TextBlock Text="{Binding DeltaText, StringFormat='({0})'}" Classes="hint" />
+          <Border Width="330" Background="{DynamicResource CardBrush}"
+                  BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                  CornerRadius="8" Padding="12,8">
+            <DockPanel>
+              <!-- 右侧：独立刷新 + 删除 -->
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                <Button Content="刷新" Command="{Binding RefreshCommand}"
+                        FontSize="11" Padding="10,4" />
+                <Button Content="删除" Command="{Binding DeleteCommand}" Classes="danger"
+                        FontSize="11" Padding="10,4" />
               </StackPanel>
-              <TextBlock Text="{Binding LastError}" Classes="danger" TextWrapping="Wrap" />
-            </StackPanel>
-            <!-- 右侧：独立刷新 + 删除（最右） -->
-            <Button Grid.Column="1" Content="刷新" Command="{Binding RefreshCommand}"
-                    FontSize="11" Padding="12,4" Margin="8,0,0,0" VerticalAlignment="Center" />
-            <Button Grid.Column="2" Content="删除" Command="{Binding DeleteCommand}" Classes="danger"
-                    FontSize="11" Padding="12,4" Margin="8,0,0,0" VerticalAlignment="Center" />
-          </Grid>
+              <!-- 左侧：信息 -->
+              <StackPanel Spacing="3" VerticalAlignment="Center" Margin="0,0,10,0">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                  <TextBlock Text="{Binding Alias}" FontWeight="SemiBold" FontSize="13" />
+                  <TextBlock Text="{Binding BalanceText, StringFormat='余额 ¥{0}'}" FontSize="13"
+                             Foreground="{DynamicResource PrimaryBrush}" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding DeltaText, StringFormat='({0})'}" Classes="hint" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock Text="{Binding LastError}" Classes="danger" TextWrapping="Wrap" />
+              </StackPanel>
+            </DockPanel>
+          </Border>
         </DataTemplate>
       </ListBox.ItemTemplate>
     </ListBox>
