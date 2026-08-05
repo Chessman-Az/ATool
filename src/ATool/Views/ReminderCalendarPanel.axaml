@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ATool.Views.ReminderCalendarPanel">
+  <Border Background="{DynamicResource CardBrush}" CornerRadius="10"
+          BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12">
+    <DockPanel>
+      <!-- 月份导航 -->
+      <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="14"
+                  HorizontalAlignment="Center" Margin="0,0,0,10">
+        <Button Content="◀" Command="{Binding PrevMonthCommand}" Padding="10,4" />
+        <TextBlock Text="{Binding MonthTitle}" FontSize="15" FontWeight="SemiBold"
+                   VerticalAlignment="Center" MinWidth="96" TextAlignment="Center" />
+        <Button Content="▶" Command="{Binding NextMonthCommand}" Padding="10,4" />
+      </StackPanel>
+
+      <!-- 星期表头 -->
+      <UniformGrid DockPanel.Dock="Top" Columns="7" Margin="0,0,0,4">
+        <TextBlock Text="一" Classes="hint" TextAlignment="Center" />
+        <TextBlock Text="二" Classes="hint" TextAlignment="Center" />
+        <TextBlock Text="三" Classes="hint" TextAlignment="Center" />
+        <TextBlock Text="四" Classes="hint" TextAlignment="Center" />
+        <TextBlock Text="五" Classes="hint" TextAlignment="Center" />
+        <TextBlock Text="六" Classes="hint" TextAlignment="Center" />
+        <TextBlock Text="日" Classes="hint" TextAlignment="Center" Foreground="#D64545" />
+      </UniformGrid>
+
+      <!-- 日历网格（42 格） -->
+      <ItemsControl ItemsSource="{Binding Days}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <UniformGrid Columns="7" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Button Command="{Binding SelectCommand}" Background="Transparent" BorderThickness="0"
+                    Padding="4,3" HorizontalContentAlignment="Center" IsEnabled="{Binding HasDate}">
+              <StackPanel Spacing="3" HorizontalAlignment="Center">
+                <TextBlock Text="{Binding DayNumberText}" FontSize="12" TextAlignment="Center"
+                           Foreground="{DynamicResource TextPrimaryBrush}" />
+                <Ellipse Width="5" Height="5" Fill="{DynamicResource PrimaryBrush}"
+                         IsVisible="{Binding IsMarked}" />
+              </StackPanel>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </DockPanel>
+  </Border>
+</UserControl>

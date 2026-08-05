@@ -31,9 +31,10 @@ public partial class MainWindow : Window
         };
         vm.QuitRequested += ConfirmQuit;
 
-        // 提醒：编辑面板打开 / 删除二次确认
+        // 提醒：编辑面板打开 / 删除二次确认 / 日历日期联动
         vm.Reminders.EditRequested += r => vm.Reminders.OpenEditor(r);
         vm.Reminders.DeleteRequested += ConfirmDeleteReminder;
+        vm.Calendar.SelectedDateChanged += d => vm.Reminders.SetDateFilter(d);
 
         // Key：删除二次确认 / 余额变动明细页
         vm.ApiKeys.DeleteRequested += ConfirmDeleteKey;

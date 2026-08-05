@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ATool.Data;
 using ATool.Models;
+using ATool.Services;
 
 namespace ATool.ViewModels;
 
@@ -60,8 +61,20 @@ public partial class ReminderListViewModel : ObservableObject
     public void Reload()
     {
         Items.Clear();
-        foreach (var r in _repo.GetAll(Filter))
+        var all = _repo.GetAll(Filter);
+        if (_dateFilter is { } d)
+            all = all.Where(r => ReminderCalendarService.GetMonthTriggerDates(new[] { r }, d.Year, d.Month).Contains(d)).ToList();
+        foreach (var r in all)
             Items.Add(new ReminderItemVm(r, OnCompleteRequested));
+    }
+
+    private DateOnly? _dateFilter;
+
+    /// <summary>日历联动：按日期过滤（null=不过滤）；叠加在状态筛选之上。</summary>
+    public void SetDateFilter(DateOnly? date)
+    {
+        _dateFilter = date;
+        Reload();
     }
 
     /// <summary>圆圈点击 → 在「完成 / 未完成」间切换；完成后刷新列表（与当前筛选一致）。</summary>

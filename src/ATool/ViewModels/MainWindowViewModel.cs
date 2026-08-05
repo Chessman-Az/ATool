@@ -17,6 +17,7 @@ public partial class MainWindowViewModel : ObservableObject
     public SettingsViewModel Settings { get; }
     public BalanceChartViewModel Chart { get; }
     public PeakHourViewModel PeakHour { get; } = new();
+    public ReminderCalendarViewModel Calendar { get; }
 
     public event Action? ShowWindowRequested;
     public event Action? QuitRequested;
@@ -31,13 +32,14 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private string _peakStatusText = "";
 
-    public MainWindowViewModel(BalanceService balance, ReminderListViewModel reminders, ApiKeysViewModel apiKeys, SettingsViewModel settings, BalanceChartViewModel chart)
+    public MainWindowViewModel(BalanceService balance, ReminderListViewModel reminders, ApiKeysViewModel apiKeys, SettingsViewModel settings, BalanceChartViewModel chart, ReminderCalendarViewModel calendar)
     {
         _balance = balance;
         Reminders = reminders;
         ApiKeys = apiKeys;
         Settings = settings;
         Chart = chart;
+        Calendar = calendar;
         RefreshPeakStatus();
         _balance.StateChanged += () => OnPropertyChanged(nameof(IsRefreshing));
     }

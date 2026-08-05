@@ -41,18 +41,24 @@
 
       <!-- 右侧内容区（按 NavIndex 切换） -->
       <Grid Grid.Column="1" Margin="12,0,0,0">
-        <!-- 提醒事项 -->
+        <!-- 提醒事项：日历（上）+ 列表/编辑（下） -->
         <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=0}">
-          <Grid ColumnDefinitions="3*,2*">
-            <Border Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="1" Padding="8">
-              <views:ReminderListView DataContext="{Binding Reminders}" />
+          <Grid RowDefinitions="Auto,*">
+            <Border Grid.Row="0" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="10">
+              <views:ReminderCalendarPanel DataContext="{Binding Calendar}" />
             </Border>
-            <Border Grid.Column="1" Margin="10,0,0,0" Background="{DynamicResource CardBrush}" CornerRadius="10"
-                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                    IsVisible="{Binding Reminders.IsEditorOpen}">
-              <views:ReminderEditorPanel DataContext="{Binding Reminders.Editor}" />
-            </Border>
+            <Grid Grid.Row="1" Margin="0,10,0,0" ColumnDefinitions="3*,2*">
+              <Border Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
+                      BorderThickness="1" Padding="8">
+                <views:ReminderListView DataContext="{Binding Reminders}" />
+              </Border>
+              <Border Grid.Column="1" Margin="10,0,0,0" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                      BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                      IsVisible="{Binding Reminders.IsEditorOpen}">
+                <views:ReminderEditorPanel DataContext="{Binding Reminders.Editor}" />
+              </Border>
+            </Grid>
           </Grid>
         </Grid>
 

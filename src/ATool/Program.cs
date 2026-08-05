@@ -70,6 +70,7 @@ internal static class Program
         // 表现层 VM
     services.AddSingleton<ReminderEditViewModel>();
     services.AddSingleton<ReminderListViewModel>();
+    services.AddSingleton<ReminderCalendarViewModel>();
     services.AddSingleton<ApiKeysViewModel>();
     services.AddSingleton<SettingsViewModel>();
     services.AddSingleton<BalanceChartViewModel>();
