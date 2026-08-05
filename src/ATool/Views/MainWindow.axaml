@@ -106,36 +106,17 @@
             </Grid>
           </DockPanel>
 
-          <!-- 刷新中：界面中央旋转圆圈（半透明遮罩 + 旋转圆环动画） -->
+          <!-- 刷新中：界面中央旋转圆圈（半透明遮罩 + 代码驱动的旋转圆环） -->
           <Grid Background="#33FFFFFF" IsVisible="{Binding IsRefreshing}">
-            <Path Width="46" Height="46" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="5"
-                  StrokeDashArray="28 44" StrokeLineCap="Round"
+            <Path x:Name="RefreshSpinner" Width="46" Height="46" Stroke="{DynamicResource PrimaryBrush}"
+                  StrokeThickness="5" StrokeDashArray="28,44" StrokeLineCap="Round"
                   RenderTransformOrigin="50%,50%" HorizontalAlignment="Center" VerticalAlignment="Center">
               <Path.Data>
                 <EllipseGeometry RadiusX="20" RadiusY="20" />
               </Path.Data>
-              <Path.Styles>
-                <Style>
-                  <Style.Animations>
-                    <Animation Duration="0:0:0.8" RepeatCount="infinite">
-                      <KeyFrame Cue="0%">
-                        <Setter Property="RenderTransform">
-                          <Setter.Value>
-                            <RotateTransform Angle="0" />
-                          </Setter.Value>
-                        </Setter>
-                      </KeyFrame>
-                      <KeyFrame Cue="100%">
-                        <Setter Property="RenderTransform">
-                          <Setter.Value>
-                            <RotateTransform Angle="360" />
-                          </Setter.Value>
-                        </Setter>
-                      </KeyFrame>
-                    </Animation>
-                  </Style.Animations>
-                </Style>
-              </Path.Styles>
+              <Path.RenderTransform>
+                <RotateTransform Angle="0" />
+              </Path.RenderTransform>
             </Path>
           </Grid>
         </Grid>

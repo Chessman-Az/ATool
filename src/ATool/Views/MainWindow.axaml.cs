@@ -1,4 +1,6 @@
 using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using ATool.Models;
 using ATool.ViewModels;
@@ -9,6 +11,8 @@ public partial class MainWindow : Window
 {
     private MainWindowViewModel? _vm;
     private bool _quitting;
+    private readonly DispatcherTimer _spinnerTimer = new() { Interval = TimeSpan.FromMilliseconds(16) };
+    private double _spinnerAngle;
 
     public MainWindow()
     {
@@ -18,6 +22,13 @@ public partial class MainWindow : Window
         var exe = Environment.ProcessPath ?? typeof(MainWindow).Assembly.Location;
         var stamp = File.GetLastWriteTime(exe).ToString("MM-dd HH:mm");
         Title = $"A工具 v{stamp}";
+        // 刷新中：中央圆圈旋转动画（代码驱动，Avalonia 声明式动画对 RenderTransform 不支持）
+        _spinnerTimer.Tick += (_, _) =>
+        {
+            _spinnerAngle = (_spinnerAngle + 6) % 360;
+            if (RefreshSpinner.RenderTransform is RotateTransform rt)
+                rt.Angle = _spinnerAngle;
+        };
         Closing += OnClosing;
         Opened += OnOpened;
     }
@@ -35,6 +46,15 @@ public partial class MainWindow : Window
             Activate();
         };
         vm.QuitRequested += ConfirmQuit;
+        // 刷新动画开关
+        vm.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(MainWindowViewModel.IsRefreshing))
+            {
+                if (vm.IsRefreshing) _spinnerTimer.Start();
+                else { _spinnerTimer.Stop(); _spinnerAngle = 0; }
+            }
+        };
 
         // 提醒：编辑面板打开 / 删除二次确认 / 日历日期联动
         vm.Reminders.EditRequested += r => vm.Reminders.OpenEditor(r);
