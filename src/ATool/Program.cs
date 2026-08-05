@@ -9,6 +9,9 @@ namespace ATool;
 
 internal static class Program
 {
+    /// <summary>DI 容器（App 启动时构建；视图层解析服务用）。</summary>
+    public static IServiceProvider? Services { get; private set; }
+
     // 默认日志目录：%APPDATA%\ATool\logs（可在设置中修改，修改时重建 Logger）
     public static string LogDirectory { get; private set; } =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ATool", "logs");
@@ -72,7 +75,9 @@ internal static class Program
     services.AddSingleton<BalanceChartViewModel>();
     services.AddSingleton<MainWindowViewModel>();
 
-        return services.BuildServiceProvider();
+        var provider = services.BuildServiceProvider();
+        Services = provider;
+        return provider;
     }
 
     public static AppBuilder BuildAvaloniaApp()

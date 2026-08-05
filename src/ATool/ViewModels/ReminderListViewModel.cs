@@ -15,7 +15,7 @@ public partial class ReminderListViewModel : ObservableObject
     public ObservableCollection<ReminderItemVm> Items { get; } = [];
 
     [ObservableProperty]
-    private ReminderStatus _filter = ReminderStatus.Pending;
+    private ReminderStatus? _filter = ReminderStatus.Pending;
 
     [ObservableProperty]
     private ReminderItemVm? _selected;
@@ -76,12 +76,15 @@ public partial class ReminderListViewModel : ObservableObject
     private void OnCompleteRequested(ReminderItemVm item) => ToggleComplete(item);
 
     [RelayCommand]
+    private void FilterAll() => SetFilter(null);
+
+    [RelayCommand]
     private void FilterPending() => SetFilter(ReminderStatus.Pending);
 
     [RelayCommand]
     private void FilterDone() => SetFilter(ReminderStatus.Done);
 
-    private void SetFilter(ReminderStatus status)
+    private void SetFilter(ReminderStatus? status)
     {
         Filter = status;
         Reload();

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using ATool.Models;
 using ATool.ViewModels;
 
@@ -34,8 +35,13 @@ public partial class MainWindow : Window
         vm.Reminders.EditRequested += r => vm.Reminders.OpenEditor(r);
         vm.Reminders.DeleteRequested += ConfirmDeleteReminder;
 
-        // Key：删除二次确认
+        // Key：删除二次确认 / 余额变动明细页
         vm.ApiKeys.DeleteRequested += ConfirmDeleteKey;
+        vm.ApiKeys.HistoryRequested += item =>
+        {
+            var repo = Program.Services.GetRequiredService<Data.BalanceHistoryRepository>();
+            new BalanceHistoryWindow(repo, item?.Key.Id, item?.Alias).ShowDialog(this);
+        };
 
         vm.LoadAll();
     }

@@ -28,4 +28,12 @@ public sealed class BalanceHistoryRepository(Db db)
             "SELECT * FROM balance_history WHERE api_key_id=@id AND queried_at >= @from AND queried_at <= @to ORDER BY queried_at",
             new { id = apiKeyId, from = from.ToString("yyyy-MM-dd HH:mm:ss"), to = to.ToString("yyyy-MM-dd HH:mm:ss") }).ToList();
     }
+
+    /// <summary>全部余额记录 + Key 别名（明细页用；Alias 由 JOIN 注入）。</summary>
+    public List<BalanceRecord> GetAllWithAlias()
+    {
+        using var conn = db.GetConnection();
+        return conn.Query<BalanceRecord>(
+            "SELECT h.*, k.alias AS Alias FROM balance_history h JOIN api_keys k ON h.api_key_id = k.id ORDER BY h.queried_at").ToList();
+    }
 }

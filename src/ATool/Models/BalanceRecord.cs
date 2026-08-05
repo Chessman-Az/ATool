@@ -11,4 +11,7 @@ public sealed class BalanceRecord
     public string Currency { get; set; } = "CNY";
     public string QueriedAt { get; set; } = ""; // yyyy-MM-dd HH:mm:ss
     public decimal? Delta { get; set; }
+
+    /// <summary>查询时 JOIN 注入的 Key 别名（不落库）。</summary>
+    public string? Alias { get; set; }
 }

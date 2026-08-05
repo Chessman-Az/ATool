@@ -56,18 +56,18 @@
           </Grid>
         </Grid>
 
-        <!-- DeepSeek 余额 -->
+        <!-- DeepSeek 余额：纵向排列（峰谷条 → Key 列表 → 图表紧跟下方） -->
         <DockPanel IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=1}">
           <Border DockPanel.Dock="Top" Margin="0,0,0,10" Background="{DynamicResource CardBrush}" CornerRadius="10"
                   BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12,8">
             <views:PeakHourPanel DataContext="{Binding PeakHour}" />
           </Border>
-          <Grid ColumnDefinitions="5*,7*">
-            <Border Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="1" Padding="8">
+          <Grid RowDefinitions="Auto,*">
+            <Border Grid.Row="0" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="8">
               <views:ApiKeyPanel DataContext="{Binding ApiKeys}" />
             </Border>
-            <Border Grid.Column="1" Margin="10,0,0,0" Background="{DynamicResource CardBrush}" CornerRadius="10"
+            <Border Grid.Row="1" Margin="0,10,0,0" Background="{DynamicResource CardBrush}" CornerRadius="10"
                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="10">
               <views:BalanceChartView DataContext="{Binding Chart}" />
             </Border>

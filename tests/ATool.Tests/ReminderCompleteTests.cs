@@ -62,6 +62,20 @@ public class ReminderCompleteTests
     }
 
     [Fact]
+    public void FilterAll_包含待提醒与已完成()
+    {
+        var (db, repo, vm) = Create();
+        var a = repo.Insert(NewReminder("A"));
+        var b = repo.Insert(NewReminder("B"));
+        repo.SetStatus(a, ReminderStatus.Done);
+        vm.Reload(); // 默认待提醒筛选：只含 B
+        Assert.Single(vm.Items);
+
+        vm.FilterAllCommand.Execute(null);
+        Assert.Equal(2, vm.Items.Count); // 全部：A(已完成) + B(待提醒)
+    }
+
+    [Fact]
     public void Complete_只影响目标提醒()
     {
         var (db, repo, vm) = Create();

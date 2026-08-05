@@ -9,6 +9,8 @@
         <Button Content="添加 Key" Command="{Binding AddKeyCommand}" Classes="accent" />
         <Button Content="立即刷新全部" Command="{Binding RefreshAsyncCommand}"
                 IsEnabled="{Binding IsRefreshing, Converter={x:Static BoolConverters.Not}}" />
+        <Button Content="查询余额" Command="{Binding OpenHistoryCommand}" Classes="accent"
+                ToolTip.Tip="查看余额变动明细（选中 Key 或全部）" />
       </StackPanel>
       <TextBlock Text="{Binding Message}" Classes="danger" TextWrapping="Wrap" />
     </StackPanel>
