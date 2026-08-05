@@ -34,11 +34,31 @@ public class ReminderCompleteTests
         vm.Reload();
         var item = Assert.Single(vm.Items);
 
-        vm.Complete(item);
+        vm.ToggleComplete(item);
 
         Assert.Equal(ReminderStatus.Done, repo.Get(id)!.Status);
         vm.Reload();
         Assert.DoesNotContain(vm.Items, i => i.Reminder.Id == id);
+    }
+
+    [Fact]
+    public void ToggleComplete_完成后再点_还原为待提醒()
+    {
+        var (db, repo, vm) = Create();
+        var id = repo.Insert(NewReminder());
+        vm.Reload();
+        var item = vm.Items.First();
+
+        vm.ToggleComplete(item); // 完成
+        Assert.Equal(ReminderStatus.Done, repo.Get(id)!.Status);
+
+        vm.Reload(); // 待提醒列表已移除
+        Assert.DoesNotContain(vm.Items, i => i.Reminder.Id == id);
+
+        vm.FilterDoneCommand.Execute(null); // 切到已完成筛选
+        var doneItem = vm.Items.First(i => i.Reminder.Id == id);
+        vm.ToggleComplete(doneItem); // 还原为待提醒
+        Assert.Equal(ReminderStatus.Pending, repo.Get(id)!.Status);
     }
 
     [Fact]
@@ -49,7 +69,7 @@ public class ReminderCompleteTests
         var b = repo.Insert(NewReminder("B"));
         vm.Reload();
 
-        vm.Complete(vm.Items.First(i => i.Reminder.Id == a));
+        vm.ToggleComplete(vm.Items.First(i => i.Reminder.Id == a));
 
         Assert.Equal(ReminderStatus.Done, repo.Get(a)!.Status);
         Assert.Equal(ReminderStatus.Pending, repo.Get(b)!.Status);

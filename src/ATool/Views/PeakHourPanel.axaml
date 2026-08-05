@@ -1,10 +1,11 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="ATool.Views.PeakHourPanel">
-  <!-- 峰谷状态按钮：点击弹出时段表悬浮框（Flyout）。hover 保持状态色（局部样式覆盖全局 hover 样式） -->
+  <!-- 峰谷状态按钮：点击弹出时段表悬浮框（Flyout）。hover 保持状态色与白字（覆盖全局 hover 样式） -->
   <UserControl.Styles>
     <Style Selector="Button.peak:pointerover /template/ ContentPresenter">
       <Setter Property="Background" Value="{Binding StatusBrush}" />
+      <Setter Property="Foreground" Value="White" />
     </Style>
   </UserControl.Styles>
   <Button Classes="peak" Background="{Binding StatusBrush}" CornerRadius="10" Padding="16,10"

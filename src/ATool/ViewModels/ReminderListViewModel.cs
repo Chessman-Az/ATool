@@ -64,15 +64,16 @@ public partial class ReminderListViewModel : ObservableObject
             Items.Add(new ReminderItemVm(r, OnCompleteRequested));
     }
 
-    /// <summary>圆圈点击 → 标记完成（单次与周期提醒均适用），完成后刷新列表。</summary>
-    public void Complete(ReminderItemVm item)
+    /// <summary>圆圈点击 → 在「完成 / 未完成」间切换；完成后刷新列表（与当前筛选一致）。</summary>
+    public void ToggleComplete(ReminderItemVm item)
     {
-        _repo.SetStatus(item.Reminder.Id, ReminderStatus.Done);
-        item.Reminder.Status = ReminderStatus.Done;
+        var newStatus = item.IsDone ? ReminderStatus.Pending : ReminderStatus.Done;
+        _repo.SetStatus(item.Reminder.Id, newStatus);
+        item.Reminder.Status = newStatus;
         Reload();
     }
 
-    private void OnCompleteRequested(ReminderItemVm item) => Complete(item);
+    private void OnCompleteRequested(ReminderItemVm item) => ToggleComplete(item);
 
     [RelayCommand]
     private void FilterPending() => SetFilter(ReminderStatus.Pending);

@@ -21,6 +21,10 @@ public partial class MainWindowViewModel : ObservableObject
     public event Action? ShowWindowRequested;
     public event Action? QuitRequested;
 
+    /// <summary>左侧导航选中项：0=提醒事项 1=DeepSeek 余额 2=系统设置。</summary>
+    [ObservableProperty]
+    private int _navIndex;
+
     [ObservableProperty]
     private bool _isPeakHour;
 

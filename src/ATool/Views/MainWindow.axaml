@@ -11,7 +11,7 @@
         Icon="/Assets/icon.ico">
 
   <Window.Resources>
-    <views:BoolToPeakBrushConverter x:Key="PeakBrush" />
+    <views:EnumEqualsConverter x:Key="NavEq" />
   </Window.Resources>
 
   <DockPanel>
@@ -24,28 +24,47 @@
       </DockPanel>
     </Border>
 
-    <!-- 内容区 -->
-    <TabControl Margin="12,10,12,12">
-      <TabItem Header="提醒事项">
-        <Grid ColumnDefinitions="3*,2*">
-          <Border Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="8">
-            <views:ReminderListView DataContext="{Binding Reminders}" />
-          </Border>
-          <Border Grid.Column="1" Margin="10,0,0,0" Background="{DynamicResource CardBrush}" CornerRadius="10"
-                  BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                  IsVisible="{Binding Reminders.IsEditorOpen}">
-            <views:ReminderEditorPanel DataContext="{Binding Reminders.Editor}" />
-          </Border>
-        </Grid>
-      </TabItem>
-      <TabItem Header="DeepSeek 余额">
+    <!-- 左侧导航 + 右侧内容 -->
+    <Grid Margin="12,10,12,12" ColumnDefinitions="180,*">
+      <!-- 左导航列 -->
+      <Border Grid.Column="0" Background="{DynamicResource CardBrush}" CornerRadius="10"
+              BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="8">
         <DockPanel>
+          <TextBlock DockPanel.Dock="Top" Text="功能导航" Classes="hint" Margin="12,6,12,8" />
+          <ListBox SelectedIndex="{Binding NavIndex}" Background="Transparent" FontSize="14">
+            <ListBoxItem Content="提醒事项" />
+            <ListBoxItem Content="DeepSeek 余额" />
+            <ListBoxItem Content="系统设置" />
+          </ListBox>
+        </DockPanel>
+      </Border>
+
+      <!-- 右侧内容区（按 NavIndex 切换） -->
+      <Grid Grid.Column="1" Margin="12,0,0,0">
+        <!-- 提醒事项 -->
+        <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=0}">
+          <Grid ColumnDefinitions="3*,2*">
+            <Border Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1" Padding="8">
+              <views:ReminderListView DataContext="{Binding Reminders}" />
+            </Border>
+            <Border Grid.Column="1" Margin="10,0,0,0" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                    IsVisible="{Binding Reminders.IsEditorOpen}">
+              <views:ReminderEditorPanel DataContext="{Binding Reminders.Editor}" />
+            </Border>
+          </Grid>
+        </Grid>
+
+        <!-- DeepSeek 余额 -->
+        <DockPanel IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=1}">
           <Border DockPanel.Dock="Top" Margin="0,0,0,10" Background="{DynamicResource CardBrush}" CornerRadius="10"
                   BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12,8">
             <views:PeakHourPanel DataContext="{Binding PeakHour}" />
           </Border>
           <Grid ColumnDefinitions="5*,7*">
-            <Border Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="8">
+            <Border Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1" Padding="8">
               <views:ApiKeyPanel DataContext="{Binding ApiKeys}" />
             </Border>
             <Border Grid.Column="1" Margin="10,0,0,0" Background="{DynamicResource CardBrush}" CornerRadius="10"
@@ -54,12 +73,14 @@
             </Border>
           </Grid>
         </DockPanel>
-      </TabItem>
-      <TabItem Header="系统设置">
-        <Border Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="4">
+
+        <!-- 系统设置 -->
+        <Border IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=2}"
+                Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1" Padding="4">
           <views:SettingsPanel DataContext="{Binding Settings}" />
         </Border>
-      </TabItem>
-    </TabControl>
+      </Grid>
+    </Grid>
   </DockPanel>
 </Window>

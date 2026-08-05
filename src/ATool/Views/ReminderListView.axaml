@@ -21,7 +21,7 @@
           <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
                   BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,3">
             <Grid ColumnDefinitions="Auto,*,Auto">
-              <!-- 圆圈：未完成=空心圆可点击完成；已完成=绿色实心对勾 -->
+              <!-- 圆圈：未完成=空心圆可点击完成；已完成=绿色实心对勾可点击还原 -->
               <Button Grid.Column="0" Command="{Binding CompleteCommand}" Background="Transparent"
                       BorderThickness="0" Padding="6,2" VerticalAlignment="Center"
                       IsVisible="{Binding IsDone, Converter={x:Static BoolConverters.Not}}"
@@ -29,12 +29,15 @@
                 <Ellipse Width="16" Height="16" Stroke="{DynamicResource TextSecondaryBrush}"
                          StrokeThickness="1.5" Fill="Transparent" />
               </Button>
-              <Border Grid.Column="0" Width="18" Height="18" CornerRadius="9"
-                      Background="{DynamicResource SuccessBrush}" VerticalAlignment="Center"
-                      IsVisible="{Binding IsDone}">
-                <TextBlock Text="✓" FontSize="11" Foreground="White"
-                           HorizontalAlignment="Center" VerticalAlignment="Center" />
-              </Border>
+              <Button Grid.Column="0" Command="{Binding CompleteCommand}" Background="Transparent"
+                      BorderThickness="0" Padding="6,2" VerticalAlignment="Center"
+                      IsVisible="{Binding IsDone}" ToolTip.Tip="点击还原为待提醒">
+                <Border Width="18" Height="18" CornerRadius="9"
+                        Background="{DynamicResource SuccessBrush}">
+                  <TextBlock Text="✓" FontSize="11" Foreground="White"
+                             HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+              </Button>
               <StackPanel Grid.Column="1" Spacing="3" Margin="10,0,0,0">
                 <StackPanel Orientation="Horizontal" Spacing="10">
                   <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"

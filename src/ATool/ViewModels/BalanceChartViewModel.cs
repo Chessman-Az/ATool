@@ -8,7 +8,7 @@ using ATool.Services;
 
 namespace ATool.ViewModels;
 
-public enum ChartRange { Days7 = 7, Days30 = 30, Year1 = 365, Custom = 0 }
+public enum ChartRange { Days7 = 7, Days30 = 30, Year1 = 365 }
 
 /// <summary>
 /// 余额趋势图：按选中 Key + 时间范围（7天/30天/1年/自定义）加载历史序列。
@@ -29,22 +29,14 @@ public partial class BalanceChartViewModel : ObservableObject
     [ObservableProperty]
     private string _emptyHint = "选择左侧 Key 查看余额趋势";
 
-    [ObservableProperty]
-    private DateTimeOffset? _customFrom;
-
-    [ObservableProperty]
-    private DateTimeOffset? _customTo;
-
     // ---- 范围单选（RadioButton 双向绑定）----
     [ObservableProperty] private bool _isDays7 = true;
     [ObservableProperty] private bool _isDays30;
     [ObservableProperty] private bool _isYear1;
-    [ObservableProperty] private bool _isCustom;
 
     partial void OnIsDays7Changed(bool value) { if (value) { Range = ChartRange.Days7; Refresh(); } }
     partial void OnIsDays30Changed(bool value) { if (value) { Range = ChartRange.Days30; Refresh(); } }
     partial void OnIsYear1Changed(bool value) { if (value) { Range = ChartRange.Year1; Refresh(); } }
-    partial void OnIsCustomChanged(bool value) { if (value) { Range = ChartRange.Custom; Refresh(); } }
 
     public BalanceChartViewModel(BalanceHistoryRepository history, ApiKeysViewModel keys)
     {
@@ -89,13 +81,13 @@ public partial class BalanceChartViewModel : ObservableObject
         }
 
         var now = DateTime.Now;
-        var (from, to) = Range switch
+        var from = Range switch
         {
-            ChartRange.Days7 => (now.AddDays(-7), now),
-            ChartRange.Days30 => (now.AddDays(-30), now),
-            ChartRange.Year1 => (now.AddDays(-365), now),
-            _ => (CustomFrom?.LocalDateTime ?? now.AddDays(-7), CustomTo?.LocalDateTime ?? now)
+            ChartRange.Days7 => now.AddDays(-7),
+            ChartRange.Days30 => now.AddDays(-30),
+            _ => now.AddDays(-365),
         };
+        var to = now;
 
         var records = _history.GetByKey(item.Key.Id, from, to);
         if (records.Count == 0)
@@ -118,7 +110,4 @@ public partial class BalanceChartViewModel : ObservableObject
         };
         EmptyHint = "";
     }
-
-    [RelayCommand]
-    private void ApplyCustomRange() => Refresh();
 }
