@@ -31,6 +31,10 @@ public sealed class Db
             ForeignKeys = true,
         }.ToString());
         conn.Open();
+        // 多实例/并发写时等待锁而不是立即失败（busy_timeout 5s）
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "PRAGMA busy_timeout = 5000";
+        cmd.ExecuteNonQuery();
         return conn;
     }
 

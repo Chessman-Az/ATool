@@ -44,7 +44,10 @@ public static class ReminderCalendarService
             switch (r.RepeatType)
             {
                 case RepeatType.Single:
-                    if (DateOnly.TryParse(r.CreatedAt.AsSpan(0, 10), out var created) && created.Year == year && created.Month == month)
+                    // CreatedAt 可能为短字符串/异常格式（旧数据），AsSpan(0,10) 会抛——先校验长度再解析
+                    if (r.CreatedAt.Length >= 10
+                        && DateOnly.TryParse(r.CreatedAt.AsSpan(0, 10), out var created)
+                        && created.Year == year && created.Month == month)
                         result.Add(created);
                     break;
 

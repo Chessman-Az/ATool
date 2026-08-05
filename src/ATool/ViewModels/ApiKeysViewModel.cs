@@ -46,7 +46,12 @@ public partial class ApiKeysViewModel : ObservableObject
         _balance = balance;
         _client = client;
         _history = history;
-        _balance.StateChanged += () => IsRefreshing = _balance.IsRefreshing;
+        _balance.StateChanged += () =>
+        {
+            IsRefreshing = _balance.IsRefreshing;
+            if (!_balance.IsRefreshing)
+                Reload(); // 自动刷新/任意来源刷新完成后同步 UI（余额与合计即时更新）
+        };
     }
 
     public void Reload()
@@ -124,7 +129,7 @@ public partial class ApiKeysViewModel : ObservableObject
         Message = $"已删除 {item.Key.Alias}";
     }
 
-    [RelayCommand]
+    [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task RefreshAsync()
     {
         try
@@ -170,7 +175,7 @@ public partial class ApiKeyItemVm : ObservableObject
     [RelayCommand]
     private void Delete() => _onDelete(this);
 
-    [RelayCommand]
+    [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task Refresh() => await _onRefresh(this);
 
     public string BalanceText => Balance is { } b ? b.ToString("F2") : "—";

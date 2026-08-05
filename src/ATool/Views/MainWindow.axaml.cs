@@ -40,6 +40,7 @@ public partial class MainWindow : Window
         vm.ApiKeys.DeleteRequested += ConfirmDeleteKey;
 
         vm.LoadAll();
+        vm.Calendar.Load(); // 日历默认当月数据（此前未接线导致日历空白）
     }
 
     /// <summary>关闭主窗口 → 隐藏并驻留托盘（退出走托盘菜单二次确认）。</summary>

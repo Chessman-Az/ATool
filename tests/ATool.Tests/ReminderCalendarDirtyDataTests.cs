@@ -31,4 +31,13 @@ public class ReminderCalendarDirtyDataTests
         var dates = ReminderCalendarService.GetMonthTriggerDates(new[] { r }, 2026, 8);
         Assert.Empty(dates);
     }
+
+    [Fact]
+    public void GetMonthTriggerDates_创建时间过短_不崩溃()
+    {
+        // AsSpan(0,10) 对长度 <10 的字符串抛 ArgumentOutOfRangeException（日志实证的崩溃点）
+        var r = new Reminder { RepeatType = RepeatType.Single, CreatedAt = "short" };
+        var dates = ReminderCalendarService.GetMonthTriggerDates(new[] { r }, 2026, 8);
+        Assert.Empty(dates);
+    }
 }
