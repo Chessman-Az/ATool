@@ -35,6 +35,7 @@
             <ListBoxItem Content="提醒事项" />
             <ListBoxItem Content="DeepSeek 余额" />
             <ListBoxItem Content="系统设置" />
+            <ListBoxItem Content="A工具" />
           </ListBox>
         </DockPanel>
       </Border>
@@ -126,6 +127,22 @@
                 Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1" Padding="4">
           <views:SettingsPanel DataContext="{Binding Settings}" />
+        </Border>
+
+        <!-- A工具（关于页） -->
+        <Border IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=3}"
+                Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1" Padding="40">
+          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+            <Border Width="76" Height="76" CornerRadius="38" Background="{DynamicResource PrimaryBrush}"
+                    HorizontalAlignment="Center">
+              <TextBlock Text="A" FontSize="36" FontWeight="Bold" Foreground="White"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <TextBlock Text="A工具" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" />
+            <TextBlock Text="版本 6.0" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
+            <TextBlock Text="作者：小泽" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
+          </StackPanel>
         </Border>
       </Grid>
     </Grid>
