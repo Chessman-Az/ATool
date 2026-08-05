@@ -49,7 +49,9 @@ public sealed class BalanceService
         finally
         {
             _refreshing = false;
-            StateChanged?.Invoke();
+            // 事件订阅者（UI Reload 等）异常不得破坏 gate 释放——否则后续刷新全部卡死
+            try { StateChanged?.Invoke(); }
+            catch (Exception ex) { Log.Warning(ex, "刷新状态通知订阅者抛异常（已隔离）"); }
             _gate.Release();
         }
     }
@@ -69,7 +71,9 @@ public sealed class BalanceService
         finally
         {
             _refreshing = false;
-            StateChanged?.Invoke();
+            // 事件订阅者（UI Reload 等）异常不得破坏 gate 释放——否则后续刷新全部卡死
+            try { StateChanged?.Invoke(); }
+            catch (Exception ex) { Log.Warning(ex, "刷新状态通知订阅者抛异常（已隔离）"); }
             _gate.Release();
         }
     }
