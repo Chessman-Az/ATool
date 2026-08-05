@@ -6,13 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ATool</RootNamespace>
     <AssemblyName>ATool</AssemblyName>
-    <ApplicationIcon>..\..\assets\icon.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
   </PropertyGroup>
 
   <ItemGroup>
-    <AvaloniaResource Include="..\..\assets\icon.ico" />
+    <AvaloniaResource Include="Assets\icon.ico" />
     <InternalsVisibleTo Include="ATool.Tests" />
   </ItemGroup>
 
