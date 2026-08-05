@@ -6,8 +6,8 @@ using Avalonia.Threading;
 
 namespace ATool.Views;
 
-/// <summary>浮窗列表项：提醒 Id + 标题（点击圆圈按 Id 标记完成）。</summary>
-public sealed record FloatReminderItem(long Id, string Title);
+/// <summary>浮窗列表项：提醒 Id + 标题 + 是否已完成（点击圆圈按 Id 切换完成状态）。</summary>
+public sealed record FloatReminderItem(long Id, string Title, bool IsDone);
 
 /// <summary>桌面提醒浮窗窗口：无边框、不抢焦点、常驻角落（位置/显隐由 FloatReminderService 控制）。</summary>
 public partial class FloatReminderWindow : Window

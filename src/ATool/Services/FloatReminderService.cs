@@ -33,6 +33,7 @@ public sealed class FloatReminderService
     private bool _running;
     private bool _visible;
     private Corner _corner = Corner.TopLeft;
+    private int _scope; // 0=仅未完成 1=全部
 
     /// <summary>窗口 DPI 缩放（高分屏下 DIP→物理像素换算；异常时按 1.0 兜底）。</summary>
     private double Scale()
@@ -64,18 +65,21 @@ public sealed class FloatReminderService
         _refreshTimer.Tick += (_, _) => RefreshReminders();
     }
 
-    /// <summary>点击待办圆圈 → 标记完成并刷新列表。</summary>
+    /// <summary>点击待办圆圈 → 切换完成状态（未完成→完成；全部模式下已完成→恢复待办）并刷新列表。</summary>
     private void OnCompleteRequested(long reminderId)
     {
         try
         {
-            _repo.SetStatus(reminderId, ReminderStatus.Done);
-            Log.Information("浮窗标记完成: Reminder#{Id}", reminderId);
+            var r = _repo.GetAll().FirstOrDefault(x => x.Id == reminderId);
+            if (r is null) return;
+            var newStatus = r.Status == ReminderStatus.Done ? ReminderStatus.Pending : ReminderStatus.Done;
+            _repo.SetStatus(reminderId, newStatus);
+            Log.Information("浮窗切换完成状态: Reminder#{Id} -> {Status}", reminderId, newStatus);
             RefreshReminders();
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "浮窗标记完成失败: Reminder#{Id}", reminderId);
+            Log.Warning(ex, "浮窗切换完成状态失败: Reminder#{Id}", reminderId);
         }
     }
 
@@ -98,6 +102,7 @@ public sealed class FloatReminderService
                 return;
             }
             _corner = (Corner)_settings.GetFloatReminderCorner();
+            _scope = _settings.GetFloatReminderScope();
             RefreshReminders();
             _expanded = false;
             _window.Show();
@@ -145,13 +150,17 @@ public sealed class FloatReminderService
             _ => mx >= screenX && mx <= screenX + hot && my >= screenY + screenH - hot && my <= screenY + screenH,
         };
 
+    /// <summary>浮窗展示范围过滤（静态纯函数，可测）：scope=1 全部，否则仅未完成。</summary>
+    public static IEnumerable<Reminder> FilterScope(IEnumerable<Reminder> all, int scope)
+        => scope == 1 ? all : all.Where(r => r.Status == ReminderStatus.Pending);
+
     private void RefreshReminders()
     {
         try
         {
-            var items = _repo.GetAll(ReminderStatus.Pending)
+            var items = FilterScope(_repo.GetAll(), _scope)
                 .OrderBy(r => r.TriggerTime)
-                .Select(r => new FloatReminderItem(r.Id, r.Title))
+                .Select(r => new FloatReminderItem(r.Id, r.Title, r.Status == ReminderStatus.Done))
                 .ToList();
             _window.SetReminders(items);
         }

@@ -36,6 +36,10 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private int _floatOpacity = 100;
 
+    /// <summary>浮窗展示范围：0=仅未完成 1=全部。</summary>
+    [ObservableProperty]
+    private int _floatScope;
+
     [ObservableProperty]
     private string? _message;
 
@@ -54,6 +58,7 @@ public partial class SettingsViewModel : ObservableObject
         FloatEnabled = _settings.GetFloatReminderEnabled();
         FloatCorner = _settings.GetFloatReminderCorner();
         FloatOpacity = _settings.GetFloatReminderOpacity();
+        FloatScope = _settings.GetFloatReminderScope();
     }
 
     [RelayCommand]
@@ -66,7 +71,8 @@ public partial class SettingsViewModel : ObservableObject
             _settings.SetFloatReminderEnabled(FloatEnabled);
             _settings.SetFloatReminderCorner(FloatCorner);
             _settings.SetFloatReminderOpacity(FloatOpacity);
-            _floatReminder.Apply(); // 立即应用浮窗开关/位置/透明度
+            _settings.SetFloatReminderScope(FloatScope);
+            _floatReminder.Apply(); // 立即应用浮窗开关/位置/透明度/范围
             Message = "设置已保存";
         }
         catch (Exception ex)

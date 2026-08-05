@@ -96,6 +96,37 @@ public class FloatReminderTests
         Assert.Empty(repo.GetAll(ReminderStatus.Pending));
     }
 
+    [Fact]
+    public void 浮窗展示范围设置_默认仅未完成()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "atool-float-scope-" + Guid.NewGuid().ToString("N"));
+        var db = new Db(dir);
+        db.InitializeSchema();
+        var repo = new SettingsRepository(db);
+        repo.Set("data_path", dir);
+        repo.Set("log_path", Path.Combine(dir, "logs"));
+        var settings = new SettingsService(repo, db);
+
+        Assert.Equal(0, settings.GetFloatReminderScope()); // 默认仅未完成
+        settings.SetFloatReminderScope(1);
+        Assert.Equal(1, settings.GetFloatReminderScope());
+        settings.SetFloatReminderScope(2); // 非法值
+        Assert.Equal(0, settings.GetFloatReminderScope());
+    }
+
+    [Fact]
+    public void FilterScope_全部模式含已完成_未完成模式仅待办()
+    {
+        var pending = new Reminder { Title = "p", Status = ReminderStatus.Pending };
+        var done = new Reminder { Title = "d", Status = ReminderStatus.Done };
+        var all = new[] { pending, done };
+
+        Assert.Equal(2, FloatReminderService.FilterScope(all, 1).Count()); // 全部
+        var only = FloatReminderService.FilterScope(all, 0).ToList();      // 仅未完成
+        Assert.Single(only);
+        Assert.Equal("p", only[0].Title);
+    }
+
     [Theory]
     [InlineData(123u, "Progman", 456u, true)]   // 桌面
     [InlineData(123u, "WorkerW", 456u, true)]   // 桌面（Win11）

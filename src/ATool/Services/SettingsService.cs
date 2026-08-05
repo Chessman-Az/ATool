@@ -111,4 +111,10 @@ public sealed class SettingsService
         int.TryParse(_repo.Get("float_reminder_opacity"), out var o) && o is >= 0 and <= 100 ? o : 100;
 
     public void SetFloatReminderOpacity(int opacity) => _repo.Set("float_reminder_opacity", opacity.ToString());
+
+    /// <summary>浮窗展示范围：0=仅未完成 1=全部（非法值回退 0）。</summary>
+    public int GetFloatReminderScope() =>
+        int.TryParse(_repo.Get("float_reminder_scope"), out var s) && s is 0 or 1 ? s : 0;
+
+    public void SetFloatReminderScope(int scope) => _repo.Set("float_reminder_scope", scope.ToString());
 }
