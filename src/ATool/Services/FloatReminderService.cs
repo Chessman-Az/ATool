@@ -31,7 +31,6 @@ public sealed class FloatReminderService
     private bool _running;
     private bool _visible;
     private Corner _corner = Corner.TopLeft;
-    private int _hotStreak;
 
     /// <summary>窗口 DPI 缩放（高分屏下 DIP→物理像素换算；异常时按 1.0 兜底）。</summary>
     private double Scale()
@@ -43,11 +42,11 @@ public sealed class FloatReminderService
     private double Phys(double dip) => dip * Scale();
 
     private const double Edge = 10;     // 常态露出的边缘条宽度（DIP）
-    private const double HotZone = 20;  // 角落热区尺寸（DIP）
+    private const double HotZone = 32;  // 角落热区尺寸（DIP）
     private const double WindowW = 260; // 窗口宽（DIP）
     private const double WindowH = 320; // 窗口高（DIP）
     private const double MouseBuffer = 24; // 展开后鼠标离开浮窗的缓冲（DIP）
-    private const int HotStreakThreshold = 2; // 热区连续命中 N 次（0.8s）才展开，防误触
+    private const double RetractBuffer = 6; // 缩回细条附近的展开缓冲（DIP）
 
     public FloatReminderService(SettingsService settings, ReminderRepository repo)
     {
@@ -80,7 +79,6 @@ public sealed class FloatReminderService
             _corner = (Corner)_settings.GetFloatReminderCorner();
             RefreshReminders();
             _expanded = false;
-            _hotStreak = 0;
             _window.Show();
             _visible = true;
             _window.Width = WindowW;
@@ -161,18 +159,20 @@ public sealed class FloatReminderService
 
             var scr = Screen();
             GetCursorPos(out var pt);
-            var inHot = InHotZone(_corner, pt.X, pt.Y, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, Phys(HotZone));
-            // 热区连续命中阈值后才展开（防误触：鼠标只是路过角落不弹）
-            _hotStreak = inHot ? _hotStreak + 1 : 0;
-            if (inHot && _hotStreak >= HotStreakThreshold && !_expanded)
+            // 热区 = 屏幕对应角落 ∪ 浮窗缩回可见细条（鼠标移到细条上立即展开）
+            var inHot = InHotZone(_corner, pt.X, pt.Y, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, Phys(HotZone))
+                        || MouseOverRetracted(pt);
+            if (inHot && !_expanded)
             {
                 _expanded = true;
+                Log.Information("浮窗展开: 角落={Corner} 鼠标=({X},{Y})", _corner, pt.X, pt.Y);
                 RefreshReminders();
                 Animate();
             }
             else if (!inHot && _expanded && !MouseOverWindow(pt))
             {
                 _expanded = false;
+                Log.Information("浮窗缩回");
                 Animate();
             }
         }
@@ -221,6 +221,19 @@ public sealed class FloatReminderService
         var buf = Phys(MouseBuffer);
         return pt.X >= _curX - buf && pt.X <= _curX + w + buf
             && pt.Y >= _curY - buf && pt.Y <= _curY + h + buf;
+    }
+
+    /// <summary>鼠标是否在浮窗缩回时的可见区域（屏幕内的细条 + 小缓冲）上——移到细条上即展开。</summary>
+    private bool MouseOverRetracted(POINT pt)
+    {
+        var scr = Screen();
+        var (rx, ry) = ComputeTarget(_corner, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, Phys(WindowW), Phys(WindowH), Phys(Edge), expanded: false);
+        var buf = Phys(RetractBuffer);
+        var left = Math.Max(scr.Bounds.X, rx) - buf;
+        var right = Math.Min(scr.Bounds.X + scr.Bounds.Width, rx + Phys(WindowW)) + buf;
+        var top = Math.Max(scr.Bounds.Y, ry) - buf;
+        var bottom = Math.Min(scr.Bounds.Y + scr.Bounds.Height, ry + Phys(WindowH)) + buf;
+        return pt.X >= left && pt.X <= right && pt.Y >= top && pt.Y <= bottom;
     }
 
     private Avalonia.Platform.Screen Screen()
