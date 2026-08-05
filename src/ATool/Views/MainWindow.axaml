@@ -24,6 +24,7 @@
                 Foreground="White" Padding="18,8"
                 Command="{Binding RefreshBalanceCommand}"
                 ToolTip.Tip="DeepSeek 计价状态（点击刷新全部余额）" />
+        <Button Content="峰谷详情" Command="{Binding OpenPeakHourCommand}" VerticalAlignment="Center" />
         <TextBlock Text="正在刷新余额…" VerticalAlignment="Center" Foreground="Gray"
                    IsVisible="{Binding IsRefreshing}" />
       </StackPanel>
@@ -39,7 +40,12 @@
         </Grid>
       </TabItem>
       <TabItem Header="DeepSeek 余额">
-        <views:ApiKeyPanel DataContext="{Binding ApiKeys}" />
+        <Grid ColumnDefinitions="5*,7*">
+          <views:ApiKeyPanel DataContext="{Binding ApiKeys}" />
+          <Border Grid.Column="1" Margin="8,0,0,0" BorderBrush="#22000000" BorderThickness="1" CornerRadius="6" Padding="8">
+            <views:BalanceChartView DataContext="{Binding Chart}" />
+          </Border>
+        </Grid>
       </TabItem>
       <TabItem Header="系统设置">
         <views:SettingsPanel DataContext="{Binding Settings}" />

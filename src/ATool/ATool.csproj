@@ -9,6 +9,8 @@
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <!-- Windows App SDK：unpackaged 自包含部署（免装运行时） -->
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,10 +20,11 @@
 
   <!-- Windows 专属能力（注册表/DPAPI）。包本身跨平台可编译，运行时用 OperatingSystem.IsWindows() 守卫 -->
   <ItemGroup>
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.18" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.18" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Dapper" Version="2.1.79" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.5" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.10" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
@@ -30,7 +33,7 @@
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="12.1.1" />
-    <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
+    <PackageReference Include="Avalonia" Version="11.3.18" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.18" />
   </ItemGroup>
 </Project>

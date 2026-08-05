@@ -29,6 +29,10 @@ public partial class ApiKeysViewModel : ObservableObject
     [ObservableProperty]
     private bool _isRefreshing;
 
+    /// <summary>当前选中的 Key（图表联动）。</summary>
+    [ObservableProperty]
+    private ApiKeyItemVm? _selectedKey;
+
     /// <summary>请求删除确认（视图层弹 ConfirmDialog，确认后调 ConfirmDelete）。</summary>
     public event Action<ApiKeyItemVm>? DeleteRequested;
 

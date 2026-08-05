@@ -26,6 +26,7 @@ public partial class App : Application
 
             var settings = services.GetRequiredService<SettingsService>();
             var vm = services.GetRequiredService<MainWindowViewModel>();
+            vm.Chart.Refresh();
 
             DataContext = vm; // 托盘命令绑定 Application.DataContext
             desktop.MainWindow = new MainWindow { DataContext = vm };
@@ -36,10 +37,13 @@ public partial class App : Application
             var balance = services.GetRequiredService<BalanceService>();
             balance.SetAutoRefreshMinutes(settings.GetRefreshMinutes());
             balance.StartAutoRefresh();
+            var toast = services.GetRequiredService<ToastService>();
+            toast.Initialize();
 
             desktop.Exit += (_, _) =>
             {
                 scheduler.Dispose();
+                toast.Shutdown();
                 Log.CloseAndFlush();
             };
         }

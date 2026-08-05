@@ -57,18 +57,20 @@ internal static class Program
         services.AddSingleton<BalanceHistoryRepository>();
 
         // 应用层服务
-        services.AddSingleton<DeepSeekClient>();
-        services.AddSingleton<BalanceService>();
-        services.AddSingleton<SettingsService>();
+    services.AddSingleton<DeepSeekClient>();
+    services.AddSingleton<BalanceService>();
+    services.AddSingleton<SettingsService>();
+    services.AddSingleton<ToastService>();
         services.AddSingleton<ReminderPopupService>();
         services.AddSingleton<ReminderSchedulerService>();
 
         // 表现层 VM
-        services.AddSingleton<ReminderEditViewModel>();
-        services.AddSingleton<ReminderListViewModel>();
-        services.AddSingleton<ApiKeysViewModel>();
-        services.AddSingleton<SettingsViewModel>();
-        services.AddSingleton<MainWindowViewModel>();
+    services.AddSingleton<ReminderEditViewModel>();
+    services.AddSingleton<ReminderListViewModel>();
+    services.AddSingleton<ApiKeysViewModel>();
+    services.AddSingleton<SettingsViewModel>();
+    services.AddSingleton<BalanceChartViewModel>();
+    services.AddSingleton<MainWindowViewModel>();
 
         return services.BuildServiceProvider();
     }

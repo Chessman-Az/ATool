@@ -16,11 +16,19 @@ public sealed record ReminderPopupItem(Reminder Reminder, int MissedCount);
 public sealed class ReminderPopupService
 {
     private readonly ReminderRepository _repo;
+    private readonly ToastService _toast;
 
-    public ReminderPopupService(ReminderRepository repo) => _repo = repo;
+    public ReminderPopupService(ReminderRepository repo, ToastService toast)
+    {
+        _repo = repo;
+        _toast = toast;
+    }
 
     public void Show(IReadOnlyList<(Reminder Reminder, int MissedCount)> items)
     {
+        // 备用渠道：Windows Toast（锁屏可见）；失败静默降级
+        foreach (var (r, missed) in items)
+            _toast.Show(r.Title, missed > 1 ? $"提醒触发（错过 {missed} 次）" : "提醒触发");
         var vm = new ReminderPopupViewModel(this, items.Select(x => new ReminderPopupItem(x.Reminder, x.MissedCount)).ToList());
         var window = new ReminderPopupWindow { DataContext = vm };
         // 关闭窗口时：未处理的单次提醒视为完成

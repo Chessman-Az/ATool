@@ -28,5 +28,9 @@ public static class PeakHourService
         new("18:00", "24:00", false, 1m),
     ];
 
-    public sealed record PeakPeriod(string Start, string End, bool IsPeak, decimal Multiplier);
+    public sealed record PeakPeriod(string Start, string End, bool IsPeak, decimal Multiplier)
+    {
+        /// <summary>展示文本：1 → 「原价」，2 → 「2 倍价」。</summary>
+        public string DisplayMultiplier => Multiplier == 1m ? "原价" : $"{Multiplier} 倍价";
+    }
 }

@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             x:Class="ATool.Views.BalanceChartView">
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="4,0,0,8">
+      <RadioButton Content="近 7 天" IsChecked="{Binding IsDays7}" GroupName="ChartRange" />
+      <RadioButton Content="近 30 天" IsChecked="{Binding IsDays30}" GroupName="ChartRange" />
+      <RadioButton Content="近 1 年" IsChecked="{Binding IsYear1}" GroupName="ChartRange" />
+      <RadioButton Content="自定义" IsChecked="{Binding IsCustom}" GroupName="ChartRange" />
+      <DatePicker SelectedDate="{Binding CustomFrom}" IsEnabled="{Binding IsCustom}" />
+      <TextBlock Text="至" VerticalAlignment="Center" />
+      <DatePicker SelectedDate="{Binding CustomTo}" IsEnabled="{Binding IsCustom}" />
+      <Button Content="刷新" Command="{Binding ApplyCustomRangeCommand}" />
+    </StackPanel>
+    <TextBlock Text="{Binding EmptyHint}" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"
+               IsVisible="{Binding HasData, Converter={x:Static BoolConverters.Not}}" />
+    <lvc:CartesianChart Series="{Binding Series}" XAxes="{Binding XAxes}" YAxes="{Binding YAxes}"
+                        IsVisible="{Binding HasData}" />
+  </DockPanel>
+</UserControl>
