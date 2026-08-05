@@ -8,21 +8,21 @@ namespace ATool.Tests;
 /// <summary>桌面提醒浮窗：角落位置计算（纯函数）+ 设置读写（临时目录，不污染真实数据）。</summary>
 public class FloatReminderTests
 {
-    private const double W = 260, H = 320, Edge = 10;
+    private const double W = 260, H = 320;
     private const double SX = 0, SY = 0, SW = 1920, SH = 1080;
 
     [Theory]
-    [InlineData(FloatReminderService.Corner.TopLeft, false, -250, 0)]
-    [InlineData(FloatReminderService.Corner.TopLeft, true, 0, 0)]           // 展开贴边（屏幕间距已撤销）
-    [InlineData(FloatReminderService.Corner.TopRight, false, 1910, 0)]
+    [InlineData(FloatReminderService.Corner.TopLeft, false, -260, 0)]      // 缩回完全缩进屏幕外（Edge=0）
+    [InlineData(FloatReminderService.Corner.TopLeft, true, 0, 0)]
+    [InlineData(FloatReminderService.Corner.TopRight, false, 1920, 0)]
     [InlineData(FloatReminderService.Corner.TopRight, true, 1660, 0)]
-    [InlineData(FloatReminderService.Corner.BottomRight, false, 1910, 760)]
+    [InlineData(FloatReminderService.Corner.BottomRight, false, 1920, 760)]
     [InlineData(FloatReminderService.Corner.BottomRight, true, 1660, 760)]
-    [InlineData(FloatReminderService.Corner.BottomLeft, false, -250, 760)]
+    [InlineData(FloatReminderService.Corner.BottomLeft, false, -260, 760)]
     [InlineData(FloatReminderService.Corner.BottomLeft, true, 0, 760)]
     public void ComputeTarget_四角落缩回与展开位置(FloatReminderService.Corner corner, bool expanded, double ex, double ey)
     {
-        var (x, y) = FloatReminderService.ComputeTarget(corner, SX, SY, SW, SH, W, H, Edge, 0, expanded);
+        var (x, y) = FloatReminderService.ComputeTarget(corner, SX, SY, SW, SH, W, H, 0, 0, expanded);
         Assert.Equal(ex, x, 3);
         Assert.Equal(ey, y, 3);
     }
