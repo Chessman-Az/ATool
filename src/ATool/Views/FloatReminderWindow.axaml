@@ -17,6 +17,10 @@
       <ListBox x:Name="ReminderList" Background="Transparent" BorderThickness="0"
                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
         <ListBox.Styles>
+          <!-- 列表项紧凑排列 -->
+          <Style Selector="ListBoxItem">
+            <Setter Property="Margin" Value="0,1" />
+          </Style>
           <!-- hover 只高亮卡片本身；列表项整行不泛蓝 -->
           <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="Transparent" />
@@ -31,7 +35,7 @@
         <ListBox.ItemTemplate>
           <DataTemplate>
             <Border Classes="card" Background="Transparent" BorderBrush="#E4E8F0" BorderThickness="1"
-                    CornerRadius="8" Padding="10,7" Margin="4,3">
+                    CornerRadius="8" Padding="10,6" Margin="4,1">
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <!-- 待办圆圈：未完成空心蓝 / 已完成实心绿；点击切换完成状态 -->
                 <Button Click="OnCircleClick" Background="Transparent" BorderThickness="0"
