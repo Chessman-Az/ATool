@@ -56,12 +56,19 @@ public partial class ApiKeysViewModel : ObservableObject
         {
             k.PlainKey = KeyProtection.Unprotect(k.EncryptedKey);
             var latest = _history.GetLatest(k.Id);
-            Keys.Add(new ApiKeyItemVm(k, latest?.TotalBalance, latest?.Delta, OnDeleteRequested));
+            Keys.Add(new ApiKeyItemVm(k, latest?.TotalBalance, latest?.Delta, OnDeleteRequested, OnRefreshRequested));
         }
         TotalBalance = BalanceSummaryService.Sum(Keys.Select(k => k.Balance));
     }
 
     private void OnDeleteRequested(ApiKeyItemVm item) => DeleteRequested?.Invoke(item);
+
+    /// <summary>单 Key 独立刷新：仅刷新该 Key，完成后刷新列表显示。</summary>
+    private async Task OnRefreshRequested(ApiKeyItemVm item)
+    {
+        await _balance.RefreshKeyAsync(item.Key.Id);
+        Reload();
+    }
 
     /// <summary>添加 Key：先调余额接口验证有效性；无效拒绝保存并报错。</summary>
     [RelayCommand]
@@ -116,22 +123,24 @@ public partial class ApiKeysViewModel : ObservableObject
     }
 }
 
-/// <summary>Key 列表项：余额与变动金额展示包装。</summary>
+/// <summary>Key 列表项：余额与变动金额展示包装 + 删除/独立刷新命令。</summary>
 public partial class ApiKeyItemVm : ObservableObject
 {
     private readonly Action<ApiKeyItemVm> _onDelete;
+    private readonly Func<ApiKeyItemVm, Task> _onRefresh;
 
     public ApiKey Key { get; }
     public string Alias => Key.Alias;
     public string? LastError => Key.LastError;
     public string CreatedAt => Key.CreatedAt;
 
-    public ApiKeyItemVm(ApiKey key, decimal? balance, decimal? delta, Action<ApiKeyItemVm> onDelete)
+    public ApiKeyItemVm(ApiKey key, decimal? balance, decimal? delta, Action<ApiKeyItemVm> onDelete, Func<ApiKeyItemVm, Task> onRefresh)
     {
         Key = key;
         _balance = balance;
         _delta = delta;
         _onDelete = onDelete;
+        _onRefresh = onRefresh;
     }
 
     [ObservableProperty]
@@ -142,6 +151,9 @@ public partial class ApiKeyItemVm : ObservableObject
 
     [RelayCommand]
     private void Delete() => _onDelete(this);
+
+    [RelayCommand]
+    private async Task Refresh() => await _onRefresh(this);
 
     public string BalanceText => Balance is { } b ? b.ToString("F2") : "—";
     public string DeltaText => Delta is { } d ? (d >= 0 ? "+" : "") + d.ToString("F2") : "";

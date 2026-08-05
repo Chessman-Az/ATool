@@ -15,18 +15,23 @@
     <ListBox ItemsSource="{Binding Keys}" SelectedItem="{Binding SelectedKey}">
       <ListBox.ItemTemplate>
         <DataTemplate>
-          <StackPanel Spacing="4" Margin="2,2">
-            <StackPanel Orientation="Horizontal" Spacing="12">
-              <TextBlock Text="{Binding Alias}" FontWeight="SemiBold" FontSize="14" />
-              <TextBlock Text="{Binding BalanceText, StringFormat='余额 ¥{0}'}" FontSize="14"
-                         Foreground="{DynamicResource PrimaryBrush}" FontWeight="SemiBold" />
-              <TextBlock Text="{Binding DeltaText, StringFormat='({0})'}" Classes="hint" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Spacing="10">
+          <Grid ColumnDefinitions="*,Auto,Auto" Margin="2,2">
+            <!-- 左侧：信息 -->
+            <StackPanel Spacing="4" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="{Binding Alias}" FontWeight="SemiBold" FontSize="14" />
+                <TextBlock Text="{Binding BalanceText, StringFormat='余额 ¥{0}'}" FontSize="14"
+                           Foreground="{DynamicResource PrimaryBrush}" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding DeltaText, StringFormat='({0})'}" Classes="hint" />
+              </StackPanel>
               <TextBlock Text="{Binding LastError}" Classes="danger" TextWrapping="Wrap" />
-              <Button Content="删除" Command="{Binding DeleteCommand}" FontSize="11" Padding="10,3" HorizontalAlignment="Right" />
             </StackPanel>
-          </StackPanel>
+            <!-- 右侧：独立刷新 + 删除（最右） -->
+            <Button Grid.Column="1" Content="刷新" Command="{Binding RefreshCommand}"
+                    FontSize="11" Padding="12,4" Margin="8,0,0,0" VerticalAlignment="Center" />
+            <Button Grid.Column="2" Content="删除" Command="{Binding DeleteCommand}" Classes="danger"
+                    FontSize="11" Padding="12,4" Margin="8,0,0,0" VerticalAlignment="Center" />
+          </Grid>
         </DataTemplate>
       </ListBox.ItemTemplate>
     </ListBox>

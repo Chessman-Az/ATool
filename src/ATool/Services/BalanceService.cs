@@ -54,6 +54,26 @@ public sealed class BalanceService
         }
     }
 
+    /// <summary>刷新单个 Key（列表项独立刷新按钮用）；其他 Key 不受影响。</summary>
+    public async Task RefreshKeyAsync(long apiKeyId)
+    {
+        await _gate.WaitAsync();
+        try
+        {
+            _refreshing = true;
+            StateChanged?.Invoke();
+            var key = _keys.GetAll().FirstOrDefault(k => k.Id == apiKeyId);
+            if (key is not null)
+                await RefreshOneAsync(key);
+        }
+        finally
+        {
+            _refreshing = false;
+            StateChanged?.Invoke();
+            _gate.Release();
+        }
+    }
+
     private async Task RefreshOneAsync(ApiKey key)
     {
         key.PlainKey ??= KeyProtection.Unprotect(key.EncryptedKey);
