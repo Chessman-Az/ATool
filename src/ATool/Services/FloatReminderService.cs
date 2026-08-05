@@ -30,12 +30,23 @@ public sealed class FloatReminderService
     private bool _expanded;
     private bool _running;
     private Corner _corner = Corner.TopLeft;
+    private int _hotStreak;
 
-    private const double Edge = 10;     // 常态露出的边缘条宽度（px）
-    private const double HotZone = 20;  // 角落热区尺寸（px）
-    private const double WindowW = 260;
-    private const double WindowH = 320;
-    private const double MouseBuffer = 24; // 展开后鼠标离开浮窗的缓冲（px）
+    /// <summary>窗口 DPI 缩放（高分屏下 DIP→物理像素换算；异常时按 1.0 兜底）。</summary>
+    private double Scale()
+    {
+        try { return _window.RenderScaling > 0 ? _window.RenderScaling : 1.0; }
+        catch { return 1.0; }
+    }
+
+    private double Phys(double dip) => dip * Scale();
+
+    private const double Edge = 10;     // 常态露出的边缘条宽度（DIP）
+    private const double HotZone = 20;  // 角落热区尺寸（DIP）
+    private const double WindowW = 260; // 窗口宽（DIP）
+    private const double WindowH = 320; // 窗口高（DIP）
+    private const double MouseBuffer = 24; // 展开后鼠标离开浮窗的缓冲（DIP）
+    private const int HotStreakThreshold = 2; // 热区连续命中 N 次（0.8s）才展开，防误触
 
     public FloatReminderService(SettingsService settings, ReminderRepository repo)
     {
@@ -53,26 +64,35 @@ public sealed class FloatReminderService
     /// <summary>应用当前设置（启动时 / 保存设置后调用）。</summary>
     public void Apply()
     {
-        if (!_settings.GetFloatReminderEnabled())
+        try
         {
-            _running = false;
-            _pollTimer.Stop();
-            _animTimer.Stop();
-            _refreshTimer.Stop();
-            _window.Hide();
-            return;
+            if (!_settings.GetFloatReminderEnabled())
+            {
+                _running = false;
+                _pollTimer.Stop();
+                _animTimer.Stop();
+                _refreshTimer.Stop();
+                _window.Hide();
+                return;
+            }
+            _corner = (Corner)_settings.GetFloatReminderCorner();
+            RefreshReminders();
+            _expanded = false;
+            _hotStreak = 0;
+            _window.Show();
+            _window.Width = WindowW;
+            _window.Height = WindowH;
+            PlaceWindow();
+            _running = true;
+            _pollTimer.Start();
+            _refreshTimer.Start();
+            Log.Information("桌面提醒浮窗已开启: 角落={Corner} 缩放={Scale:F2}", _corner, Scale());
         }
-        _corner = (Corner)_settings.GetFloatReminderCorner();
-        RefreshReminders();
-        _expanded = false;
-        _window.Show();
-        _window.Width = WindowW;
-        _window.Height = WindowH;
-        PlaceWindow();
-        _running = true;
-        _pollTimer.Start();
-        _refreshTimer.Start();
-        Log.Information("桌面提醒浮窗已开启: 角落={Corner}", _corner);
+        catch (Exception ex)
+        {
+            Log.Error(ex, "浮窗启用失败（不影响主程序）");
+            _running = false;
+        }
     }
 
     /// <summary>按当前角落计算浮窗目标位置（静态纯函数，可测）。expanded=true 为完全展开。</summary>
@@ -133,8 +153,10 @@ public sealed class FloatReminderService
 
             var scr = Screen();
             GetCursorPos(out var pt);
-            var inHot = InHotZone(_corner, pt.X, pt.Y, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, HotZone);
-            if (inHot && !_expanded)
+            var inHot = InHotZone(_corner, pt.X, pt.Y, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, Phys(HotZone));
+            // 热区连续命中阈值后才展开（防误触：鼠标只是路过角落不弹）
+            _hotStreak = inHot ? _hotStreak + 1 : 0;
+            if (inHot && _hotStreak >= HotStreakThreshold && !_expanded)
             {
                 _expanded = true;
                 RefreshReminders();
@@ -154,7 +176,8 @@ public sealed class FloatReminderService
 
     private void Animate()
     {
-        var (tx, ty) = ComputeTarget(_corner, Screen().Bounds.X, Screen().Bounds.Y, Screen().Bounds.Width, Screen().Bounds.Height, WindowW, WindowH, Edge, _expanded);
+        var scr = Screen();
+        var (tx, ty) = ComputeTarget(_corner, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, Phys(WindowW), Phys(WindowH), Phys(Edge), _expanded);
         _targetX = tx;
         _targetY = ty;
         _animTimer.Start();
@@ -177,7 +200,7 @@ public sealed class FloatReminderService
     private void PlaceWindow()
     {
         var scr = Screen();
-        (_curX, _curY) = ComputeTarget(_corner, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, WindowW, WindowH, Edge, expanded: false);
+        (_curX, _curY) = ComputeTarget(_corner, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, Phys(WindowW), Phys(WindowH), Phys(Edge), expanded: false);
         _targetX = _curX;
         _targetY = _curY;
         _window.Position = new PixelPoint((int)_curX, (int)_curY);
@@ -185,9 +208,11 @@ public sealed class FloatReminderService
 
     private bool MouseOverWindow(POINT pt)
     {
-        var scr = Screen();
-        return pt.X >= _curX - MouseBuffer && pt.X <= _curX + WindowW + MouseBuffer
-            && pt.Y >= _curY - MouseBuffer && pt.Y <= _curY + WindowH + MouseBuffer;
+        var w = Phys(WindowW);
+        var h = Phys(WindowH);
+        var buf = Phys(MouseBuffer);
+        return pt.X >= _curX - buf && pt.X <= _curX + w + buf
+            && pt.Y >= _curY - buf && pt.Y <= _curY + h + buf;
     }
 
     private Avalonia.Platform.Screen Screen()
