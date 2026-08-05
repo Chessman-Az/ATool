@@ -45,7 +45,7 @@ public sealed class FloatReminderService
     private double Phys(double dip) => dip * Scale();
 
     private const double Edge = 10;     // 常态露出的边缘条宽度（DIP）
-    private const double ScreenMargin = 12; // 展开后浮窗与屏幕边缘的间距（DIP）
+    private const double ScreenMargin = 0; // 展开后浮窗与屏幕边缘的间距（DIP，当前贴边）
     private const double HotZone = 32;  // 角落热区尺寸（DIP）
     private const double WindowW = 260; // 窗口宽（DIP）
     private const double WindowH = 320; // 窗口高（DIP）

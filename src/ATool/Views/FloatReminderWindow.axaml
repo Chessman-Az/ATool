@@ -36,7 +36,8 @@
         <ListBox.ItemTemplate>
           <DataTemplate>
             <Border Classes="card" Background="Transparent" BorderBrush="#E4E8F0" BorderThickness="1"
-                    CornerRadius="8" Padding="10,8" Margin="4,0">
+                    CornerRadius="8" Padding="10,6" Margin="4,4">
+              <!-- Margin 上下 4px ×2 = 框与框之间 8px 间隙（间隙由 Margin 控制，不是 Padding） -->
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <!-- 待办圆圈：未完成空心蓝 / 已完成实心绿；点击切换完成状态 -->
                 <Button Click="OnCircleClick" Background="Transparent" BorderThickness="0"
