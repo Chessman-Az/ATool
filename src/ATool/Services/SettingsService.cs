@@ -106,9 +106,9 @@ public sealed class SettingsService
 
     public void SetFloatReminderCorner(int corner) => _repo.Set("float_reminder_corner", corner.ToString());
 
-    /// <summary>浮窗透明度（10-100，百分比；非法值回退 100）。</summary>
+    /// <summary>浮窗透明度（0-100，百分比；非法值回退 100）。</summary>
     public int GetFloatReminderOpacity() =>
-        int.TryParse(_repo.Get("float_reminder_opacity"), out var o) && o is >= 10 and <= 100 ? o : 100;
+        int.TryParse(_repo.Get("float_reminder_opacity"), out var o) && o is >= 0 and <= 100 ? o : 100;
 
     public void SetFloatReminderOpacity(int opacity) => _repo.Set("float_reminder_opacity", opacity.ToString());
 }

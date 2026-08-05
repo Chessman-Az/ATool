@@ -5,7 +5,7 @@
         SystemDecorations="None"
         ShowInTaskbar="False" Topmost="False" CanResize="False"
         ShowActivated="False" Focusable="False"
-        Background="White">
+        Background="Transparent" TransparencyLevelHint="Transparent">
   <Border Background="White" BorderBrush="#E4E8F0" BorderThickness="1" CornerRadius="12" Margin="3">
     <Grid>
       <TextBlock x:Name="EmptyText" Text="暂无待办提醒" Classes="hint"

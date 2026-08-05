@@ -62,11 +62,13 @@ public class FloatReminderTests
         settings.SetFloatReminderCorner(9); // 非法值
         Assert.Equal(0, settings.GetFloatReminderCorner());
 
-        // 透明度：默认 100，合法区间 10-100，非法回退
+        // 透明度：默认 100，合法区间 0-100，非法回退
         Assert.Equal(100, settings.GetFloatReminderOpacity());
         settings.SetFloatReminderOpacity(60);
         Assert.Equal(60, settings.GetFloatReminderOpacity());
-        settings.SetFloatReminderOpacity(5);
+        settings.SetFloatReminderOpacity(0);
+        Assert.Equal(0, settings.GetFloatReminderOpacity());
+        settings.SetFloatReminderOpacity(101);
         Assert.Equal(100, settings.GetFloatReminderOpacity());
     }
 

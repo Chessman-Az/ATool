@@ -32,7 +32,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private int _floatCorner;
 
-    /// <summary>浮窗透明度（10-100，百分比）。</summary>
+    /// <summary>浮窗透明度（0-100，百分比）。</summary>
     [ObservableProperty]
     private int _floatOpacity = 100;
 
