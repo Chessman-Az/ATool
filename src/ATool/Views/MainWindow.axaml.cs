@@ -14,7 +14,9 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         // 版本戳：标题显示构建时间，便于确认运行的是否为最新发布版
-        var stamp = File.GetLastWriteTime(typeof(MainWindow).Assembly.Location).ToString("MM-dd HH:mm");
+        // 注意：单文件发布下 Assembly.Location 为空，需用 ProcessPath
+        var exe = Environment.ProcessPath ?? typeof(MainWindow).Assembly.Location;
+        var stamp = File.GetLastWriteTime(exe).ToString("MM-dd HH:mm");
         Title = $"A工具 v{stamp}";
         Closing += OnClosing;
         Opened += OnOpened;
