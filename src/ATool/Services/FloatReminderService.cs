@@ -88,7 +88,8 @@ public sealed class FloatReminderService
             _visible = true;
             _window.Width = WindowW;
             _window.Height = WindowH;
-            _window.Opacity = _settings.GetFloatReminderOpacity() / 100.0;
+            // 透明度只作用于背景，文字保持不透明
+            _window.ApplyBackgroundOpacity(_settings.GetFloatReminderOpacity() / 100.0);
             PlaceWindow();
             _running = true;
             _pollTimer.Start();

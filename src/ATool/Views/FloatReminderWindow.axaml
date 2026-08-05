@@ -6,7 +6,7 @@
         ShowInTaskbar="False" Topmost="False" CanResize="False"
         ShowActivated="False" Focusable="False"
         Background="Transparent" TransparencyLevelHint="Transparent">
-  <Border Background="White" BorderBrush="#E4E8F0" BorderThickness="1" CornerRadius="12" Margin="3">
+  <Border x:Name="RootBorder" Background="White" BorderBrush="#E4E8F0" BorderThickness="1" CornerRadius="12" Margin="3">
     <Grid>
       <TextBlock x:Name="EmptyText" Text="暂无待办提醒" Classes="hint"
                  HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -14,7 +14,7 @@
                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
         <ListBox.ItemTemplate>
           <DataTemplate>
-            <Border Background="#FFFFFF" BorderBrush="#E4E8F0" BorderThickness="1"
+            <Border Background="Transparent" BorderBrush="#E4E8F0" BorderThickness="1"
                     CornerRadius="8" Padding="10,7" Margin="4,3">
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <!-- 待办圆圈（与主窗口提醒列表一致：空心圆 = 未完成） -->

@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using Avalonia.Controls;
+using Avalonia.Media;
 using Avalonia.Threading;
 
 namespace ATool.Views;
@@ -21,5 +22,13 @@ public partial class FloatReminderWindow : Window
         Items.Clear();
         foreach (var t in titles) Items.Add(t);
         EmptyText.IsVisible = Items.Count == 0;
+    }
+
+    /// <summary>仅背景透明度（0-1）：白色背景与边框带 alpha，文字/圆圈保持不透明。</summary>
+    public void ApplyBackgroundOpacity(double opacity)
+    {
+        var a = (byte)(opacity * 255);
+        RootBorder.Background = new SolidColorBrush(Color.FromArgb(a, 255, 255, 255));
+        RootBorder.BorderBrush = new SolidColorBrush(Color.FromArgb(a, 228, 232, 240));
     }
 }
