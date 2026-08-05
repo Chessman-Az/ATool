@@ -1,14 +1,34 @@
 using Dapper;
+using Microsoft.Data.Sqlite;
 using ATool.Models;
 
 namespace ATool.Data;
 
 public sealed class ApiKeyRepository(Db db)
 {
+    /// <summary>
+    /// 手动映射（不用 Dapper 属性映射）：Dapper 对 SQLite BLOB → byte[] 属性
+    /// 会静默返回空数组（实测），导致密文读回为空、解密失败、余额不显示。
+    /// </summary>
     public List<ApiKey> GetAll()
     {
         using var conn = db.GetConnection();
-        return conn.Query<ApiKey>("SELECT * FROM api_keys ORDER BY id").ToList();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT id, alias, encrypted_key, last_error, created_at FROM api_keys ORDER BY id";
+        using var reader = cmd.ExecuteReader();
+        var list = new List<ApiKey>();
+        while (reader.Read())
+        {
+            list.Add(new ApiKey
+            {
+                Id = reader.GetInt64(0),
+                Alias = reader.GetString(1),
+                EncryptedKey = reader.GetFieldValue<byte[]>(2),
+                LastError = reader.IsDBNull(3) ? null : reader.GetString(3),
+                CreatedAt = reader.GetString(4),
+            });
+        }
+        return list;
     }
 
     public long Insert(ApiKey key)

@@ -14,6 +14,9 @@ public sealed class BalanceService
     private readonly BalanceHistoryRepository _history;
     private readonly System.Timers.Timer _autoTimer;
     private bool _refreshing;
+    // 串行化门：并发刷新调用排队依次执行（而非丢弃），确保「添加 Key 后立即刷新」不会因
+    // 自动刷新进行中被跳过（否则新 Key 一直无余额记录）
+    private readonly SemaphoreSlim _gate = new(1, 1);
 
     /// <summary>刷新开始/完成时通知 UI（手动刷新按钮状态等）。</summary>
     public event Action? StateChanged;
@@ -29,14 +32,14 @@ public sealed class BalanceService
 
     public bool IsRefreshing => _refreshing;
 
-    /// <summary>并发刷新全部 Key；单个 Key 失败/超时只影响该 Key 的 LastError。</summary>
+    /// <summary>并发刷新全部 Key；单个 Key 失败/超时只影响该 Key 的 LastError。并发调用排队执行。</summary>
     public async Task RefreshAllAsync()
     {
-        if (_refreshing) return;
-        _refreshing = true;
-        StateChanged?.Invoke();
+        await _gate.WaitAsync();
         try
         {
+            _refreshing = true;
+            StateChanged?.Invoke();
             var keys = _keys.GetAll();
             if (keys.Count == 0) return;
             Log.Information("开始刷新 {Count} 个 Key 余额", keys.Count);
@@ -47,6 +50,7 @@ public sealed class BalanceService
         {
             _refreshing = false;
             StateChanged?.Invoke();
+            _gate.Release();
         }
     }
 
