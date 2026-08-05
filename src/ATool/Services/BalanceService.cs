@@ -32,6 +32,13 @@ public sealed class BalanceService
 
     public bool IsRefreshing => _refreshing;
 
+    /// <summary>通知状态变化：订阅者（UI Reload 等）异常一律隔离，不得破坏刷新门释放。</summary>
+    private void NotifyState()
+    {
+        try { StateChanged?.Invoke(); }
+        catch (Exception ex) { Log.Warning(ex, "刷新状态通知订阅者抛异常（已隔离）"); }
+    }
+
     /// <summary>并发刷新全部 Key；单个 Key 失败/超时只影响该 Key 的 LastError。并发调用排队执行。</summary>
     public async Task RefreshAllAsync()
     {
@@ -39,7 +46,7 @@ public sealed class BalanceService
         try
         {
             _refreshing = true;
-            StateChanged?.Invoke();
+            NotifyState();
             var keys = _keys.GetAll();
             if (keys.Count == 0) return;
             Log.Information("开始刷新 {Count} 个 Key 余额", keys.Count);
@@ -50,8 +57,7 @@ public sealed class BalanceService
         {
             _refreshing = false;
             // 事件订阅者（UI Reload 等）异常不得破坏 gate 释放——否则后续刷新全部卡死
-            try { StateChanged?.Invoke(); }
-            catch (Exception ex) { Log.Warning(ex, "刷新状态通知订阅者抛异常（已隔离）"); }
+            NotifyState();
             _gate.Release();
         }
     }
@@ -63,7 +69,7 @@ public sealed class BalanceService
         try
         {
             _refreshing = true;
-            StateChanged?.Invoke();
+            NotifyState();
             var key = _keys.GetAll().FirstOrDefault(k => k.Id == apiKeyId);
             if (key is not null)
                 await RefreshOneAsync(key);
@@ -72,8 +78,7 @@ public sealed class BalanceService
         {
             _refreshing = false;
             // 事件订阅者（UI Reload 等）异常不得破坏 gate 释放——否则后续刷新全部卡死
-            try { StateChanged?.Invoke(); }
-            catch (Exception ex) { Log.Warning(ex, "刷新状态通知订阅者抛异常（已隔离）"); }
+            NotifyState();
             _gate.Release();
         }
     }
