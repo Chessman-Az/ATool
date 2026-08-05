@@ -14,23 +14,23 @@ public class DeltaBrushConverterTests
     public void Convert_增加_返回绿色()
     {
         var brush = _conv.Convert("+5.00", typeof(IBrush), null, CultureInfo.InvariantCulture);
-        var color = ((Avalonia.Media.ISolidColorBrush)brush!).Color.ToString();
-        Assert.Equal("#FF2E9E5B", color); // SuccessBrush
+        var c = ((ISolidColorBrush)brush!).Color;
+        Assert.Equal((0x2E, 0x9E, 0x5B), (c.R, c.G, c.B)); // SuccessBrush 绿
     }
 
     [Fact]
     public void Convert_减少_返回红色()
     {
         var brush = _conv.Convert("-7.00", typeof(IBrush), null, CultureInfo.InvariantCulture);
-        var color = ((Avalonia.Media.ISolidColorBrush)brush!).Color.ToString();
-        Assert.Equal("#FFD64545", color); // DangerBrush
+        var c = ((ISolidColorBrush)brush!).Color;
+        Assert.Equal((0xD6, 0x45, 0x45), (c.R, c.G, c.B)); // DangerBrush 红
     }
 
     [Fact]
     public void Convert_持平或空_返回灰色()
     {
         var brush = _conv.Convert("—", typeof(IBrush), null, CultureInfo.InvariantCulture);
-        var color = ((Avalonia.Media.ISolidColorBrush)brush!).Color.ToString();
-        Assert.Equal("#FF6B7280", color); // TextSecondary
+        var c = ((ISolidColorBrush)brush!).Color;
+        Assert.Equal((0x6B, 0x72, 0x80), (c.R, c.G, c.B)); // TextSecondary 灰
     }
 }
