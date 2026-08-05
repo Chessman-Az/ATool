@@ -1,0 +1,14 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ATool.Views.ConfirmDialog"
+        Title="确认" Width="360" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" Topmost="True"
+        ShowInTaskbar="False">
+  <StackPanel Margin="20" Spacing="14">
+    <TextBlock x:Name="MsgText" TextWrapping="Wrap" FontSize="14" />
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+      <Button Content="取消" Click="OnCancel" />
+      <Button Content="确认" Click="OnConfirm" Classes="accent" />
+    </StackPanel>
+  </StackPanel>
+</Window>

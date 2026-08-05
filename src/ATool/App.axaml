@@ -1,0 +1,32 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:ATool"
+             x:Class="ATool.App"
+             RequestedThemeVariant="Default">
+
+  <Application.DataTemplates>
+    <local:ViewLocator />
+  </Application.DataTemplates>
+
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+
+  <!-- 系统托盘：左键显隐、右键菜单（显示/刷新/退出）。Command 绑定 Application.DataContext（App.axaml.cs 设置） -->
+  <TrayIcon.Icons>
+    <TrayIcons>
+      <TrayIcon Icon="/Assets/icon.ico"
+                ToolTipText="A工具"
+                Command="{Binding ToggleWindowCommand}">
+        <TrayIcon.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="显示主窗口" Command="{Binding ShowWindowCommand}" />
+            <NativeMenuItem Header="立即刷新余额" Command="{Binding RefreshBalanceCommand}" />
+            <NativeMenuItemSeparator />
+            <NativeMenuItem Header="退出程序" Command="{Binding QuitCommand}" />
+          </NativeMenu>
+        </TrayIcon.Menu>
+      </TrayIcon>
+    </TrayIcons>
+  </TrayIcon.Icons>
+</Application>

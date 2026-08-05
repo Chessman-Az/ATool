@@ -1,0 +1,49 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="using:ATool.Views"
+        mc:Ignorable="d" d:DesignWidth="960" d:DesignHeight="640"
+        x:Class="ATool.Views.MainWindow"
+        Title="A工具"
+        Width="980" Height="660"
+        MinWidth="760" MinHeight="500"
+        Icon="/Assets/icon.ico">
+
+  <Window.Resources>
+    <views:EnumEqualsConverter x:Key="EnumEq" />
+    <views:BoolToPeakBrushConverter x:Key="PeakBrush" />
+  </Window.Resources>
+
+  <DockPanel>
+    <!-- 顶部：峰谷状态主按钮 + 刷新状态 -->
+    <Border DockPanel.Dock="Top" Padding="12,10" BorderBrush="#22000000" BorderThickness="0,0,0,1">
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <Button Content="{Binding PeakStatusText}" FontSize="15" FontWeight="Bold"
+                Background="{Binding IsPeakHour, Converter={StaticResource PeakBrush}}"
+                Foreground="White" Padding="18,8"
+                Command="{Binding RefreshBalanceCommand}"
+                ToolTip.Tip="DeepSeek 计价状态（点击刷新全部余额）" />
+        <TextBlock Text="正在刷新余额…" VerticalAlignment="Center" Foreground="Gray"
+                   IsVisible="{Binding IsRefreshing}" />
+      </StackPanel>
+    </Border>
+
+    <TabControl Margin="8">
+      <TabItem Header="提醒事项">
+        <Grid ColumnDefinitions="3*,2*">
+          <views:ReminderListView DataContext="{Binding Reminders}" />
+          <Border Grid.Column="1" Margin="8,0,0,0" IsVisible="{Binding Reminders.IsEditorOpen}">
+            <views:ReminderEditorPanel DataContext="{Binding Reminders.Editor}" />
+          </Border>
+        </Grid>
+      </TabItem>
+      <TabItem Header="DeepSeek 余额">
+        <views:ApiKeyPanel DataContext="{Binding ApiKeys}" />
+      </TabItem>
+      <TabItem Header="系统设置">
+        <views:SettingsPanel DataContext="{Binding Settings}" />
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</Window>

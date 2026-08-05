@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ATool.Views.ReminderListView">
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="12,12,12,8">
+      <Button Content="待提醒" Command="{Binding FilterPendingCommand}" Classes="accent" />
+      <Button Content="已完成" Command="{Binding FilterDoneCommand}" />
+      <Button Content="＋ 添加" Command="{Binding AddCommand}" HorizontalAlignment="Right" />
+      <Button Content="编辑" Command="{Binding EditCommand}" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <Button Content="删除" Command="{Binding DeleteCommand}" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    </StackPanel>
+    <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" Margin="4">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <StackPanel Spacing="2" Margin="4,6">
+            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14" />
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <TextBlock Text="{Binding TriggerTime}" Foreground="Gray" />
+              <TextBlock Foreground="Gray">
+                <TextBlock.Text>
+                  <MultiBinding StringFormat="{}{0}">
+                    <Binding Path="RepeatType" />
+                  </MultiBinding>
+                </TextBlock.Text>
+              </TextBlock>
+              <TextBlock Text="{Binding TriggeredCount, StringFormat='已触发 {0} 次'}" Foreground="Gray" />
+            </StackPanel>
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</UserControl>
