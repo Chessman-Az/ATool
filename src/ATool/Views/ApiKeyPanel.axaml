@@ -7,10 +7,7 @@
         <TextBox Text="{Binding NewAlias}" Watermark="别名（如：个人主Key）" Width="170" />
         <TextBox Text="{Binding NewKey}" Watermark="sk-…（添加时自动验证）" Width="300" />
         <Button Content="添加 Key" Command="{Binding AddKeyCommand}" Classes="accent" />
-        <Button Content="立即刷新全部" Command="{Binding RefreshAsyncCommand}"
-                IsEnabled="{Binding IsRefreshing, Converter={x:Static BoolConverters.Not}}" />
-        <Button Content="查询余额" Command="{Binding OpenHistoryCommand}" Classes="accent"
-                ToolTip.Tip="查看余额变动明细（选中 Key 或全部）" />
+        <Button Content="立即刷新全部" Command="{Binding RefreshAsyncCommand}" />
       </StackPanel>
       <TextBlock Text="{Binding Message}" Classes="danger" TextWrapping="Wrap" />
     </StackPanel>
@@ -26,7 +23,6 @@
               <TextBlock Text="{Binding DeltaText, StringFormat='({0})'}" Classes="hint" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="10">
-              <TextBlock Text="{Binding CreatedAt, StringFormat='添加于 {0}'}" Classes="hint" />
               <TextBlock Text="{Binding LastError}" Classes="danger" TextWrapping="Wrap" />
               <Button Content="删除" Command="{Binding DeleteCommand}" FontSize="11" Padding="10,3" HorizontalAlignment="Right" />
             </StackPanel>

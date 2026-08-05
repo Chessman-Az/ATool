@@ -36,13 +36,8 @@ public partial class MainWindow : Window
         vm.Reminders.DeleteRequested += ConfirmDeleteReminder;
         vm.Calendar.SelectedDateChanged += d => vm.Reminders.SetDateFilter(d);
 
-        // Key：删除二次确认 / 余额变动明细页
+        // Key：删除二次确认
         vm.ApiKeys.DeleteRequested += ConfirmDeleteKey;
-        vm.ApiKeys.HistoryRequested += item =>
-        {
-            var repo = Program.Services.GetRequiredService<Data.BalanceHistoryRepository>();
-            new BalanceHistoryWindow(repo, item?.Key.Id, item?.Alias).ShowDialog(this);
-        };
 
         vm.LoadAll();
     }

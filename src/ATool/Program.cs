@@ -74,6 +74,7 @@ internal static class Program
     services.AddSingleton<ApiKeysViewModel>();
     services.AddSingleton<SettingsViewModel>();
     services.AddSingleton<BalanceChartViewModel>();
+    services.AddSingleton<BalanceDetailViewModel>();
     services.AddSingleton<MainWindowViewModel>();
 
         var provider = services.BuildServiceProvider();

@@ -36,8 +36,9 @@ public partial class ApiKeysViewModel : ObservableObject
     /// <summary>请求删除确认（视图层弹 ConfirmDialog，确认后调 ConfirmDelete）。</summary>
     public event Action<ApiKeyItemVm>? DeleteRequested;
 
-    /// <summary>请求打开余额变动明细页（参数：当前选中 Key，可为 null=全部）。</summary>
-    public event Action<ApiKeyItemVm?>? HistoryRequested;
+    /// <summary>全部 Key 余额合计（开干下方汇总行）。</summary>
+    [ObservableProperty]
+    private decimal _totalBalance;
 
     public ApiKeysViewModel(ApiKeyRepository repo, BalanceService balance, DeepSeekClient client, BalanceHistoryRepository history)
     {
@@ -57,6 +58,7 @@ public partial class ApiKeysViewModel : ObservableObject
             var latest = _history.GetLatest(k.Id);
             Keys.Add(new ApiKeyItemVm(k, latest?.TotalBalance, latest?.Delta, OnDeleteRequested));
         }
+        TotalBalance = BalanceSummaryService.Sum(Keys.Select(k => k.Balance));
     }
 
     private void OnDeleteRequested(ApiKeyItemVm item) => DeleteRequested?.Invoke(item);
@@ -112,10 +114,6 @@ public partial class ApiKeysViewModel : ObservableObject
         await _balance.RefreshAllAsync();
         Reload();
     }
-
-    /// <summary>查询余额：打开余额变动明细页（选中 Key 或全部）。</summary>
-    [RelayCommand]
-    private void OpenHistory() => HistoryRequested?.Invoke(SelectedKey);
 }
 
 /// <summary>Key 列表项：余额与变动金额展示包装。</summary>
