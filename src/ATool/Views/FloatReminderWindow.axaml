@@ -1,11 +1,15 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:ATool.Views"
         x:Class="ATool.Views.FloatReminderWindow"
         Width="260" Height="320"
         SystemDecorations="None"
         ShowInTaskbar="False" Topmost="False" CanResize="False"
         ShowActivated="False" Focusable="False"
         Background="Transparent" TransparencyLevelHint="Transparent">
+  <Window.Resources>
+    <views:BoolToTextDecorationsConverter x:Key="StrikeConv" />
+  </Window.Resources>
   <Border x:Name="RootBorder" Background="White" BorderBrush="#E4E8F0" BorderThickness="1" CornerRadius="12" Margin="3">
     <Grid>
       <TextBlock x:Name="EmptyText" Text="暂无待办提醒" Classes="hint"
@@ -40,7 +44,8 @@
                   </Grid>
                 </Button>
                 <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="13"
-                           Foreground="#1F2430" VerticalAlignment="Center" />
+                           Foreground="#1F2430" VerticalAlignment="Center"
+                           TextDecorations="{Binding IsDone, Converter={StaticResource StrikeConv}}" />
               </StackPanel>
             </Border>
           </DataTemplate>

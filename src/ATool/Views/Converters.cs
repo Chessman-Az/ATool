@@ -65,3 +65,15 @@ public class CalendarDayBrushConverter : IMultiValueConverter
     public object? ConvertBack(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();
 }
+
+/// <summary>bool → 文字装饰：true=删除线（已完成），false=无。</summary>
+public class BoolToTextDecorationsConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is true
+            ? Avalonia.Media.TextDecorations.Strikethrough
+            : new Avalonia.Media.TextDecorationCollection();
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
