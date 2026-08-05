@@ -45,6 +45,7 @@ public sealed class FloatReminderService
     private double Phys(double dip) => dip * Scale();
 
     private const double Edge = 10;     // 常态露出的边缘条宽度（DIP）
+    private const double ScreenMargin = 12; // 展开后浮窗与屏幕边缘的间距（DIP）
     private const double HotZone = 32;  // 角落热区尺寸（DIP）
     private const double WindowW = 260; // 窗口宽（DIP）
     private const double WindowH = 320; // 窗口高（DIP）
@@ -125,18 +126,18 @@ public sealed class FloatReminderService
         }
     }
 
-    /// <summary>按当前角落计算浮窗目标位置（静态纯函数，可测）。expanded=true 为完全展开。</summary>
-    public static (double X, double Y) ComputeTarget(Corner corner, double screenX, double screenY, double screenW, double screenH, double winW, double winH, double edge, bool expanded)
+    /// <summary>按当前角落计算浮窗目标位置（静态纯函数，可测）。expanded=true 为完全展开（与屏幕边缘留 margin 间距）。</summary>
+    public static (double X, double Y) ComputeTarget(Corner corner, double screenX, double screenY, double screenW, double screenH, double winW, double winH, double edge, double margin, bool expanded)
     {
         double x = corner switch
         {
-            Corner.TopLeft or Corner.BottomLeft => expanded ? screenX : screenX - winW + edge,
-            _ => expanded ? screenX + screenW - winW : screenX + screenW - edge,
+            Corner.TopLeft or Corner.BottomLeft => expanded ? screenX + margin : screenX - winW + edge,
+            _ => expanded ? screenX + screenW - winW - margin : screenX + screenW - edge,
         };
         double y = corner switch
         {
-            Corner.TopLeft or Corner.TopRight => screenY,
-            _ => screenY + screenH - winH,
+            Corner.TopLeft or Corner.TopRight => expanded ? screenY + margin : screenY,
+            _ => expanded ? screenY + screenH - winH - margin : screenY + screenH - winH,
         };
         return (x, y);
     }
@@ -224,7 +225,7 @@ public sealed class FloatReminderService
     private void Animate()
     {
         var scr = Screen();
-        var (tx, ty) = ComputeTarget(_corner, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, Phys(WindowW), Phys(WindowH), Phys(Edge), _expanded);
+        var (tx, ty) = ComputeTarget(_corner, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, Phys(WindowW), Phys(WindowH), Phys(Edge), Phys(ScreenMargin), _expanded);
         _targetX = tx;
         _targetY = ty;
         _animTimer.Start();
@@ -247,7 +248,7 @@ public sealed class FloatReminderService
     private void PlaceWindow()
     {
         var scr = Screen();
-        (_curX, _curY) = ComputeTarget(_corner, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, Phys(WindowW), Phys(WindowH), Phys(Edge), expanded: false);
+        (_curX, _curY) = ComputeTarget(_corner, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, Phys(WindowW), Phys(WindowH), Phys(Edge), Phys(ScreenMargin), expanded: false);
         _targetX = _curX;
         _targetY = _curY;
         _window.Position = new PixelPoint((int)_curX, (int)_curY);
@@ -266,7 +267,7 @@ public sealed class FloatReminderService
     private bool MouseOverRetracted(POINT pt)
     {
         var scr = Screen();
-        var (rx, ry) = ComputeTarget(_corner, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, Phys(WindowW), Phys(WindowH), Phys(Edge), expanded: false);
+        var (rx, ry) = ComputeTarget(_corner, scr.Bounds.X, scr.Bounds.Y, scr.Bounds.Width, scr.Bounds.Height, Phys(WindowW), Phys(WindowH), Phys(Edge), Phys(ScreenMargin), expanded: false);
         var buf = Phys(RetractBuffer);
         var left = Math.Max(scr.Bounds.X, rx) - buf;
         var right = Math.Min(scr.Bounds.X + scr.Bounds.Width, rx + Phys(WindowW)) + buf;

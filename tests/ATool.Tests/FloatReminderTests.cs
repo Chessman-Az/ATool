@@ -13,16 +13,16 @@ public class FloatReminderTests
 
     [Theory]
     [InlineData(FloatReminderService.Corner.TopLeft, false, -250, 0)]
-    [InlineData(FloatReminderService.Corner.TopLeft, true, 0, 0)]
+    [InlineData(FloatReminderService.Corner.TopLeft, true, 12, 12)]          // 展开与屏幕边缘留 12px
     [InlineData(FloatReminderService.Corner.TopRight, false, 1910, 0)]
-    [InlineData(FloatReminderService.Corner.TopRight, true, 1660, 0)]
+    [InlineData(FloatReminderService.Corner.TopRight, true, 1648, 12)]
     [InlineData(FloatReminderService.Corner.BottomRight, false, 1910, 760)]
-    [InlineData(FloatReminderService.Corner.BottomRight, true, 1660, 760)]
+    [InlineData(FloatReminderService.Corner.BottomRight, true, 1648, 748)]
     [InlineData(FloatReminderService.Corner.BottomLeft, false, -250, 760)]
-    [InlineData(FloatReminderService.Corner.BottomLeft, true, 0, 760)]
+    [InlineData(FloatReminderService.Corner.BottomLeft, true, 12, 748)]
     public void ComputeTarget_四角落缩回与展开位置(FloatReminderService.Corner corner, bool expanded, double ex, double ey)
     {
-        var (x, y) = FloatReminderService.ComputeTarget(corner, SX, SY, SW, SH, W, H, Edge, expanded);
+        var (x, y) = FloatReminderService.ComputeTarget(corner, SX, SY, SW, SH, W, H, Edge, 12, expanded);
         Assert.Equal(ex, x, 3);
         Assert.Equal(ey, y, 3);
     }
