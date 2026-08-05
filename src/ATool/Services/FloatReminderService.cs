@@ -55,12 +55,28 @@ public sealed class FloatReminderService
         _settings = settings;
         _repo = repo;
         _window = new FloatReminderWindow();
+        _window.CompleteRequested += OnCompleteRequested;
         _pollTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
         _pollTimer.Tick += (_, _) => Poll();
         _animTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
         _animTimer.Tick += (_, _) => TickAnimation();
         _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(60) };
         _refreshTimer.Tick += (_, _) => RefreshReminders();
+    }
+
+    /// <summary>点击待办圆圈 → 标记完成并刷新列表。</summary>
+    private void OnCompleteRequested(long reminderId)
+    {
+        try
+        {
+            _repo.SetStatus(reminderId, ReminderStatus.Done);
+            Log.Information("浮窗标记完成: Reminder#{Id}", reminderId);
+            RefreshReminders();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "浮窗标记完成失败: Reminder#{Id}", reminderId);
+        }
     }
 
     /// <summary>绑定主窗口（用于检测全屏/最大化状态）。</summary>
@@ -133,11 +149,11 @@ public sealed class FloatReminderService
     {
         try
         {
-            var titles = _repo.GetAll(ReminderStatus.Pending)
+            var items = _repo.GetAll(ReminderStatus.Pending)
                 .OrderBy(r => r.TriggerTime)
-                .Select(r => r.Title)
+                .Select(r => new FloatReminderItem(r.Id, r.Title))
                 .ToList();
-            _window.SetReminders(titles);
+            _window.SetReminders(items);
         }
         catch (Exception ex)
         {

@@ -1,4 +1,5 @@
 using ATool.Data;
+using ATool.Models;
 using ATool.Services;
 using Xunit;
 
@@ -70,6 +71,29 @@ public class FloatReminderTests
         Assert.Equal(0, settings.GetFloatReminderOpacity());
         settings.SetFloatReminderOpacity(101);
         Assert.Equal(100, settings.GetFloatReminderOpacity());
+    }
+
+    [Fact]
+    public void 浮窗标记完成_待办列表移除该提醒()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "atool-float-done-" + Guid.NewGuid().ToString("N"));
+        var db = new Db(dir);
+        db.InitializeSchema();
+        var repo = new ReminderRepository(db);
+        var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        var id = repo.Insert(new Reminder
+        {
+            Title = "浮窗测试提醒",
+            TriggerTime = "09:00:00",
+            Status = ReminderStatus.Pending,
+            CreatedAt = now,
+        });
+
+        Assert.Single(repo.GetAll(ReminderStatus.Pending));
+
+        repo.SetStatus(id, ReminderStatus.Done); // 浮窗圆圈点击 → 标记完成
+
+        Assert.Empty(repo.GetAll(ReminderStatus.Pending));
     }
 
     [Theory]

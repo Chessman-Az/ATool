@@ -29,10 +29,13 @@
             <Border Classes="card" Background="Transparent" BorderBrush="#E4E8F0" BorderThickness="1"
                     CornerRadius="8" Padding="10,7" Margin="4,3">
               <StackPanel Orientation="Horizontal" Spacing="8">
-                <!-- 待办圆圈（与主窗口提醒列表一致：空心圆 = 未完成） -->
-                <Ellipse Width="11" Height="11" Stroke="{DynamicResource PrimaryBrush}"
-                         StrokeThickness="1.6" VerticalAlignment="Center" />
-                <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="13"
+                <!-- 待办圆圈：点击标记完成 -->
+                <Button Click="OnCircleClick" Background="Transparent" BorderThickness="0"
+                        Padding="2" VerticalAlignment="Center" ToolTip.Tip="点击标记完成">
+                  <Ellipse Width="11" Height="11" Stroke="{DynamicResource PrimaryBrush}"
+                           StrokeThickness="1.6" />
+                </Button>
+                <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="13"
                            Foreground="#1F2430" VerticalAlignment="Center" />
               </StackPanel>
             </Border>
