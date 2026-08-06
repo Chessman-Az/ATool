@@ -20,7 +20,12 @@ namespace ATool.ViewModels;
 public partial class TimeMasterViewModel : ObservableObject
 {
     private readonly UsageLogRepository _repo;
+    private readonly UsageTrackerService _tracker;
     private readonly DispatcherTimer _autoRefresh;
+
+    /// <summary>实时采样状态（当前前台活动），页面顶部展示。</summary>
+    [ObservableProperty]
+    private string _currentActivity = "采样中…";
 
     // ---- 范围单选（RadioButton 双向绑定，照 BalanceChartViewModel bool 单选）----
     [ObservableProperty] private bool _isToday = true;
@@ -63,9 +68,10 @@ public partial class TimeMasterViewModel : ObservableObject
     public Axis[] XAxes { get; private set; } = [];
     public Axis[] YAxes { get; private set; } = [];
 
-    public TimeMasterViewModel(UsageLogRepository repo)
+    public TimeMasterViewModel(UsageLogRepository repo, UsageTrackerService tracker)
     {
         _repo = repo;
+        _tracker = tracker;
         BuildAxes();
         Refresh();
         // 每 60s 自动刷新（后台采样写入持续发生，页面常驻时数据实时跟进）
@@ -90,6 +96,7 @@ public partial class TimeMasterViewModel : ObservableObject
     /// <summary>进入页面时由 MainWindowViewModel 调用（NavIndex==3）；范围切换 / 60s 定时器也走这里。</summary>
     public void Refresh()
     {
+        CurrentActivity = _tracker.CurrentActivity;
         var (start, end) = CurrentRange();
         var logs = _repo.QueryRange(start, end);
         ApplySummary(logs);

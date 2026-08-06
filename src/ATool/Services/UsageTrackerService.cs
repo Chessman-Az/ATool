@@ -46,6 +46,9 @@ public sealed class UsageTrackerService : IDisposable
     private DateTime _segmentStart;
     private int _ticksSinceFlush;
 
+    /// <summary>当前正在采样的前台活动（"进程 · 窗口标题"），供时间大师页实时显示。</summary>
+    public string CurrentActivity { get; private set; } = "采样中…";
+
     public UsageTrackerService(UsageLogRepository repo)
     {
         _repo = repo;
@@ -93,6 +96,7 @@ public sealed class UsageTrackerService : IDisposable
                     _segmentStart = now;
                     _currentId = _repo.Insert(process, title, AppUsageCategorizer.Categorize(process), now);
                     _ticksSinceFlush = 0;
+                    CurrentActivity = string.IsNullOrWhiteSpace(title) ? process : $"{process} · {title}";
                     break;
 
                 case TrackerSegmentLogic.Action.Flush:

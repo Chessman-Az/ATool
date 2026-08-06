@@ -10,7 +10,7 @@ public static class UsageAggregator
 {
     /// <summary>
     /// 计算范围 [Start, End)（左闭右开）：
-    /// Today=当日 00:00→now；ThisWeek=周一 00:00→now；ThisMonth=1 号 00:00→now；CustomDate=当日 00:00→次日 00:00。
+    /// Today=当日 00:00→now；ThisWeek=自然周（周一 00:00→下周一 00:00）；ThisMonth=自然月（1 号 00:00→下月 1 号 00:00）；CustomDate=当日整天。
     /// </summary>
     public static (DateTime Start, DateTime End) RangeOf(UsageRangeKind kind, DateTime now, DateOnly? custom = null)
     {
@@ -18,12 +18,15 @@ public static class UsageAggregator
         {
             case UsageRangeKind.ThisWeek:
             {
-                // ISO 周序：Monday=0 … Sunday=6
+                // ISO 周序：Monday=0 … Sunday=6；自然周结束 = 下周一 00:00（含周日整天）
                 var monday = now.Date.AddDays(-(((int)now.DayOfWeek + 6) % 7));
-                return (monday, now);
+                return (monday, monday.AddDays(7));
             }
             case UsageRangeKind.ThisMonth:
-                return (new DateTime(now.Year, now.Month, 1), now);
+            {
+                var first = new DateTime(now.Year, now.Month, 1);
+                return (first, first.AddMonths(1));
+            }
             case UsageRangeKind.CustomDate when custom is { } d:
                 return (d.ToDateTime(TimeOnly.MinValue), d.ToDateTime(TimeOnly.MinValue).AddDays(1));
             default:

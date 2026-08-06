@@ -25,13 +25,13 @@ public class UsageAggregatorTests
     }
 
     [Fact]
-    public void RangeOf_本周_从周一到当前()
+    public void RangeOf_本周_自然周到下周一零点()
     {
-        // 2026-08-06 是周四；周一 = 08-03
+        // 2026-08-06 是周四；周一 = 08-03；自然周结束 = 下周一 00:00（左闭右开含周日）
         var now = new DateTime(2026, 8, 6, 15, 30, 0);
         var (s, e) = UsageAggregator.RangeOf(UsageRangeKind.ThisWeek, now);
         Assert.Equal(new DateTime(2026, 8, 3, 0, 0, 0), s);
-        Assert.Equal(now, e);
+        Assert.Equal(new DateTime(2026, 8, 10, 0, 0, 0), e);
     }
 
     [Fact]
@@ -43,12 +43,12 @@ public class UsageAggregatorTests
     }
 
     [Fact]
-    public void RangeOf_本月_从一号到当前()
+    public void RangeOf_本月_自然月到下月一号零点()
     {
         var now = new DateTime(2026, 8, 6, 15, 30, 0);
         var (s, e) = UsageAggregator.RangeOf(UsageRangeKind.ThisMonth, now);
         Assert.Equal(new DateTime(2026, 8, 1, 0, 0, 0), s);
-        Assert.Equal(now, e);
+        Assert.Equal(new DateTime(2026, 9, 1, 0, 0, 0), e);
     }
 
     [Fact]
