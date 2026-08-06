@@ -196,15 +196,9 @@ public partial class TimeMasterViewModel : ObservableObject
         };
     }
 
-    /// <summary>秒数 → 人类可读时长（秒 / 分钟 / 小时分）。</summary>
+    /// <summary>秒数 → 分钟（统一按分计，四舍五入；不足 1 分显示 0 分钟）。</summary>
     internal static string FormatDuration(long sec)
-    {
-        if (sec < 60) return $"{sec} 秒";
-        var ts = TimeSpan.FromSeconds(sec);
-        return ts.TotalHours >= 1
-            ? $"{(int)ts.TotalHours} 小时 {ts.Minutes} 分"
-            : $"{ts.Minutes} 分钟";
-    }
+        => $"{(int)Math.Round(sec / 60.0)} 分钟";
 
     /// <summary>
     /// 解析段开始时间。契约：StartTime 为 'yyyy-MM-dd HH:mm:ss' 字符串（照 QueriedAt 模式），DateTime 亦兼容。

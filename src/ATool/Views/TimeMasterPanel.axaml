@@ -54,9 +54,10 @@
         </Border>
       </Grid>
 
-      <!-- 近 7 天柱状图 -->
+      <!-- 近 7 天柱状图（选「今日」时不显示） -->
       <Border Background="{DynamicResource CardBrush}" CornerRadius="10"
-              BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,10">
+              BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,10"
+              IsVisible="{Binding IsToday, Converter={x:Static BoolConverters.Not}}">
         <StackPanel Spacing="8">
           <TextBlock Text="近 7 天使用时长" Classes="h2" />
           <TextBlock Text="暂无数据" Classes="hint"
