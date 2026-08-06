@@ -52,10 +52,11 @@
       </StackPanel>
 
       <StackPanel Spacing="6">
-        <TextBlock Text="单次/每日触发时间（HH:mm:ss）" Classes="h2"
+        <TextBlock Text="单次/每日触发时间" Classes="h2"
                    IsVisible="{Binding IsWeekly, Converter={x:Static BoolConverters.Not}}" />
-        <TextBox Text="{Binding TriggerTime}" Watermark="如 09:30:00" Width="140" HorizontalAlignment="Left"
-                 IsVisible="{Binding IsWeekly, Converter={x:Static BoolConverters.Not}}" />
+        <ComboBox ItemsSource="{Binding TimeOptions}" SelectedItem="{Binding SelectedTime}"
+                  Width="140" HorizontalAlignment="Left"
+                  IsVisible="{Binding IsWeekly, Converter={x:Static BoolConverters.Not}}" />
       </StackPanel>
       </StackPanel>
 

@@ -15,11 +15,18 @@ public partial class ReminderEditViewModel : ObservableObject
 
     public ObservableCollection<WeeklyItemVm> WeeklyItems { get; } = [];
 
+    /// <summary>时间下拉选项（每 30 分钟，HH:mm）。</summary>
+    public List<string> TimeOptions { get; } = [];
+
     [ObservableProperty]
     private string _title = "";
 
     [ObservableProperty]
     private string _description = "";
+
+    /// <summary>单次/每日触发时间（下拉选择，HH:mm）。</summary>
+    [ObservableProperty]
+    private string _selectedTime = "09:00";
 
     [ObservableProperty]
     private string _triggerTime = "09:00:00";
@@ -55,6 +62,9 @@ public partial class ReminderEditViewModel : ObservableObject
         _repo = repo;
         for (var i = 0; i < 7; i++)
             WeeklyItems.Add(new WeeklyItemVm(i));
+        for (var h = 0; h < 24; h++)
+            for (var m = 0; m < 60; m += 30)
+                TimeOptions.Add($"{h:00}:{m:00}");
     }
 
     public bool IsEditing => _editing is not null;
@@ -84,6 +94,7 @@ public partial class ReminderEditViewModel : ObservableObject
         Title = "";
         Description = "";
         TriggerTime = "09:00:00";
+        SelectedTime = DateTime.Now.ToString("HH:mm"); // 默认当前时间
         NotifyEnabled = false;
         RepeatType = RepeatType.Single;
         IsSingle = true; IsDaily = false; IsWeekly = false;
@@ -101,6 +112,7 @@ public partial class ReminderEditViewModel : ObservableObject
         Title = r.Title;
         Description = r.Description;
         TriggerTime = r.TriggerTime;
+        SelectedTime = r.TriggerTime.Length >= 5 ? r.TriggerTime[..5] : "09:00";
         NotifyEnabled = r.NotifyEnabled;
         RepeatType = r.RepeatType;
         IsSingle = r.RepeatType == RepeatType.Single;
@@ -124,7 +136,7 @@ public partial class ReminderEditViewModel : ObservableObject
     public bool Validate()
     {
         if (string.IsNullOrWhiteSpace(Title)) { Error = "标题不能为空"; return false; }
-        if (!TimeOnly.TryParse(TriggerTime, out _)) { Error = "触发时间格式应为 HH:mm:ss"; return false; }
+        if (!TimeOnly.TryParse(SelectedTime, out _)) { Error = "请选择有效的触发时间"; return false; }
         if (RepeatType == RepeatType.Weekly)
         {
             var selected = WeeklyItems.Where(w => w.IsSelected).ToList();
@@ -142,6 +154,7 @@ public partial class ReminderEditViewModel : ObservableObject
     {
         if (!Validate()) return;
         var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        TriggerTime = SelectedTime + ":00"; // 下拉 HH:mm → 存储 HH:mm:ss
         var scheduleJson = RepeatType == RepeatType.Weekly
             ? JsonSerializer.Serialize(WeeklyItems.Where(w => w.IsSelected)
                 .Select(w => new WeeklyScheduleItem { Day = w.Day, Time = w.Time }).ToList())

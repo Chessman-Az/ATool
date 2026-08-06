@@ -16,8 +16,6 @@
         <TextBlock VerticalAlignment="Center" Margin="8,0,0,0" Classes="hint"
                    Text="{Binding Items.Count, StringFormat='共 {0} 条'}" />
         <Button Content="＋ 添加" Command="{Binding AddCommand}" HorizontalAlignment="Right" Margin="16,0,0,0" Classes="accent" />
-        <TextBlock VerticalAlignment="Center" Classes="hint" Margin="4,0,0,0"
-                   Text="右键提醒可修改/删除" />
       </StackPanel>
     </Border>
     <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" Margin="6,0,6,6">
