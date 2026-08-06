@@ -8,10 +8,10 @@ namespace ATool.Tests;
 public class NotifyEnabledTests
 {
     [Fact]
-    public void 新建提醒默认开启提醒()
+    public void 新建提醒默认不提醒()
     {
         var r = new Reminder { Title = "t" };
-        Assert.True(r.NotifyEnabled);
+        Assert.False(r.NotifyEnabled); // 默认不勾选「是否提醒」
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class NotifyEnabledTests
     }
 
     [Fact]
-    public void 未指定NotifyEnabled插入_默认开启()
+    public void 未指定NotifyEnabled插入_默认不勾选()
     {
         var dir = Path.Combine(Path.GetTempPath(), "atool-notify-def-" + Guid.NewGuid().ToString("N"));
         var db = new Db(dir);
@@ -59,9 +59,9 @@ public class NotifyEnabledTests
             Status = ReminderStatus.Pending,
             CreatedAt = now,
             UpdatedAt = now,
-            // 不设置 NotifyEnabled → 默认 true
+            // 不设置 NotifyEnabled → 模型默认 false（不勾选）
         });
 
-        Assert.True(repo.Get(id)!.NotifyEnabled);
+        Assert.False(repo.Get(id)!.NotifyEnabled);
     }
 }

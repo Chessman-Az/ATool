@@ -7,7 +7,7 @@
         <TextBox Text="{Binding NewAlias}" Watermark="别名（如：个人主Key）" Width="170" />
         <TextBox Text="{Binding NewKey}" Watermark="sk-…（添加时自动验证）" Width="300" />
         <Button Content="添加 Key" Command="{Binding AddKeyCommand}" Classes="accent" />
-        <Button Content="立即刷新全部" Command="{Binding RefreshAsyncCommand}" Classes="accent"
+        <Button Content="立即刷新全部" Classes="accent"
                 Click="OnRefreshAllClick" />
       </StackPanel>
       <TextBlock Text="{Binding Message}" Classes="danger" TextWrapping="Wrap" />

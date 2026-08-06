@@ -24,9 +24,9 @@ public partial class ReminderEditViewModel : ObservableObject
     [ObservableProperty]
     private string _triggerTime = "09:00:00";
 
-    /// <summary>是否提醒（到点弹窗）。不勾选 → 不弹窗。</summary>
+    /// <summary>是否提醒（到点弹窗）。默认不勾选；勾选才显示提醒时间设置。</summary>
     [ObservableProperty]
-    private bool _notifyEnabled = true;
+    private bool _notifyEnabled;
 
     [ObservableProperty]
     private RepeatType _repeatType = RepeatType.Single;
@@ -84,7 +84,7 @@ public partial class ReminderEditViewModel : ObservableObject
         Title = "";
         Description = "";
         TriggerTime = "09:00:00";
-        NotifyEnabled = true;
+        NotifyEnabled = false;
         RepeatType = RepeatType.Single;
         IsSingle = true; IsDaily = false; IsWeekly = false;
         EndType = EndType.Never;

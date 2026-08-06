@@ -53,9 +53,9 @@
 
       <StackPanel Spacing="6">
         <TextBlock Text="单次/每日触发时间（HH:mm:ss）" Classes="h2"
-                   IsVisible="{Binding RepeatType, Converter={StaticResource EnumEq}, ConverterParameter=Weekly}" />
+                   IsVisible="{Binding IsWeekly, Converter={x:Static BoolConverters.Not}}" />
         <TextBox Text="{Binding TriggerTime}" Watermark="如 09:30:00" Width="140" HorizontalAlignment="Left"
-                 IsVisible="{Binding RepeatType, Converter={StaticResource EnumEq}, ConverterParameter=Weekly}" />
+                 IsVisible="{Binding IsWeekly, Converter={x:Static BoolConverters.Not}}" />
       </StackPanel>
       </StackPanel>
 
