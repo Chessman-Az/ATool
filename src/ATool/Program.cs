@@ -19,10 +19,14 @@ internal static class Program
     /// <summary>单实例锁：程序已在运行时新实例直接退出（防止旧进程的浮窗/托盘与新版并存）。</summary>
     private static Mutex? _singleInstance;
 
+    /// <summary>开机自启模式（--autostart）：不弹主界面，只驻留托盘。</summary>
+    public static bool AutoStartMode { get; private set; }
+
     [STAThread]
     public static void Main(string[] args)
     {
         ConfigureLogger();
+        AutoStartMode = args.Contains("--autostart", StringComparer.OrdinalIgnoreCase);
         _singleInstance = new Mutex(true, @"Local\ATool_SingleInstance", out var createdNew);
         if (!createdNew)
         {

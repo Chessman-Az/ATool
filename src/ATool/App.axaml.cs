@@ -30,6 +30,9 @@ public partial class App : Application
 
             DataContext = vm; // 托盘命令绑定 Application.DataContext
             desktop.MainWindow = new MainWindow { DataContext = vm };
+            // 开机自启模式（--autostart）：不弹主界面，只驻留托盘
+            if (Program.AutoStartMode)
+                desktop.MainWindow.Hide();
 
             // 启动后台服务：提醒调度 + 余额自动刷新
             var scheduler = services.GetRequiredService<ReminderSchedulerService>();

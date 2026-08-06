@@ -80,6 +80,7 @@ public partial class BalanceChartViewModel : ObservableObject
             {
                 Labeler = v => v.ToString("F2"),
                 TextSize = 11,
+                MinLimit = 0, // 纵轴从 0 开始
                 LabelsPaint = labelPaint,
                 SeparatorsPaint = sepPaint,
             }

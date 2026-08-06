@@ -25,7 +25,8 @@ public static class AutoStartService
         {
             var exe = Environment.ProcessPath
                 ?? throw new InvalidOperationException("无法确定程序路径");
-            key.SetValue(ValueName, $"\"{exe}\"");
+            // --autostart：开机自启时不弹主界面，只驻留托盘
+            key.SetValue(ValueName, $"\"{exe}\" --autostart");
         }
         else
         {
