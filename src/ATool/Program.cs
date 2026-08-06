@@ -72,6 +72,7 @@ internal static class Program
         services.AddSingleton<ReminderRepository>();
         services.AddSingleton<ApiKeyRepository>();
         services.AddSingleton<BalanceHistoryRepository>();
+        services.AddSingleton<UsageLogRepository>();
 
         // 应用层服务
     services.AddSingleton<DeepSeekClient>();
@@ -81,6 +82,7 @@ internal static class Program
         services.AddSingleton<ReminderPopupService>();
         services.AddSingleton<ReminderSchedulerService>();
         services.AddSingleton<FloatReminderService>();
+        services.AddSingleton<UsageTrackerService>();
 
         // 表现层 VM
     services.AddSingleton<ReminderEditViewModel>();
@@ -90,6 +92,7 @@ internal static class Program
     services.AddSingleton<SettingsViewModel>();
     services.AddSingleton<BalanceChartViewModel>();
     services.AddSingleton<BalanceDetailViewModel>();
+    services.AddSingleton<TimeMasterViewModel>();
     services.AddSingleton<MainWindowViewModel>();
 
         var provider = services.BuildServiceProvider();

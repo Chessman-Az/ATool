@@ -19,24 +19,27 @@ public partial class MainWindowViewModel : ObservableObject
     public PeakHourViewModel PeakHour { get; } = new();
     public ReminderCalendarViewModel Calendar { get; }
     public BalanceDetailViewModel BalanceDetail { get; }
+    public TimeMasterViewModel TimeMaster { get; }
 
     public event Action? ShowWindowRequested;
     public event Action? QuitRequested;
 
-    /// <summary>左侧导航选中项：0=中控台 1=提醒事项 2=DeepSeek 余额 3=系统设置 4=A工具。</summary>
+    /// <summary>左侧导航选中项：0=中控台 1=提醒事项 2=DeepSeek 余额 3=时间大师 4=系统设置 5=A工具。</summary>
     [ObservableProperty]
     private int _navIndex;
 
     private DateTime _lastBalanceRefresh = DateTime.MinValue;
 
-    /// <summary>切到余额页时自动刷新一次（节流 60s），保证「全部余额」实时。</summary>
+    /// <summary>切到余额页时自动刷新一次（节流 60s），保证「全部余额」实时；切到时间大师页刷新统计。</summary>
     partial void OnNavIndexChanged(int value)
     {
-        if (value == 1 && DateTime.Now - _lastBalanceRefresh > TimeSpan.FromSeconds(60))
+        if (value == 2 && DateTime.Now - _lastBalanceRefresh > TimeSpan.FromSeconds(60))
         {
             _lastBalanceRefresh = DateTime.Now;
             _ = RefreshBalance();
         }
+        if (value == 3)
+            TimeMaster.Refresh();
     }
 
     [ObservableProperty]
@@ -45,7 +48,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private string _peakStatusText = "";
 
-    public MainWindowViewModel(BalanceService balance, ReminderListViewModel reminders, ApiKeysViewModel apiKeys, SettingsViewModel settings, BalanceChartViewModel chart, ReminderCalendarViewModel calendar, BalanceDetailViewModel balanceDetail)
+    public MainWindowViewModel(BalanceService balance, ReminderListViewModel reminders, ApiKeysViewModel apiKeys, SettingsViewModel settings, BalanceChartViewModel chart, ReminderCalendarViewModel calendar, BalanceDetailViewModel balanceDetail, TimeMasterViewModel timeMaster)
     {
         _balance = balance;
         Reminders = reminders;
@@ -54,6 +57,7 @@ public partial class MainWindowViewModel : ObservableObject
         Chart = chart;
         Calendar = calendar;
         BalanceDetail = balanceDetail;
+        TimeMaster = timeMaster;
         RefreshPeakStatus();
         _balance.StateChanged += () => OnPropertyChanged(nameof(IsRefreshing));
     }

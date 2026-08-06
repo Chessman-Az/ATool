@@ -1,0 +1,126 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             x:Class="ATool.Views.TimeMasterPanel">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Spacing="10">
+      <!-- 范围切换：今日 / 本周 / 本月 / 指定日期 -->
+      <Border Background="{DynamicResource CardBrush}" CornerRadius="10"
+              BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,10">
+        <StackPanel Orientation="Horizontal" Spacing="16">
+          <TextBlock Text="⏱" FontSize="15" VerticalAlignment="Center" />
+          <RadioButton Content="今日" IsChecked="{Binding IsToday}" GroupName="TimeRange" />
+          <RadioButton Content="本周" IsChecked="{Binding IsThisWeek}" GroupName="TimeRange" />
+          <RadioButton Content="本月" IsChecked="{Binding IsThisMonth}" GroupName="TimeRange" />
+          <RadioButton Content="指定日期" IsChecked="{Binding IsCustom}" GroupName="TimeRange" />
+          <DatePicker SelectedDate="{Binding CustomDate}" IsVisible="{Binding IsCustom}" Width="150" />
+          <TextBlock Text="{Binding PeriodLabel}" Classes="hint" VerticalAlignment="Center" />
+        </StackPanel>
+      </Border>
+
+      <!-- 总览卡：活动总时长 + 办公/浏览器/游戏 -->
+      <Grid ColumnDefinitions="1.5*,1*,1*,1*" ColumnSpacing="10">
+        <Border Background="{DynamicResource CardBrush}" CornerRadius="10"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="16,12">
+          <StackPanel Spacing="4">
+            <TextBlock Text="活动总时长" Classes="hint" />
+            <TextBlock Text="{Binding TotalText}" FontSize="24" FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryBrush}" />
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="1" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="16,12">
+          <StackPanel Spacing="4">
+            <TextBlock Text="办公" Classes="hint" />
+            <TextBlock Text="{Binding OfficeText}" FontSize="18" FontWeight="Bold"
+                       Foreground="#34D399" />
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="2" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="16,12">
+          <StackPanel Spacing="4">
+            <TextBlock Text="浏览器" Classes="hint" />
+            <TextBlock Text="{Binding BrowserText}" FontSize="18" FontWeight="Bold"
+                       Foreground="#7DD3FC" />
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="3" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="16,12">
+          <StackPanel Spacing="4">
+            <TextBlock Text="游戏" Classes="hint" />
+            <TextBlock Text="{Binding GameText}" FontSize="18" FontWeight="Bold"
+                       Foreground="#FBBF24" />
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <!-- 近 7 天柱状图 -->
+      <Border Background="{DynamicResource CardBrush}" CornerRadius="10"
+              BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,10">
+        <StackPanel Spacing="8">
+          <TextBlock Text="近 7 天使用时长" Classes="h2" />
+          <TextBlock Text="暂无数据" Classes="hint"
+                     IsVisible="{Binding HasData, Converter={x:Static BoolConverters.Not}}" />
+          <lvc:CartesianChart Series="{Binding DailyChart}" XAxes="{Binding XAxes}" YAxes="{Binding YAxes}"
+                              Height="180" IsVisible="{Binding HasData}" />
+        </StackPanel>
+      </Border>
+
+      <!-- 明细两栏：应用时长排行 | 网站时长明细 -->
+      <Grid ColumnDefinitions="1*,1*" ColumnSpacing="10">
+        <Border Background="{DynamicResource CardBrush}" CornerRadius="10"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,10">
+          <StackPanel Spacing="8">
+            <TextBlock Text="应用时长排行" Classes="h2" />
+            <TextBlock Text="暂无使用记录" Classes="hint"
+                       IsVisible="{Binding HasAppData, Converter={x:Static BoolConverters.Not}}" />
+            <ItemsControl ItemsSource="{Binding ByAppItems}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Spacing="3" Margin="0,4">
+                    <Grid ColumnDefinitions="1.2*,0.8*,Auto">
+                      <TextBlock Text="{Binding Name}" FontSize="12" TextTrimming="CharacterEllipsis"
+                                 VerticalAlignment="Center" />
+                      <ProgressBar Grid.Column="1" Maximum="1" Value="{Binding Ratio}" Height="6"
+                                   Margin="8,0" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource PrimaryBrush}" />
+                      <TextBlock Grid.Column="2" Text="{Binding DurationText}" FontSize="12"
+                                 Foreground="{DynamicResource TextSecondaryBrush}"
+                                 FontFamily="Consolas" VerticalAlignment="Center" />
+                    </Grid>
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="1" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,10">
+          <StackPanel Spacing="8">
+            <TextBlock Text="网站时长明细" Classes="h2" />
+            <TextBlock Text="暂无浏览记录" Classes="hint"
+                       IsVisible="{Binding HasSiteData, Converter={x:Static BoolConverters.Not}}" />
+            <ItemsControl ItemsSource="{Binding BySiteItems}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Spacing="3" Margin="0,4">
+                    <Grid ColumnDefinitions="1.2*,0.8*,Auto">
+                      <TextBlock Text="{Binding Name}" FontSize="12" TextTrimming="CharacterEllipsis"
+                                 VerticalAlignment="Center" />
+                      <ProgressBar Grid.Column="1" Maximum="1" Value="{Binding Ratio}" Height="6"
+                                   Margin="8,0" VerticalAlignment="Center"
+                                   Foreground="#7DD3FC" />
+                      <TextBlock Grid.Column="2" Text="{Binding DurationText}" FontSize="12"
+                                 Foreground="{DynamicResource TextSecondaryBrush}"
+                                 FontFamily="Consolas" VerticalAlignment="Center" />
+                    </Grid>
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

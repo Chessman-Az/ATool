@@ -46,10 +46,14 @@ public partial class App : Application
             var floatReminder = services.GetRequiredService<FloatReminderService>();
             floatReminder.SetMainWindow(desktop.MainWindow);
             floatReminder.Apply();
+            // 时间大师：前台窗口使用时长采样（Windows 守卫在服务内部）
+            var usageTracker = services.GetRequiredService<UsageTrackerService>();
+            usageTracker.Start();
 
             desktop.Exit += (_, _) =>
             {
                 scheduler.Dispose();
+                usageTracker.Dispose();
                 toast.Shutdown();
                 Log.CloseAndFlush();
             };
