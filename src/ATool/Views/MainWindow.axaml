@@ -143,20 +143,27 @@
           <views:SettingsPanel DataContext="{Binding Settings}" />
         </Border>
 
-        <!-- A工具（关于页） -->
+        <!-- A工具（关于页）：居中卡片 -->
         <Border IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=3}"
                 Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1" Padding="40">
-          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-            <Border Width="76" Height="76" CornerRadius="38" Background="{DynamicResource PrimaryBrush}"
-                    HorizontalAlignment="Center">
-              <TextBlock Text="A" FontSize="36" FontWeight="Bold" Foreground="White"
-                         HorizontalAlignment="Center" VerticalAlignment="Center" />
-            </Border>
-            <TextBlock Text="A工具" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" />
-            <TextBlock Text="版本 9" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
-            <TextBlock Text="作者：小泽" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
-          </StackPanel>
+          <Border Background="#FAFBFD" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                  CornerRadius="14" Padding="44,34" MaxWidth="440"
+                  HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Spacing="0">
+              <Border Width="84" Height="84" CornerRadius="42" Background="{DynamicResource PrimaryBrush}"
+                      HorizontalAlignment="Center">
+                <TextBlock Text="A" FontSize="40" FontWeight="Bold" Foreground="White"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <TextBlock Text="A工具" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,16,0,4" />
+              <TextBlock Text="版本 9" Classes="hint" HorizontalAlignment="Center" FontSize="13" />
+              <TextBlock Text="作者：小泽" Classes="hint" HorizontalAlignment="Center" FontSize="13" Margin="0,3,0,0" />
+              <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,18,0,16" />
+              <TextBlock Text="灵活重复规则的本地提醒事项，加上 DeepSeek 多 API Key 余额监控的桌面小工具。"
+                         Classes="hint" FontSize="12" TextWrapping="Wrap" TextAlignment="Center" />
+            </StackPanel>
+          </Border>
         </Border>
       </Grid>
     </Grid>
