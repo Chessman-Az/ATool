@@ -11,8 +11,8 @@ public class DeltaBackgroundBrushConverterTests
     private readonly DeltaBackgroundBrushConverter _conv = new();
 
     [Theory]
-    [InlineData("+1.23", 232, 245, 236)]  // 增：淡绿底
-    [InlineData("-1.23", 253, 236, 236)]  // 减：淡红底
+    [InlineData("+1.23", 52, 211, 153)]  // 增：半透明绿底
+    [InlineData("-1.23", 248, 113, 113)]  // 减：半透明红底
     public void Convert_增减返回对应淡色底(string deltaText, byte r, byte g, byte b)
     {
         var brush = Assert.IsType<SolidColorBrush>(_conv.Convert(deltaText, typeof(IBrush), null, CultureInfo.InvariantCulture));

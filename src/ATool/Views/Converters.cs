@@ -27,8 +27,8 @@ public class BoolToPeakBrushConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         => value is true
-            ? Avalonia.Media.SolidColorBrush.Parse("#D64545")
-            : Avalonia.Media.SolidColorBrush.Parse("#2E9E5B");
+            ? Avalonia.Media.SolidColorBrush.Parse("#F87171")
+            : Avalonia.Media.SolidColorBrush.Parse("#34D399");
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();
@@ -41,10 +41,10 @@ public class DeltaBrushConverter : IValueConverter
     {
         var text = value as string;
         if (string.IsNullOrEmpty(text) || text == "—")
-            return Avalonia.Media.SolidColorBrush.Parse("#6B7280");
+            return Avalonia.Media.SolidColorBrush.Parse("#7E93AD");
         return text.StartsWith('-')
-            ? Avalonia.Media.SolidColorBrush.Parse("#D64545")
-            : Avalonia.Media.SolidColorBrush.Parse("#2E9E5B");
+            ? Avalonia.Media.SolidColorBrush.Parse("#F87171")
+            : Avalonia.Media.SolidColorBrush.Parse("#34D399");
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -54,10 +54,10 @@ public class DeltaBrushConverter : IValueConverter
 /// <summary>日历格子着色：选中→主色蓝 / 今天→红，其余透明或文字色。parameter：bg(背景)/fg(文字)/dot(标记点)。</summary>
 public class CalendarDayBrushConverter : IMultiValueConverter
 {
-    private static readonly Avalonia.Media.IBrush Primary = Avalonia.Media.SolidColorBrush.Parse("#3B6FE0");
-    private static readonly Avalonia.Media.IBrush Today = Avalonia.Media.SolidColorBrush.Parse("#D64545");
+    private static readonly Avalonia.Media.IBrush Primary = Avalonia.Media.SolidColorBrush.Parse("#38BDF8");
+    private static readonly Avalonia.Media.IBrush Today = Avalonia.Media.SolidColorBrush.Parse("#F87171");
     private static readonly Avalonia.Media.IBrush White = Avalonia.Media.SolidColorBrush.Parse("#FFFFFF");
-    private static readonly Avalonia.Media.IBrush Text = Avalonia.Media.SolidColorBrush.Parse("#1F2430");
+    private static readonly Avalonia.Media.IBrush Text = Avalonia.Media.SolidColorBrush.Parse("#E2EAF6");
     private static readonly Avalonia.Media.IBrush Transparent = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Transparent);
 
     public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
@@ -97,8 +97,8 @@ public class DeltaBackgroundBrushConverter : IValueConverter
         if (string.IsNullOrEmpty(text) || text == "—")
             return new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Transparent);
         return text.StartsWith('-')
-            ? Avalonia.Media.SolidColorBrush.Parse("#FDECEC") // 减：淡红
-            : Avalonia.Media.SolidColorBrush.Parse("#E8F5EC"); // 增：淡绿
+            ? Avalonia.Media.SolidColorBrush.Parse("#33F87171") // 减：半透明红
+            : Avalonia.Media.SolidColorBrush.Parse("#3334D399"); // 增：半透明绿
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

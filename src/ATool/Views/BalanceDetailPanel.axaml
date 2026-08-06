@@ -14,7 +14,7 @@
       <ItemsControl ItemsSource="{Binding Rows}">
         <ItemsControl.ItemTemplate>
           <DataTemplate>
-            <Border Background="#FAFBFD" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+              <Border Background="#101C30" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="10,8" Margin="0,3">
               <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Spacing="2" VerticalAlignment="Center">

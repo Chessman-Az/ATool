@@ -62,8 +62,8 @@ public partial class BalanceChartViewModel : ObservableObject
     private void BuildAxes()
     {
         // 坐标轴美化：文字浅灰、分隔线浅灰实线，X 轴显示日期（MM-dd）
-        var labelPaint = new SolidColorPaint(SKColor.Parse("#6B7280"));
-        var sepPaint = new SolidColorPaint(SKColor.Parse("#E4E8F0")) { StrokeThickness = 1 };
+          var labelPaint = new SolidColorPaint(SKColor.Parse("#7E93AD"));
+          var sepPaint = new SolidColorPaint(SKColor.Parse("#1E3A5C")) { StrokeThickness = 1 };
         XAxes = new[]
         {
             new Axis
@@ -115,7 +115,7 @@ public partial class BalanceChartViewModel : ObservableObject
         }
 
         var points = ChartDataConverter.BuildPoints(records);
-        var lineColor = SKColor.Parse("#3B6FE0");
+          var lineColor = SKColor.Parse("#38BDF8");
         Series = new ISeries[]
         {
             new LineSeries<DateTimePoint>

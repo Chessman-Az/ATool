@@ -15,7 +15,7 @@ public class DeltaBrushConverterTests
     {
         var brush = _conv.Convert("+5.00", typeof(IBrush), null, CultureInfo.InvariantCulture);
         var c = ((ISolidColorBrush)brush!).Color;
-        Assert.Equal((0x2E, 0x9E, 0x5B), (c.R, c.G, c.B)); // SuccessBrush 绿
+        Assert.Equal((0x34, 0xD3, 0x99), (c.R, c.G, c.B)); // SuccessBrush 绿
     }
 
     [Fact]
@@ -23,7 +23,7 @@ public class DeltaBrushConverterTests
     {
         var brush = _conv.Convert("-7.00", typeof(IBrush), null, CultureInfo.InvariantCulture);
         var c = ((ISolidColorBrush)brush!).Color;
-        Assert.Equal((0xD6, 0x45, 0x45), (c.R, c.G, c.B)); // DangerBrush 红
+        Assert.Equal((0xF8, 0x71, 0x71), (c.R, c.G, c.B)); // DangerBrush 红
     }
 
     [Fact]
@@ -31,6 +31,6 @@ public class DeltaBrushConverterTests
     {
         var brush = _conv.Convert("—", typeof(IBrush), null, CultureInfo.InvariantCulture);
         var c = ((ISolidColorBrush)brush!).Color;
-        Assert.Equal((0x6B, 0x72, 0x80), (c.R, c.G, c.B)); // TextSecondary 灰
+        Assert.Equal((0x7E, 0x93, 0xAD), (c.R, c.G, c.B)); // TextSecondary 灰
     }
 }

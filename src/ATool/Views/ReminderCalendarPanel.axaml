@@ -40,11 +40,11 @@
           <TextBlock Text="五" TextAlignment="Center" FontSize="12" FontWeight="SemiBold"
                      Foreground="{DynamicResource TextSecondaryBrush}" />
         </Border>
-        <Border Background="#FDECEC" CornerRadius="6" Margin="2" Padding="0,5">
-          <TextBlock Text="六" TextAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="#D64545" />
+          <Border Background="#33F87171" CornerRadius="6" Margin="2" Padding="0,5">
+            <TextBlock Text="六" TextAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="#F87171" />
         </Border>
-        <Border Background="#FDECEC" CornerRadius="6" Margin="2" Padding="0,5">
-          <TextBlock Text="日" TextAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="#D64545" />
+          <Border Background="#33F87171" CornerRadius="6" Margin="2" Padding="0,5">
+            <TextBlock Text="日" TextAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="#F87171" />
         </Border>
       </UniformGrid>
 

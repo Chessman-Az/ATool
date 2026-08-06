@@ -12,6 +12,6 @@ public partial class PeakHourViewModel : ObservableObject
     public string StatusText => PeakHourService.CurrentStatus(DateTime.Now).Text;
     public string StatusIcon => PeakHourService.IsPeakHour(DateTime.Now) ? "🐟" : "💪";
     public IBrush StatusBrush => PeakHourService.IsPeakHour(DateTime.Now)
-        ? new SolidColorBrush(Color.Parse("#D64545"))
-        : new SolidColorBrush(Color.Parse("#2E9E5B"));
+          ? new SolidColorBrush(Color.Parse("#F87171"))
+          : new SolidColorBrush(Color.Parse("#34D399"));
 }

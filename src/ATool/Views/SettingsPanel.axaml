@@ -5,7 +5,7 @@
     <!-- 保存按钮：页面右下角 -->
     <Border DockPanel.Dock="Bottom" Padding="0,8,0,0">
       <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
-        <TextBlock Text="{Binding Message}" Foreground="#2E9E5B" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding Message}" Foreground="#34D399" VerticalAlignment="Center" />
         <Button Content="保存设置" Command="{Binding SaveCommand}" Classes="accent" Padding="20,8" />
       </StackPanel>
     </Border>

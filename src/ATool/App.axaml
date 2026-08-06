@@ -2,41 +2,41 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:ATool"
              x:Class="ATool.App"
-             RequestedThemeVariant="Light">
+             RequestedThemeVariant="Dark">
 
   <Application.DataTemplates>
     <local:ViewLocator />
   </Application.DataTemplates>
 
   <Application.Resources>
-    <!-- 品牌色板 -->
-    <SolidColorBrush x:Key="PrimaryBrush" Color="#3B6FE0" />
-    <SolidColorBrush x:Key="PrimaryHoverBrush" Color="#2F5CC2" />
-    <SolidColorBrush x:Key="PrimarySoftBrush" Color="#EAF1FE" />
-    <SolidColorBrush x:Key="BgBrush" Color="#F3F5F9" />
-    <SolidColorBrush x:Key="CardBrush" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#1F2430" />
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#6B7280" />
-    <SolidColorBrush x:Key="BorderBrush" Color="#E4E8F0" />
-    <SolidColorBrush x:Key="DangerBrush" Color="#D64545" />
-    <SolidColorBrush x:Key="SuccessBrush" Color="#2E9E5B" />
-    <SolidColorBrush x:Key="WarningBrush" Color="#E6A23C" />
-    <CornerRadius x:Key="CardRadius">10</CornerRadius>
+    <!-- 科幻深色色板：深空蓝黑底 + 电光青蓝主色 -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="#38BDF8" />
+    <SolidColorBrush x:Key="PrimaryHoverBrush" Color="#0EA5E9" />
+    <SolidColorBrush x:Key="PrimarySoftBrush" Color="#14314F" />
+    <SolidColorBrush x:Key="BgBrush" Color="#070D18" />
+    <SolidColorBrush x:Key="CardBrush" Color="#0F1B2E" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#E2EAF6" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#7E93AD" />
+    <SolidColorBrush x:Key="BorderBrush" Color="#1E3A5C" />
+    <SolidColorBrush x:Key="DangerBrush" Color="#F87171" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="#34D399" />
+    <SolidColorBrush x:Key="WarningBrush" Color="#FBBF24" />
+    <CornerRadius x:Key="CardRadius">12</CornerRadius>
     <Thickness x:Key="CardPadding">16</Thickness>
     <!-- 覆盖 Fluent 系统强调色（选中态/焦点/accent 按钮跟随）——注意：Fluent 期望 Color 类型 -->
-    <Color x:Key="SystemAccentColor">#3B6FE0</Color>
-    <Color x:Key="SystemAccentColorDark1">#2F5CC2</Color>
-    <Color x:Key="SystemAccentColorDark2">#2750A8</Color>
-    <Color x:Key="SystemAccentColorDark3">#20448E</Color>
-    <Color x:Key="SystemAccentColorLight1">#5C86E6</Color>
-    <Color x:Key="SystemAccentColorLight2">#85A6ED</Color>
-    <Color x:Key="SystemAccentColorLight3">#ADC6F3</Color>
+    <Color x:Key="SystemAccentColor">#38BDF8</Color>
+    <Color x:Key="SystemAccentColorDark1">#0EA5E9</Color>
+    <Color x:Key="SystemAccentColorDark2">#0284C7</Color>
+    <Color x:Key="SystemAccentColorDark3">#0369A1</Color>
+    <Color x:Key="SystemAccentColorLight1">#7DD3FC</Color>
+    <Color x:Key="SystemAccentColorLight2">#BAE6FD</Color>
+    <Color x:Key="SystemAccentColorLight3">#E0F2FE</Color>
   </Application.Resources>
 
   <Application.Styles>
     <FluentTheme />
 
-    <!-- ============ 全局控件样式（精致浅色风） ============ -->
+    <!-- ============ 全局控件样式（科幻深色风） ============ -->
 
     <Style Selector="Window">
       <Setter Property="Background" Value="{DynamicResource BgBrush}" />
@@ -61,7 +61,7 @@
     </Style>
 
     <Style Selector="Button">
-      <Setter Property="CornerRadius" Value="7" />
+      <Setter Property="CornerRadius" Value="8" />
       <Setter Property="Padding" Value="14,7" />
       <Setter Property="FontSize" Value="13" />
       <Setter Property="BorderThickness" Value="1" />
@@ -75,7 +75,7 @@
     </Style>
     <Style Selector="Button.accent">
       <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
-      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Foreground" Value="#04121F" />
       <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
     </Style>
     <Style Selector="Button.accent:pointerover /template/ ContentPresenter">
@@ -88,7 +88,7 @@
     </Style>
 
     <Style Selector="TextBox">
-      <Setter Property="CornerRadius" Value="7" />
+      <Setter Property="CornerRadius" Value="8" />
       <Setter Property="Padding" Value="10,7" />
       <Setter Property="FontSize" Value="13" />
       <Setter Property="BorderThickness" Value="1" />
@@ -99,15 +99,15 @@
     </Style>
 
     <Style Selector="ComboBox">
-      <Setter Property="CornerRadius" Value="7" />
+      <Setter Property="CornerRadius" Value="8" />
       <Setter Property="FontSize" Value="13" />
     </Style>
     <Style Selector="NumericUpDown">
-      <Setter Property="CornerRadius" Value="7" />
+      <Setter Property="CornerRadius" Value="8" />
       <Setter Property="FontSize" Value="13" />
     </Style>
     <Style Selector="DatePicker">
-      <Setter Property="CornerRadius" Value="7" />
+      <Setter Property="CornerRadius" Value="8" />
       <Setter Property="FontSize" Value="13" />
     </Style>
 
@@ -123,7 +123,7 @@
       <Setter Property="Background" Value="{DynamicResource PrimarySoftBrush}" />
     </Style>
     <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-      <Setter Property="Background" Value="#F0F4FF" />
+      <Setter Property="Background" Value="#152741" />
     </Style>
 
     <Style Selector="TabItem">

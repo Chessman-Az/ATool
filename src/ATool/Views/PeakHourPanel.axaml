@@ -22,15 +22,15 @@
             <ItemsControl ItemsSource="{Binding Periods}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Border CornerRadius="8" Padding="12,7" Margin="0,3" Background="#F4F6FA">
+                    <Border CornerRadius="8" Padding="12,7" Margin="0,3" Background="#14213A">
                     <Grid ColumnDefinitions="70,90,*,60">
                       <TextBlock Text="{Binding Start, StringFormat='{}{0} 起'}" VerticalAlignment="Center" />
                       <TextBlock Text="{Binding End, StringFormat='至 {0}'}" Grid.Column="1"
                                  VerticalAlignment="Center" Foreground="Gray" />
                       <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                        <TextBlock Text="高峰时段" FontWeight="Bold" Foreground="#D64545"
+                          <TextBlock Text="高峰时段" FontWeight="Bold" Foreground="#F87171"
                                    IsVisible="{Binding IsPeak}" />
-                        <TextBlock Text="低谷时段" FontWeight="Bold" Foreground="#2E9E5B"
+                          <TextBlock Text="低谷时段" FontWeight="Bold" Foreground="#34D399"
                                    IsVisible="{Binding IsPeak, Converter={x:Static BoolConverters.Not}}" />
                       </StackPanel>
                       <TextBlock Grid.Column="3" Text="{Binding DisplayMultiplier}" HorizontalAlignment="Right"
