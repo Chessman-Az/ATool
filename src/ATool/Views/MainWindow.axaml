@@ -84,7 +84,14 @@
                     <ItemsControl ItemsSource="{Binding Reminders.TodayItems}">
                       <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                          <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,1">
+                          <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
+                            <!-- 圆圈：点击标记完成（完成后移出今日列表） -->
+                            <Button Command="{Binding CompleteCommand}" Background="Transparent"
+                                    BorderThickness="0" Padding="0" VerticalAlignment="Center"
+                                    ToolTip.Tip="点击标记完成">
+                              <Ellipse Width="14" Height="14" Stroke="#8FB8E8"
+                                       StrokeThickness="1.5" Fill="Transparent" />
+                            </Button>
                             <TextBlock Text="{Binding TriggerTime, StringFormat='{}{0}'}" FontSize="12"
                                        Foreground="#4FD1C5" FontFamily="Consolas" Width="52" />
                             <TextBlock Text="{Binding Title}" FontSize="12" Foreground="#E6EEF7" TextTrimming="CharacterEllipsis" />
