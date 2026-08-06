@@ -15,8 +15,10 @@ public partial class ReminderEditViewModel : ObservableObject
 
     public ObservableCollection<WeeklyItemVm> WeeklyItems { get; } = [];
 
-    /// <summary>时间下拉选项（每 30 分钟，HH:mm）。</summary>
-    public List<string> TimeOptions { get; } = [];
+    /// <summary>时/分/秒下拉选项（00-23 / 00-59 / 00-59）。</summary>
+    public List<string> HourOptions { get; } = [];
+    public List<string> MinuteOptions { get; } = [];
+    public List<string> SecondOptions { get; } = [];
 
     [ObservableProperty]
     private string _title = "";
@@ -24,9 +26,15 @@ public partial class ReminderEditViewModel : ObservableObject
     [ObservableProperty]
     private string _description = "";
 
-    /// <summary>单次/每日触发时间（下拉选择，HH:mm）。</summary>
+    /// <summary>单次/每日触发时间（时/分/秒三个下拉选择）。</summary>
     [ObservableProperty]
-    private string _selectedTime = "09:00";
+    private string _selectedHour = "09";
+
+    [ObservableProperty]
+    private string _selectedMinute = "00";
+
+    [ObservableProperty]
+    private string _selectedSecond = "00";
 
     [ObservableProperty]
     private string _triggerTime = "09:00:00";
@@ -63,8 +71,11 @@ public partial class ReminderEditViewModel : ObservableObject
         for (var i = 0; i < 7; i++)
             WeeklyItems.Add(new WeeklyItemVm(i));
         for (var h = 0; h < 24; h++)
-            for (var m = 0; m < 60; m += 30)
-                TimeOptions.Add($"{h:00}:{m:00}");
+            HourOptions.Add($"{h:00}");
+        for (var m = 0; m < 60; m++)
+            MinuteOptions.Add($"{m:00}");
+        for (var s = 0; s < 60; s++)
+            SecondOptions.Add($"{s:00}");
     }
 
     public bool IsEditing => _editing is not null;
@@ -94,7 +105,10 @@ public partial class ReminderEditViewModel : ObservableObject
         Title = "";
         Description = "";
         TriggerTime = "09:00:00";
-        SelectedTime = DateTime.Now.ToString("HH:mm"); // 默认当前时间
+        var now = DateTime.Now;
+        SelectedHour = now.ToString("HH"); // 默认当前时间（时/分/秒）
+        SelectedMinute = now.ToString("mm");
+        SelectedSecond = now.ToString("ss");
         NotifyEnabled = false;
         RepeatType = RepeatType.Single;
         IsSingle = true; IsDaily = false; IsWeekly = false;
@@ -112,7 +126,10 @@ public partial class ReminderEditViewModel : ObservableObject
         Title = r.Title;
         Description = r.Description;
         TriggerTime = r.TriggerTime;
-        SelectedTime = r.TriggerTime.Length >= 5 ? r.TriggerTime[..5] : "09:00";
+        var parts = r.TriggerTime.Split(':', StringSplitOptions.TrimEntries);
+        SelectedHour = parts.Length > 0 && int.TryParse(parts[0], out var hh) && hh is >= 0 and <= 23 ? parts[0] : "09";
+        SelectedMinute = parts.Length > 1 && int.TryParse(parts[1], out var mm) && mm is >= 0 and <= 59 ? parts[1] : "00";
+        SelectedSecond = parts.Length > 2 && int.TryParse(parts[2], out var ss) && ss is >= 0 and <= 59 ? parts[2] : "00";
         NotifyEnabled = r.NotifyEnabled;
         RepeatType = r.RepeatType;
         IsSingle = r.RepeatType == RepeatType.Single;
@@ -136,7 +153,10 @@ public partial class ReminderEditViewModel : ObservableObject
     public bool Validate()
     {
         if (string.IsNullOrWhiteSpace(Title)) { Error = "标题不能为空"; return false; }
-        if (!TimeOnly.TryParse(SelectedTime, out _)) { Error = "请选择有效的触发时间"; return false; }
+        if (!int.TryParse(SelectedHour, out var hh) || hh is < 0 or > 23
+            || !int.TryParse(SelectedMinute, out var mm) || mm is < 0 or > 59
+            || !int.TryParse(SelectedSecond, out var ss) || ss is < 0 or > 59)
+        { Error = "请选择有效的触发时间"; return false; }
         if (RepeatType == RepeatType.Weekly)
         {
             var selected = WeeklyItems.Where(w => w.IsSelected).ToList();
@@ -154,7 +174,7 @@ public partial class ReminderEditViewModel : ObservableObject
     {
         if (!Validate()) return;
         var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        TriggerTime = SelectedTime + ":00"; // 下拉 HH:mm → 存储 HH:mm:ss
+        TriggerTime = $"{SelectedHour}:{SelectedMinute}:{SelectedSecond}"; // 三个下拉 → 存储 HH:mm:ss
         var scheduleJson = RepeatType == RepeatType.Weekly
             ? JsonSerializer.Serialize(WeeklyItems.Where(w => w.IsSelected)
                 .Select(w => new WeeklyScheduleItem { Day = w.Day, Time = w.Time }).ToList())

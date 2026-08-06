@@ -5,7 +5,7 @@ using Xunit;
 
 namespace ATool.Tests;
 
-/// <summary>提醒编辑：触发时间下拉选择（默认当前时间）+ 保存格式。</summary>
+/// <summary>提醒编辑：触发时间时/分/秒三个下拉（默认当前时间）+ 保存格式。</summary>
 public class ReminderEditTests
 {
     private static ReminderEditViewModel NewVm()
@@ -22,25 +22,32 @@ public class ReminderEditTests
         var vm = NewVm();
         vm.BeginNew();
 
-        var ok = TimeOnly.TryParse(vm.SelectedTime, out var sel);
-        Assert.True(ok, $"SelectedTime 应为 HH:mm 格式，实际: {vm.SelectedTime}");
-        var now = TimeOnly.FromDateTime(DateTime.Now);
-        // 分钟粒度比较（跨分钟边界最多差 1 分钟）
-        var diffMin = Math.Abs((sel.Hour * 60 + sel.Minute) - (now.Hour * 60 + now.Minute));
-        Assert.True(diffMin <= 1, $"默认时间 {vm.SelectedTime} 与当前时间 {now:HH:mm} 相差超过 1 分钟");
+        Assert.True(int.TryParse(vm.SelectedHour, out var hh) && hh is >= 0 and <= 23, $"SelectedHour 非法: {vm.SelectedHour}");
+        Assert.True(int.TryParse(vm.SelectedMinute, out var mm) && mm is >= 0 and <= 59, $"SelectedMinute 非法: {vm.SelectedMinute}");
+        Assert.True(int.TryParse(vm.SelectedSecond, out var ss) && ss is >= 0 and <= 59, $"SelectedSecond 非法: {vm.SelectedSecond}");
+        var now = DateTime.Now;
+        // 秒粒度比较（跨秒边界最多差 1 秒）
+        var diffSec = Math.Abs((hh * 3600 + mm * 60 + ss) - (now.Hour * 3600 + now.Minute * 60 + now.Second));
+        Assert.True(diffSec <= 1, $"默认时间 {hh:00}:{mm:00}:{ss:00} 与当前时间 {now:HH:mm:ss} 相差超过 1 秒");
     }
 
     [Fact]
-    public void TimeOptions_48项且全部为合法HHmm()
+    public void TimeOptions_时分秒选项数量正确且全部合法()
     {
         var vm = NewVm();
-        Assert.Equal(48, vm.TimeOptions.Count);
-        foreach (var t in vm.TimeOptions)
-            Assert.True(TimeOnly.TryParse(t, out _), $"非法时间项: {t}");
+        Assert.Equal(24, vm.HourOptions.Count);
+        Assert.Equal(60, vm.MinuteOptions.Count);
+        Assert.Equal(60, vm.SecondOptions.Count);
+        foreach (var t in vm.HourOptions)
+            Assert.True(int.TryParse(t, out var h) && h is >= 0 and <= 23, $"非法小时项: {t}");
+        foreach (var t in vm.MinuteOptions)
+            Assert.True(int.TryParse(t, out var m) && m is >= 0 and <= 59, $"非法分钟项: {t}");
+        foreach (var t in vm.SecondOptions)
+            Assert.True(int.TryParse(t, out var s) && s is >= 0 and <= 59, $"非法秒项: {t}");
     }
 
     [Fact]
-    public void Save_触发时间保存为选中时间加秒()
+    public void Save_触发时间保存为选中时分秒()
     {
         var dir = Path.Combine(Path.GetTempPath(), "atool-edit-save-" + Guid.NewGuid().ToString("N"));
         var db = new Db(dir);
@@ -50,15 +57,17 @@ public class ReminderEditTests
         vm.BeginNew();
 
         vm.Title = "测试提醒";
-        vm.SelectedTime = "14:35";
+        vm.SelectedHour = "14";
+        vm.SelectedMinute = "35";
+        vm.SelectedSecond = "07";
         vm.SaveCommand.Execute(null);
 
         var loaded = Assert.Single(repo.GetAll());
-        Assert.Equal("14:35:00", loaded.TriggerTime);
+        Assert.Equal("14:35:07", loaded.TriggerTime);
     }
 
     [Fact]
-    public void BeginEdit_回填选中时间()
+    public void BeginEdit_回填时分秒()
     {
         var dir = Path.Combine(Path.GetTempPath(), "atool-edit-load-" + Guid.NewGuid().ToString("N"));
         var db = new Db(dir);
@@ -68,7 +77,7 @@ public class ReminderEditTests
         var id = repo.Insert(new Reminder
         {
             Title = "旧提醒",
-            TriggerTime = "07:20:00",
+            TriggerTime = "07:20:45",
             Status = ReminderStatus.Pending,
             CreatedAt = now,
             UpdatedAt = now,
@@ -77,6 +86,8 @@ public class ReminderEditTests
 
         vm.BeginEdit(repo.Get(id)!);
 
-        Assert.Equal("07:20", vm.SelectedTime);
+        Assert.Equal("07", vm.SelectedHour);
+        Assert.Equal("20", vm.SelectedMinute);
+        Assert.Equal("45", vm.SelectedSecond);
     }
 }
