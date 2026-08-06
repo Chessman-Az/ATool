@@ -45,6 +45,16 @@ public sealed class ReminderSchedulerService : IDisposable
                 var points = ReminderScheduler.EnumerateTriggers(r, _lastTick, now);
                 if (points.Count > 0)
                 {
+                    if (!r.NotifyEnabled)
+                    {
+                        // 不提醒：单次直接完成（避免重复触发）；周期照常累加计数；均不弹窗
+                        if (r.RepeatType == RepeatType.Single)
+                            _repo.SetStatus(r.Id, ReminderStatus.Done);
+                        else
+                            _repo.IncrementTriggeredCount(r.Id);
+                        Log.Information("提醒静默触发（不弹窗）: {Title}", r.Title);
+                        continue;
+                    }
                     due.Add((r, points.Count));
                     if (r.RepeatType != RepeatType.Single)
                         _repo.IncrementTriggeredCount(r.Id);

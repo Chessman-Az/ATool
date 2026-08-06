@@ -58,6 +58,7 @@ public sealed class Db
               end_type INTEGER NOT NULL DEFAULT 0,
               end_value TEXT,
               triggered_count INTEGER NOT NULL DEFAULT 0,
+              notify_enabled INTEGER NOT NULL DEFAULT 1,
               status INTEGER NOT NULL DEFAULT 0,
               snooze_until TEXT,
               created_at TEXT NOT NULL,
@@ -86,5 +87,17 @@ public sealed class Db
             CREATE INDEX IF NOT EXISTS idx_balance_history_key ON balance_history(api_key_id, queried_at);
             """;
         cmd.ExecuteNonQuery();
+
+        // schema 迁移：旧库 reminders 表补充 notify_enabled 列（重复执行忽略 duplicate column）
+        try
+        {
+            using var mig = conn.CreateCommand();
+            mig.CommandText = "ALTER TABLE reminders ADD COLUMN notify_enabled INTEGER NOT NULL DEFAULT 1";
+            mig.ExecuteNonQuery();
+        }
+        catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.Message.Contains("duplicate column", StringComparison.OrdinalIgnoreCase))
+        {
+            // 列已存在（新库 CREATE TABLE 已含）——忽略
+        }
     }
 }

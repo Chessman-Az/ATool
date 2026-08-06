@@ -24,6 +24,10 @@ public partial class ReminderEditViewModel : ObservableObject
     [ObservableProperty]
     private string _triggerTime = "09:00:00";
 
+    /// <summary>是否提醒（到点弹窗）。不勾选 → 不弹窗。</summary>
+    [ObservableProperty]
+    private bool _notifyEnabled = true;
+
     [ObservableProperty]
     private RepeatType _repeatType = RepeatType.Single;
 
@@ -80,6 +84,7 @@ public partial class ReminderEditViewModel : ObservableObject
         Title = "";
         Description = "";
         TriggerTime = "09:00:00";
+        NotifyEnabled = true;
         RepeatType = RepeatType.Single;
         IsSingle = true; IsDaily = false; IsWeekly = false;
         EndType = EndType.Never;
@@ -96,6 +101,7 @@ public partial class ReminderEditViewModel : ObservableObject
         Title = r.Title;
         Description = r.Description;
         TriggerTime = r.TriggerTime;
+        NotifyEnabled = r.NotifyEnabled;
         RepeatType = r.RepeatType;
         IsSingle = r.RepeatType == RepeatType.Single;
         IsDaily = r.RepeatType == RepeatType.Daily;
@@ -150,6 +156,7 @@ public partial class ReminderEditViewModel : ObservableObject
                 RepeatType = RepeatType,
                 RepeatSchedule = scheduleJson,
                 TriggerTime = TriggerTime,
+                NotifyEnabled = NotifyEnabled,
                 EndType = EndType,
                 EndValue = EndType == EndType.Never ? null : EndValue,
                 Status = ReminderStatus.Pending,
@@ -164,6 +171,7 @@ public partial class ReminderEditViewModel : ObservableObject
             _editing.RepeatType = RepeatType;
             _editing.RepeatSchedule = scheduleJson;
             _editing.TriggerTime = TriggerTime;
+            _editing.NotifyEnabled = NotifyEnabled;
             _editing.EndType = EndType;
             _editing.EndValue = EndType == EndType.Never ? null : EndValue;
             _editing.UpdatedAt = now;

@@ -28,6 +28,11 @@
         </StackPanel>
       </StackPanel>
 
+      <!-- 是否提醒：勾选才显示提醒时间设置，到点弹窗；不勾选则不弹窗 -->
+      <CheckBox IsChecked="{Binding NotifyEnabled}" Content="是否提醒（到点弹窗）" FontWeight="SemiBold" />
+
+      <StackPanel IsVisible="{Binding NotifyEnabled}">
+
       <StackPanel Spacing="6" IsVisible="{Binding RepeatType, Converter={StaticResource EnumEq}, ConverterParameter=Weekly}">
         <TextBlock Text="每周触发（每个选中的日子可设独立时间）" Classes="h2" />
         <ItemsControl ItemsSource="{Binding WeeklyItems}">
@@ -51,6 +56,7 @@
                    IsVisible="{Binding RepeatType, Converter={StaticResource EnumEq}, ConverterParameter=Weekly}" />
         <TextBox Text="{Binding TriggerTime}" Watermark="如 09:30:00" Width="140" HorizontalAlignment="Left"
                  IsVisible="{Binding RepeatType, Converter={StaticResource EnumEq}, ConverterParameter=Weekly}" />
+      </StackPanel>
       </StackPanel>
 
       <StackPanel Spacing="6">

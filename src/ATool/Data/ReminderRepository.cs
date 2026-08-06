@@ -24,8 +24,8 @@ public sealed class ReminderRepository(Db db)
         using var conn = db.GetConnection();
         return conn.ExecuteScalar<long>(
             """
-            INSERT INTO reminders (title, description, repeat_type, repeat_schedule, trigger_time, end_type, end_value, triggered_count, status, snooze_until, created_at, updated_at)
-            VALUES (@Title, @Description, @RepeatType, @RepeatSchedule, @TriggerTime, @EndType, @EndValue, @TriggeredCount, @Status, @SnoozeUntil, @CreatedAt, @UpdatedAt);
+            INSERT INTO reminders (title, description, repeat_type, repeat_schedule, trigger_time, end_type, end_value, triggered_count, notify_enabled, status, snooze_until, created_at, updated_at)
+            VALUES (@Title, @Description, @RepeatType, @RepeatSchedule, @TriggerTime, @EndType, @EndValue, @TriggeredCount, @NotifyEnabled, @Status, @SnoozeUntil, @CreatedAt, @UpdatedAt);
             SELECT last_insert_rowid();
             """, r);
     }
@@ -37,7 +37,7 @@ public sealed class ReminderRepository(Db db)
             """
             UPDATE reminders SET title=@Title, description=@Description, repeat_type=@RepeatType, repeat_schedule=@RepeatSchedule,
             trigger_time=@TriggerTime, end_type=@EndType, end_value=@EndValue, triggered_count=@TriggeredCount,
-            status=@Status, snooze_until=@SnoozeUntil, updated_at=@UpdatedAt WHERE id=@Id
+            notify_enabled=@NotifyEnabled, status=@Status, snooze_until=@SnoozeUntil, updated_at=@UpdatedAt WHERE id=@Id
             """, r);
     }
 

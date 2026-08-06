@@ -37,6 +37,10 @@ public sealed class Reminder
 
     /// <summary>已触发次数——编辑重复规则时不重置。</summary>
     public int TriggeredCount { get; set; }
+
+    /// <summary>是否提醒（到点弹窗）：false 时到点不弹窗（单次直接完成/周期照常计数）。</summary>
+    public bool NotifyEnabled { get; set; } = true;
+
     public ReminderStatus Status { get; set; } = ReminderStatus.Pending;
 
     /// <summary>延迟截止时间（'yyyy-MM-dd HH:mm:ss'）。非空时该时刻前的触发点被跳过——本次延迟不影响周期。</summary>
