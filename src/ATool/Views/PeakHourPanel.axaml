@@ -9,7 +9,7 @@
     </Style>
   </UserControl.Styles>
   <Button Classes="peak" Background="{Binding StatusBrush}" CornerRadius="10" Padding="16,10"
-          HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+          HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
           Foreground="White" FontSize="13">
     <Button.Flyout>
       <Flyout Placement="Bottom" ShowMode="Standard">
@@ -45,6 +45,7 @@
       </Flyout>
     </Button.Flyout>
     <StackPanel Orientation="Horizontal" Spacing="12">
+      <TextBlock Text="{Binding StatusIcon}" FontSize="22" VerticalAlignment="Center" />
       <StackPanel>
         <TextBlock Text="{Binding StatusText}" FontSize="16" FontWeight="Bold" />
         <TextBlock Text="DeepSeek 峰谷计价 · 点击查看时段表" FontSize="11" Foreground="#D9FFFFFF" />
