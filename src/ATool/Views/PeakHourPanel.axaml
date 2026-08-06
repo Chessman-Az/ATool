@@ -45,7 +45,6 @@
       </Flyout>
     </Button.Flyout>
     <StackPanel Orientation="Horizontal" Spacing="12">
-      <TextBlock Text="{Binding StatusIcon}" FontSize="22" VerticalAlignment="Center" />
       <StackPanel>
         <TextBlock Text="{Binding StatusText}" FontSize="16" FontWeight="Bold" />
         <TextBlock Text="DeepSeek 峰谷计价 · 点击查看时段表" FontSize="11" Foreground="#D9FFFFFF" />

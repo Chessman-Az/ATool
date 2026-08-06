@@ -5,83 +5,107 @@
     <!-- 保存按钮：页面右下角 -->
     <Border DockPanel.Dock="Bottom" Padding="0,8,0,0">
       <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
-          <TextBlock Text="{Binding Message}" Foreground="#34D399" VerticalAlignment="Center" />
+        <TextBlock Text="{Binding Message}" Foreground="#34D399" VerticalAlignment="Center" />
         <Button Content="保存设置" Command="{Binding SaveCommand}" Classes="accent" Padding="20,8" />
       </StackPanel>
     </Border>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-      <StackPanel Spacing="12" MaxWidth="680" HorizontalAlignment="Left">
+    <!-- 左右布局：左大分类导航 + 右设置功能页 -->
+    <Grid ColumnDefinitions="180,*" ColumnSpacing="14">
+      <!-- 左：大分类 -->
+      <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+              BorderThickness="1" CornerRadius="10" Padding="10">
+        <StackPanel Spacing="2">
+          <TextBlock Text="设置分类" Classes="hint" Margin="10,8,10,12" />
+          <RadioButton x:Name="RbData" Content="📂 数据存储" GroupName="SettingsNav" IsChecked="True"
+                       FontSize="15" FontWeight="SemiBold" Margin="10,6" Padding="8,8" />
+          <RadioButton x:Name="RbRefresh" Content="🔄 自动刷新" GroupName="SettingsNav"
+                       FontSize="15" FontWeight="SemiBold" Margin="10,6" Padding="8,8" />
+          <RadioButton x:Name="RbAuto" Content="🚀 开机自启" GroupName="SettingsNav"
+                       FontSize="15" FontWeight="SemiBold" Margin="10,6" Padding="8,8" />
+          <RadioButton x:Name="RbFloat" Content="🖼️ 桌面浮窗" GroupName="SettingsNav"
+                       FontSize="15" FontWeight="SemiBold" Margin="10,6" Padding="8,8" />
+        </StackPanel>
+      </Border>
 
-        <!-- 📂 数据存储路径 -->
-        <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="1" CornerRadius="10" Padding="16,14">
-          <StackPanel Spacing="8">
-            <TextBlock Text="📂 数据存储路径" FontWeight="Bold" FontSize="14" />
-            <TextBlock Text="数据文件（atool.db）所在目录" Classes="hint" />
-            <TextBox Text="{Binding DataPath}" Watermark="数据目录" />
-            <TextBlock Text="日志文件所在目录" Classes="hint" Margin="0,6,0,0" />
-            <TextBox Text="{Binding LogPath}" Watermark="日志目录" />
-            <Button Content="迁移数据到新路径" Command="{Binding MigrateDataPathCommand}" HorizontalAlignment="Left"
-                    Margin="0,8,0,0"
-                    ToolTip.Tip="将旧路径下全部文件复制到新路径；失败自动回滚（原配置不变）" />
-          </StackPanel>
-        </Border>
+      <!-- 右：设置功能页（按左分类切换显示） -->
+      <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="12" MaxWidth="680" HorizontalAlignment="Left">
 
-        <!-- 🔄 自动刷新间隔 -->
-        <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="1" CornerRadius="10" Padding="16,14">
-          <StackPanel Spacing="8">
-            <TextBlock Text="🔄 自动刷新间隔" FontWeight="Bold" FontSize="14" />
-            <TextBlock Text="DeepSeek 余额自动刷新周期（分钟，最低 1）" Classes="hint" />
-            <NumericUpDown Value="{Binding RefreshMinutes}" Minimum="1" Maximum="1440" Increment="5"
-                           Width="160" HorizontalAlignment="Left" />
-          </StackPanel>
-        </Border>
-
-        <!-- 🚀 开机自启 -->
-        <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="1" CornerRadius="10" Padding="16,14">
-          <StackPanel Spacing="8">
-            <TextBlock Text="🚀 开机自启" FontWeight="Bold" FontSize="14" />
-            <CheckBox IsChecked="{Binding AutoStart}" Content="开机自动启动（启动后驻留托盘，不弹主界面）"
-                      IsEnabled="{Binding AutoStartSupported}" />
-            <TextBlock Text="该功能仅 Windows 支持" Foreground="Gray" FontSize="12"
-                       IsVisible="{Binding AutoStartSupported, Converter={x:Static BoolConverters.Not}}" />
-          </StackPanel>
-        </Border>
-
-        <!-- 🖼️ 桌面提醒悬浮窗 -->
-        <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="1" CornerRadius="10" Padding="16,14">
-          <StackPanel Spacing="8">
-            <TextBlock Text="🖼️ 桌面提醒悬浮窗" FontWeight="Bold" FontSize="14" />
-            <CheckBox IsChecked="{Binding FloatEnabled}" Content="开启：鼠标移到屏幕角落弹出全部提醒（仅桌面显示）" />
-            <StackPanel Orientation="Horizontal" Spacing="14" Margin="0,6,0,0">
-              <TextBlock Text="浮窗位置" Width="86" VerticalAlignment="Center" />
-              <ComboBox SelectedIndex="{Binding FloatCorner}" Width="170">
-                <ComboBoxItem Content="屏幕左上" />
-                <ComboBoxItem Content="屏幕右上" />
-                <ComboBoxItem Content="屏幕右下" />
-                <ComboBoxItem Content="屏幕左下" />
-              </ComboBox>
+          <!-- 📂 数据存储路径 -->
+          <Border IsVisible="{Binding #RbData.IsChecked}"
+                  Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                  BorderThickness="1" CornerRadius="10" Padding="16,14">
+            <StackPanel Spacing="8">
+              <TextBlock Text="📂 数据存储路径" FontWeight="Bold" FontSize="14" />
+              <TextBlock Text="数据文件（atool.db）所在目录" Classes="hint" />
+              <TextBox Text="{Binding DataPath}" Watermark="数据目录" />
+              <TextBlock Text="日志文件所在目录" Classes="hint" Margin="0,6,0,0" />
+              <TextBox Text="{Binding LogPath}" Watermark="日志目录" />
+              <Button Content="迁移数据到新路径" Command="{Binding MigrateDataPathCommand}" HorizontalAlignment="Left"
+                      Margin="0,8,0,0"
+                      ToolTip.Tip="将旧路径下全部文件复制到新路径；失败自动回滚（原配置不变）" />
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Spacing="14">
-              <TextBlock Text="透明度" Width="86" VerticalAlignment="Center" />
-              <Slider Minimum="0" Maximum="100" Value="{Binding FloatOpacity}" Width="200" VerticalAlignment="Center" />
-              <TextBlock Text="{Binding FloatOpacity, StringFormat='{}{0}%'}" VerticalAlignment="Center" FontSize="12" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Spacing="14">
-              <TextBlock Text="展示范围" Width="86" VerticalAlignment="Center" />
-              <ComboBox SelectedIndex="{Binding FloatScope}" Width="170">
-                <ComboBoxItem Content="仅未完成" />
-                <ComboBoxItem Content="全部提醒" />
-              </ComboBox>
-            </StackPanel>
-          </StackPanel>
-        </Border>
+          </Border>
 
-      </StackPanel>
-    </ScrollViewer>
+          <!-- 🔄 自动刷新间隔 -->
+          <Border IsVisible="{Binding #RbRefresh.IsChecked}"
+                  Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                  BorderThickness="1" CornerRadius="10" Padding="16,14">
+            <StackPanel Spacing="8">
+              <TextBlock Text="🔄 自动刷新间隔" FontWeight="Bold" FontSize="14" />
+              <TextBlock Text="DeepSeek 余额自动刷新周期（分钟，最低 1）" Classes="hint" />
+              <NumericUpDown Value="{Binding RefreshMinutes}" Minimum="1" Maximum="1440" Increment="5"
+                             Width="160" HorizontalAlignment="Left" />
+            </StackPanel>
+          </Border>
+
+          <!-- 🚀 开机自启 -->
+          <Border IsVisible="{Binding #RbAuto.IsChecked}"
+                  Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                  BorderThickness="1" CornerRadius="10" Padding="16,14">
+            <StackPanel Spacing="8">
+              <TextBlock Text="🚀 开机自启" FontWeight="Bold" FontSize="14" />
+              <CheckBox IsChecked="{Binding AutoStart}" Content="开机自动启动（启动后驻留托盘，不弹主界面）"
+                        IsEnabled="{Binding AutoStartSupported}" />
+              <TextBlock Text="该功能仅 Windows 支持" Foreground="Gray" FontSize="12"
+                         IsVisible="{Binding AutoStartSupported, Converter={x:Static BoolConverters.Not}}" />
+            </StackPanel>
+          </Border>
+
+          <!-- 🖼️ 桌面提醒悬浮窗 -->
+          <Border IsVisible="{Binding #RbFloat.IsChecked}"
+                  Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                  BorderThickness="1" CornerRadius="10" Padding="16,14">
+            <StackPanel Spacing="8">
+              <TextBlock Text="🖼️ 桌面提醒悬浮窗" FontWeight="Bold" FontSize="14" />
+              <CheckBox IsChecked="{Binding FloatEnabled}" Content="开启：鼠标移到屏幕角落弹出全部提醒（仅桌面显示）" />
+              <StackPanel Orientation="Horizontal" Spacing="14" Margin="0,6,0,0">
+                <TextBlock Text="浮窗位置" Width="86" VerticalAlignment="Center" />
+                <ComboBox SelectedIndex="{Binding FloatCorner}" Width="170">
+                  <ComboBoxItem Content="屏幕左上" />
+                  <ComboBoxItem Content="屏幕右上" />
+                  <ComboBoxItem Content="屏幕右下" />
+                  <ComboBoxItem Content="屏幕左下" />
+                </ComboBox>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="14">
+                <TextBlock Text="透明度" Width="86" VerticalAlignment="Center" />
+                <Slider Minimum="0" Maximum="100" Value="{Binding FloatOpacity}" Width="200" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding FloatOpacity, StringFormat='{}{0}%'}" VerticalAlignment="Center" FontSize="12" />
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="14">
+                <TextBlock Text="展示范围" Width="86" VerticalAlignment="Center" />
+                <ComboBox SelectedIndex="{Binding FloatScope}" Width="170">
+                  <ComboBoxItem Content="仅未完成" />
+                  <ComboBoxItem Content="全部提醒" />
+                </ComboBox>
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
   </DockPanel>
 </UserControl>
