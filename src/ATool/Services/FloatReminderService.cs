@@ -177,8 +177,8 @@ public sealed class FloatReminderService
         if (!_running) return;
         try
         {
-            // 主窗口最小化 → 用户明确想看桌面浮窗：跳过前台检测（浮窗不置顶，其他软件会自然遮挡）
-            if (_mainWindow?.WindowState == WindowState.Minimized)
+            // 主窗口不可见（关闭到托盘）或最小化 → 用户明确想看桌面浮窗：跳过前台检测（浮窗不置顶，其他软件会自然遮挡）
+            if (_mainWindow is null || !_mainWindow.IsVisible || _mainWindow.WindowState == WindowState.Minimized)
             {
                 EnsureVisible();
                 if (!_visible) return;
