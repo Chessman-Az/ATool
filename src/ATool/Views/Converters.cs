@@ -12,6 +12,16 @@ public class EnumEqualsConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
+/// <summary>int 是否为零（单向，用于 IsVisible 空状态）：0 → true。</summary>
+public class IsZeroConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is int n && n == 0;
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
 /// <summary>bool → 颜色刷（峰谷主按钮：高峰红 / 低谷绿）。</summary>
 public class BoolToPeakBrushConverter : IValueConverter
 {

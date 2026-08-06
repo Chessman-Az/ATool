@@ -87,4 +87,11 @@ public static class ReminderScheduler
         }
         return result;
     }
+
+    /// <summary>该提醒在 now 当天是否还会触发：下一次触发点严格晚于 now 且落在 now 当天（中控台「今日提醒」判定）。</summary>
+    public static bool TriggersToday(Reminder r, DateTime now)
+    {
+        var next = NextTriggerTime(r, now);
+        return next is { } n && DateOnly.FromDateTime(n) == DateOnly.FromDateTime(now);
+    }
 }

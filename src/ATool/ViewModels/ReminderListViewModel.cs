@@ -15,6 +15,15 @@ public partial class ReminderListViewModel : ObservableObject
 
     public ObservableCollection<ReminderItemVm> Items { get; } = [];
 
+    /// <summary>中控台「今日提醒」：Pending 且下一次触发落在今天（按触发时间升序）。</summary>
+    public ObservableCollection<ReminderItemVm> TodayItems { get; } = [];
+
+    /// <summary>中控台日期（如 2026-08-06 周四）。</summary>
+    public string TodayDate => DateTime.Now.ToString("yyyy-MM-dd dddd");
+
+    /// <summary>中控台「今日提醒」条数。</summary>
+    public int TodayCount => TodayItems.Count;
+
     [ObservableProperty]
     private ReminderStatus? _filter = ReminderStatus.Pending;
 
@@ -66,6 +75,22 @@ public partial class ReminderListViewModel : ObservableObject
             all = all.Where(r => ReminderCalendarService.GetMonthTriggerDates(new[] { r }, d.Year, d.Month).Contains(d)).ToList();
         foreach (var r in all)
             Items.Add(new ReminderItemVm(r, OnCompleteRequested));
+        RebuildToday();
+    }
+
+    /// <summary>重建中控台「今日提醒」：Pending 且今天还会触发（下一次触发点落在今天且晚于当前），按时间升序。</summary>
+    private void RebuildToday()
+    {
+        TodayItems.Clear();
+        var now = DateTime.Now;
+        var items = _repo.GetAll(ReminderStatus.Pending)
+            .Where(r => ReminderScheduler.TriggersToday(r, now))
+            .OrderBy(r => r.TriggerTime)
+            .Select(r => new ReminderItemVm(r, OnCompleteRequested))
+            .ToList();
+        foreach (var i in items)
+            TodayItems.Add(i);
+        OnPropertyChanged(nameof(TodayCount));
     }
 
     private DateOnly? _dateFilter;

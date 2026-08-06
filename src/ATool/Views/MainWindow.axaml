@@ -12,6 +12,7 @@
 
   <Window.Resources>
     <views:EnumEqualsConverter x:Key="NavEq" />
+    <views:IsZeroConverter x:Key="IsZero" />
   </Window.Resources>
 
   <DockPanel>
@@ -44,14 +45,102 @@
       <Grid Grid.Column="1" Margin="12,0,0,0">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <Grid>
-        <!-- 提醒事项：日历（上）+ 列表/编辑（下） -->
-        <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=0}">
-          <Grid RowDefinitions="Auto,*">
-            <Border Grid.Row="0" Background="{DynamicResource CardBrush}" CornerRadius="10"
-                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="10">
-              <views:ReminderCalendarPanel DataContext="{Binding Calendar}" />
-            </Border>
-            <Grid Grid.Row="1" Margin="0,10,0,0" ColumnDefinitions="3*,2*">
+        <!-- 提醒事项：中控台（上）+ 日历（中）+ 列表/编辑（下） -->
+        <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=0}"
+              RowDefinitions="Auto,Auto,*">
+
+          <!-- 中控台：今日提醒 + DeepSeek 余额（科技感深色渐变卡片） -->
+          <Border Grid.Row="0" Margin="0,0,0,10" CornerRadius="12" Padding="18,12"
+                  BoxShadow="0 0 18 0 #402E6FB8">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#0C1626" Offset="0" />
+                <GradientStop Color="#14304E" Offset="0.5" />
+                <GradientStop Color="#0C1626" Offset="1" />
+              </LinearGradientBrush>
+            </Border.Background>
+            <StackPanel Spacing="8">
+              <!-- 标题行：中控台 + 日期 -->
+              <DockPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="◈" FontSize="15" Foreground="#4FD1C5" VerticalAlignment="Center" />
+                  <TextBlock Text="中控台" FontSize="15" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" />
+                  <TextBlock Text="CONTROL CENTER" FontSize="10" Foreground="#7A93B0" VerticalAlignment="Center"
+                             FontFamily="Consolas" LetterSpacing="2" />
+                </StackPanel>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding Reminders.TodayDate}" FontSize="12"
+                           Foreground="#8FB8E8" FontFamily="Consolas" VerticalAlignment="Center" />
+              </DockPanel>
+              <Border Height="1" Background="#22FFFFFF" />
+
+              <!-- 两栏：今日提醒 | DeepSeek 余额 -->
+              <Grid ColumnDefinitions="1*,26,1.1*">
+                <StackPanel Grid.Column="0" Spacing="6">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="今日提醒" FontSize="12" FontWeight="Bold" Foreground="#4FD1C5" />
+                    <Border Background="#224FD1C5" CornerRadius="8" Padding="6,1" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding Reminders.TodayCount}" FontSize="11" FontWeight="Bold"
+                                 Foreground="#4FD1C5" FontFamily="Consolas" />
+                    </Border>
+                  </StackPanel>
+                  <ScrollViewer MaxHeight="96" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Reminders.TodayItems}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,1">
+                            <TextBlock Text="{Binding TriggerTime, StringFormat='{}{0}'}" FontSize="12"
+                                       Foreground="#4FD1C5" FontFamily="Consolas" Width="52" />
+                            <TextBlock Text="{Binding Title}" FontSize="12" Foreground="#E6EEF7" TextTrimming="CharacterEllipsis" />
+                          </StackPanel>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </ScrollViewer>
+                  <TextBlock Text="今天暂无提醒" FontSize="12" Foreground="#5A708C"
+                             IsVisible="{Binding Reminders.TodayCount, Converter={StaticResource IsZero}}" />
+                </StackPanel>
+
+                <Border Grid.Column="1" Width="1" Background="#22FFFFFF" HorizontalAlignment="Center" Margin="0,2" />
+
+                <StackPanel Grid.Column="2" Spacing="6">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="DeepSeek 余额" FontSize="12" FontWeight="Bold" Foreground="#8FB8E8" />
+                    <TextBlock Text="BALANCE" FontSize="9" Foreground="#5A708C" VerticalAlignment="Center"
+                               FontFamily="Consolas" LetterSpacing="1" />
+                  </StackPanel>
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="¥" FontSize="17" FontWeight="Bold" Foreground="#8FB8E8" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding ApiKeys.TotalBalance, StringFormat='{}{0:F2}'}" FontSize="22"
+                               FontWeight="Bold" Foreground="White" FontFamily="Consolas" VerticalAlignment="Center" />
+                  </StackPanel>
+                  <ItemsControl ItemsSource="{Binding ApiKeys.Keys}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border Background="#18FFFFFF" CornerRadius="6" Padding="9,3" Margin="0,0,6,4">
+                          <StackPanel Orientation="Horizontal" Spacing="7">
+                            <TextBlock Text="{Binding Alias}" FontSize="11" Foreground="#C9D9EC" />
+                            <TextBlock Text="{Binding BalanceText, StringFormat='¥{0}'}" FontSize="11" FontWeight="Bold"
+                                       Foreground="#8FB8E8" FontFamily="Consolas" />
+                          </StackPanel>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="10"
+                  BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="10">
+            <views:ReminderCalendarPanel DataContext="{Binding Calendar}" />
+          </Border>
+          <Grid Grid.Row="2" Margin="0,10,0,0" ColumnDefinitions="3*,2*">
               <Border Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
                       BorderThickness="1" Padding="8">
                 <views:ReminderListView DataContext="{Binding Reminders}" />
@@ -62,7 +151,6 @@
                 <views:ReminderEditorPanel DataContext="{Binding Reminders.Editor}" />
               </Border>
             </Grid>
-          </Grid>
         </Grid>
         </Grid>
         </ScrollViewer>
