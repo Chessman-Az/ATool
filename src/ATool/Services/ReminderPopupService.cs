@@ -2,6 +2,7 @@ using ATool.Data;
 using ATool.Models;
 using ATool.ViewModels;
 using ATool.Views;
+using Avalonia.Threading;
 
 namespace ATool.Services;
 
@@ -29,18 +30,22 @@ public sealed class ReminderPopupService
         // 备用渠道：Windows Toast（锁屏可见）；失败静默降级
         foreach (var (r, missed) in items)
             _toast.Show(r.Title, missed > 1 ? $"提醒触发（错过 {missed} 次）" : "提醒触发");
-        var vm = new ReminderPopupViewModel(this, items.Select(x => new ReminderPopupItem(x.Reminder, x.MissedCount)).ToList());
-        var window = new ReminderPopupWindow { DataContext = vm };
-        // 关闭窗口时：未处理的单次提醒视为完成
-        window.Closed += (_, _) =>
+        // 窗口创建与显示必须在 UI 线程（调度器在 Timer 线程触发 Tick，直接 Show 会静默失败）
+        Dispatcher.UIThread.Post(() =>
         {
-            foreach (var item in items)
+            var vm = new ReminderPopupViewModel(this, items.Select(x => new ReminderPopupItem(x.Reminder, x.MissedCount)).ToList());
+            var window = new ReminderPopupWindow { DataContext = vm };
+            // 关闭窗口时：未处理的单次提醒视为完成
+            window.Closed += (_, _) =>
             {
-                if (item.Reminder.RepeatType == RepeatType.Single && item.Reminder.Status != ReminderStatus.Done)
-                    Complete(item.Reminder);
-            }
-        };
-        window.Show();
+                foreach (var item in items)
+                {
+                    if (item.Reminder.RepeatType == RepeatType.Single && item.Reminder.Status != ReminderStatus.Done)
+                        Complete(item.Reminder);
+                }
+            };
+            window.Show();
+        });
     }
 
     /// <summary>完成：单次→标记 Done；周期→无额外动作（TriggeredCount 已由调度器累加）。</summary>

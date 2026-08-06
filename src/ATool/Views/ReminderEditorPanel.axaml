@@ -54,15 +54,17 @@
       <StackPanel Spacing="6">
         <TextBlock Text="单次/每日触发时间" Classes="h2"
                    IsVisible="{Binding IsWeekly, Converter={x:Static BoolConverters.Not}}" />
-        <StackPanel Orientation="Horizontal" Spacing="8"
-                    IsVisible="{Binding IsWeekly, Converter={x:Static BoolConverters.Not}}">
-          <ComboBox ItemsSource="{Binding HourOptions}" SelectedItem="{Binding SelectedHour}" Width="76" />
-          <TextBlock Text="时" VerticalAlignment="Center" />
-          <ComboBox ItemsSource="{Binding MinuteOptions}" SelectedItem="{Binding SelectedMinute}" Width="76" />
-          <TextBlock Text="分" VerticalAlignment="Center" />
-          <ComboBox ItemsSource="{Binding SecondOptions}" SelectedItem="{Binding SelectedSecond}" Width="76" />
-          <TextBlock Text="秒" VerticalAlignment="Center" />
-        </StackPanel>
+        <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1" CornerRadius="8" Padding="10,6" HorizontalAlignment="Left"
+                IsVisible="{Binding IsWeekly, Converter={x:Static BoolConverters.Not}}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <ComboBox ItemsSource="{Binding HourOptions}" SelectedItem="{Binding SelectedHour}" Width="72" />
+            <TextBlock Text=":" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding MinuteOptions}" SelectedItem="{Binding SelectedMinute}" Width="72" />
+            <TextBlock Text=":" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding SecondOptions}" SelectedItem="{Binding SelectedSecond}" Width="72" />
+          </StackPanel>
+        </Border>
       </StackPanel>
       </StackPanel>
 
