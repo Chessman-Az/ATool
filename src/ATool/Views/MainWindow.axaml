@@ -33,6 +33,7 @@
         <DockPanel>
           <TextBlock DockPanel.Dock="Top" Text="功能导航" Classes="hint" Margin="12,6,12,8" />
           <ListBox SelectedIndex="{Binding NavIndex}" Background="Transparent" FontSize="14">
+            <ListBoxItem Content="中控台" />
             <ListBoxItem Content="提醒事项" />
             <ListBoxItem Content="DeepSeek 余额" />
             <ListBoxItem Content="系统设置" />
@@ -45,13 +46,9 @@
       <Grid Grid.Column="1" Margin="12,0,0,0">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <Grid>
-        <!-- 提醒事项：中控台（上）+ 日历（中）+ 列表/编辑（下） -->
-        <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=0}"
-              RowDefinitions="Auto,Auto,*">
-
-          <!-- 中控台：今日提醒 + DeepSeek 余额（科技感深色渐变卡片） -->
-          <Border Grid.Row="0" Margin="0,0,0,10" CornerRadius="12" Padding="18,12"
-                  BoxShadow="0 0 18 0 #402E6FB8">
+        <!-- 中控台页：今日提醒 + DeepSeek 余额（科技感深色渐变，独立导航页） -->
+        <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=0}">
+          <Border CornerRadius="12" Padding="22,16" BoxShadow="0 0 18 0 #402E6FB8">
             <Border.Background>
               <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
                 <GradientStop Color="#0C1626" Offset="0" />
@@ -83,7 +80,7 @@
                                  Foreground="#4FD1C5" FontFamily="Consolas" />
                     </Border>
                   </StackPanel>
-                  <ScrollViewer MaxHeight="96" VerticalScrollBarVisibility="Auto">
+                  <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding Reminders.TodayItems}">
                       <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -135,12 +132,16 @@
               </Grid>
             </StackPanel>
           </Border>
+        </Grid>
 
-          <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="10"
+        <!-- 提醒事项：日历（上）+ 列表/编辑（下） -->
+        <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=1}"
+              RowDefinitions="Auto,*">
+          <Border Grid.Row="0" Background="{DynamicResource CardBrush}" CornerRadius="10"
                   BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="10">
             <views:ReminderCalendarPanel DataContext="{Binding Calendar}" />
           </Border>
-          <Grid Grid.Row="2" Margin="0,10,0,0" ColumnDefinitions="3*,2*">
+          <Grid Grid.Row="1" Margin="0,10,0,0" ColumnDefinitions="3*,2*">
               <Border Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
                       BorderThickness="1" Padding="8">
                 <views:ReminderListView DataContext="{Binding Reminders}" />
@@ -156,7 +157,7 @@
         </ScrollViewer>
 
         <!-- DeepSeek 余额：开干 → 全部余额 → Key 列表 → 图表(左)+明细(右)；直接填充视口，全屏时图表区拉伸填满 -->
-        <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=1}"
+        <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=2}"
               RowDefinitions="Auto,Auto,Auto,*">
             <Border Grid.Row="0" Margin="0,0,0,8" Background="{DynamicResource CardBrush}" CornerRadius="10"
                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12,8">
@@ -225,14 +226,14 @@
         </Grid>
 
         <!-- 系统设置 -->
-        <Border IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=2}"
+        <Border IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=3}"
                 Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1" Padding="4">
           <views:SettingsPanel DataContext="{Binding Settings}" />
         </Border>
 
         <!-- A工具（关于页）：居中卡片 -->
-        <Border IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=3}"
+        <Border IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=4}"
                 Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1" Padding="40">
           <Border Background="#FAFBFD" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"

@@ -23,7 +23,7 @@ public partial class MainWindowViewModel : ObservableObject
     public event Action? ShowWindowRequested;
     public event Action? QuitRequested;
 
-    /// <summary>左侧导航选中项：0=提醒事项 1=DeepSeek 余额 2=系统设置。</summary>
+    /// <summary>左侧导航选中项：0=中控台 1=提醒事项 2=DeepSeek 余额 3=系统设置 4=A工具。</summary>
     [ObservableProperty]
     private int _navIndex;
 
