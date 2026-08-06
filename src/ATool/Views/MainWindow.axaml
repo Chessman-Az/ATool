@@ -64,15 +64,17 @@
             </Grid>
           </Grid>
         </Grid>
+        </Grid>
+        </ScrollViewer>
 
-        <!-- DeepSeek 余额：开干 → 全部余额 → Key 列表 → 选中 Key 的图表(左)+明细(右) -->
-        <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=1}">
-          <DockPanel>
-            <Border DockPanel.Dock="Top" Margin="0,0,0,8" Background="{DynamicResource CardBrush}" CornerRadius="10"
+        <!-- DeepSeek 余额：开干 → 全部余额 → Key 列表 → 图表(左)+明细(右)；直接填充视口，全屏时图表区拉伸填满 -->
+        <Grid IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=1}"
+              RowDefinitions="Auto,Auto,Auto,*">
+            <Border Grid.Row="0" Margin="0,0,0,8" Background="{DynamicResource CardBrush}" CornerRadius="10"
                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12,8">
               <views:PeakHourPanel DataContext="{Binding PeakHour}" />
             </Border>
-            <Border DockPanel.Dock="Top" Margin="0,0,0,4" Background="{DynamicResource CardBrush}" CornerRadius="10"
+            <Border Grid.Row="1" Margin="0,0,0,4" Background="{DynamicResource CardBrush}" CornerRadius="10"
                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,8">
               <StackPanel Spacing="8">
                 <StackPanel Orientation="Horizontal" Spacing="8">
@@ -104,21 +106,20 @@
                 </ItemsControl>
               </StackPanel>
             </Border>
-            <Border DockPanel.Dock="Top" Margin="0,0,0,2" Background="{DynamicResource CardBrush}" CornerRadius="10"
+            <Border Grid.Row="2" Margin="0,0,0,2" Background="{DynamicResource CardBrush}" CornerRadius="10"
                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="8,6">
               <views:ApiKeyPanel DataContext="{Binding ApiKeys}" />
             </Border>
-            <Grid ColumnDefinitions="1*,1*">
-              <Border MaxHeight="300" Background="{DynamicResource CardBrush}" CornerRadius="10"
+            <Grid Grid.Row="3" ColumnDefinitions="1*,1*">
+              <Border MinHeight="240" Background="{DynamicResource CardBrush}" CornerRadius="10"
                       BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="10">
                 <views:BalanceChartView DataContext="{Binding Chart}" />
               </Border>
-              <Border Grid.Column="1" Margin="10,0,0,0" MaxHeight="300" Background="{DynamicResource CardBrush}"
+              <Border Grid.Column="1" Margin="10,0,0,0" MinHeight="240" Background="{DynamicResource CardBrush}"
                       CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12">
                 <views:BalanceDetailPanel DataContext="{Binding BalanceDetail}" />
               </Border>
             </Grid>
-          </DockPanel>
 
           <!-- 刷新中：界面中央旋转圆圈（半透明遮罩 + 代码驱动的旋转圆环）；遮罩不拦截点击 -->
           <Grid Background="#33FFFFFF" IsVisible="{Binding IsRefreshing}" IsHitTestVisible="False">
@@ -153,12 +154,10 @@
                          HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Border>
             <TextBlock Text="A工具" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" />
-            <TextBlock Text="版本 8" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
+            <TextBlock Text="版本 8.2" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
             <TextBlock Text="作者：小泽" Classes="hint" HorizontalAlignment="Center" FontSize="14" />
           </StackPanel>
         </Border>
-        </Grid>
-        </ScrollViewer>
       </Grid>
     </Grid>
   </DockPanel>

@@ -77,3 +77,20 @@ public class BoolToTextDecorationsConverter : IValueConverter
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();
 }
+
+/// <summary>余额变动金额标签底色：增加→淡绿、减少→淡红、空/持平→透明。</summary>
+public class DeltaBackgroundBrushConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        var text = value as string;
+        if (string.IsNullOrEmpty(text) || text == "—")
+            return new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Transparent);
+        return text.StartsWith('-')
+            ? Avalonia.Media.SolidColorBrush.Parse("#FDECEC") // 减：淡红
+            : Avalonia.Media.SolidColorBrush.Parse("#E8F5EC"); // 增：淡绿
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
