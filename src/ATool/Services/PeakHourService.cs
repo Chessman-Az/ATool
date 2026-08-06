@@ -14,9 +14,9 @@ public static class PeakHourService
             || (t >= TimeSpan.FromHours(14) && t < TimeSpan.FromHours(18));
     }
 
-    /// <summary>当前时段状态文案：高峰「摸鱼 🐟」/ 低谷「开干 💪」。</summary>
+    /// <summary>当前时段状态文案：高峰「摸鱼」/ 低谷「开干」（图标由界面单独渲染，避免重复）。</summary>
     public static (string Text, bool IsPeak) CurrentStatus(DateTime now)
-        => IsPeakHour(now) ? ("摸鱼 🐟", true) : ("开干 💪", false);
+        => IsPeakHour(now) ? ("摸鱼", true) : ("开干", false);
 
     /// <summary>24h 时段表（详情页展示）。</summary>
     public static IReadOnlyList<PeakPeriod> GetPeriods() =>

@@ -9,7 +9,7 @@
     </Style>
   </UserControl.Styles>
   <Button Classes="peak" Background="{Binding StatusBrush}" CornerRadius="10" Padding="16,10"
-          HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+          HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
           Foreground="White" FontSize="13">
     <Button.Flyout>
       <Flyout Placement="Bottom" ShowMode="Standard">
