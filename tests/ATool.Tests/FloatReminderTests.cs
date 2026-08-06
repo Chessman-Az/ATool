@@ -11,6 +11,22 @@ public class FloatReminderTests
     private const double W = 260, H = 320;
     private const double SX = 0, SY = 0, SW = 1920, SH = 1080;
 
+    [Fact]
+    public void 自动刷新间隔_最低1分钟()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "atool-float-min-" + Guid.NewGuid().ToString("N"));
+        var db = new Db(dir);
+        db.InitializeSchema();
+        var repo = new SettingsRepository(db);
+        repo.Set("data_path", dir);
+        repo.Set("log_path", Path.Combine(dir, "logs"));
+        var settings = new SettingsService(repo, db);
+
+        settings.SetRefreshMinutes(1); // 下限从 5 降到 1
+        Assert.Equal(1, settings.GetRefreshMinutes());
+        Assert.Throws<ArgumentException>(() => settings.SetRefreshMinutes(0));
+    }
+
     [Theory]
     [InlineData(FloatReminderService.Corner.TopLeft, false, -260, 0)]      // 缩回完全缩进屏幕外（Edge=0）
     [InlineData(FloatReminderService.Corner.TopLeft, true, 0, 0)]

@@ -27,6 +27,18 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private int _navIndex;
 
+    private DateTime _lastBalanceRefresh = DateTime.MinValue;
+
+    /// <summary>切到余额页时自动刷新一次（节流 60s），保证「全部余额」实时。</summary>
+    partial void OnNavIndexChanged(int value)
+    {
+        if (value == 1 && DateTime.Now - _lastBalanceRefresh > TimeSpan.FromSeconds(60))
+        {
+            _lastBalanceRefresh = DateTime.Now;
+            _ = RefreshBalance();
+        }
+    }
+
     [ObservableProperty]
     private bool _isPeakHour;
 

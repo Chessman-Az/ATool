@@ -177,25 +177,34 @@ public sealed class FloatReminderService
         if (!_running) return;
         try
         {
-            // 主窗口全屏/最大化 → 隐藏浮窗（避免被遮挡的半截框显示在角落）
-            if (_mainWindow is { WindowState: WindowState.Maximized or WindowState.FullScreen })
+            // 主窗口最小化 → 用户明确想看桌面浮窗：跳过前台检测（浮窗不置顶，其他软件会自然遮挡）
+            if (_mainWindow?.WindowState == WindowState.Minimized)
             {
-                if (_visible) { _window.Hide(); _visible = false; }
-                return;
+                EnsureVisible();
+                if (!_visible) return;
             }
-            // 前台是本进程窗口（主窗口/浮窗自身）、桌面或任务栏 → 显示；其他软件 → 隐藏
-            var visible = IsDesktopForeground();
-            if (visible && !_visible)
+            else
             {
-                _window.Show();
-                _visible = true;
+                // 主窗口全屏/最大化 → 隐藏浮窗（避免被遮挡的半截框显示在角落）
+                if (_mainWindow is { WindowState: WindowState.Maximized or WindowState.FullScreen })
+                {
+                    if (_visible) { _window.Hide(); _visible = false; }
+                    return;
+                }
+                // 前台是本进程窗口（主窗口/浮窗自身）、桌面或任务栏 → 显示；其他软件 → 隐藏
+                var visible = IsDesktopForeground();
+                if (visible && !_visible)
+                {
+                    _window.Show();
+                    _visible = true;
+                }
+                else if (!visible && _visible)
+                {
+                    _window.Hide();
+                    _visible = false;
+                }
+                if (!visible) return;
             }
-            else if (!visible && _visible)
-            {
-                _window.Hide();
-                _visible = false;
-            }
-            if (!visible) return;
 
             var scr = Screen();
             GetCursorPos(out var pt);
@@ -220,6 +229,14 @@ public sealed class FloatReminderService
         {
             Log.Warning(ex, "浮窗轮询异常（已忽略）");
         }
+    }
+
+    /// <summary>确保浮窗显示（最小化豁免路径用）。</summary>
+    private void EnsureVisible()
+    {
+        if (_visible) return;
+        _window.Show();
+        _visible = true;
     }
 
     private void Animate()

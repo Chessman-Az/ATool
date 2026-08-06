@@ -38,11 +38,11 @@ public sealed class SettingsService
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ATool", "logs");
 
     public int GetRefreshMinutes() =>
-        int.TryParse(_repo.Get("refresh_minutes"), out var m) && m >= 5 ? m : 30;
+        int.TryParse(_repo.Get("refresh_minutes"), out var m) && m >= 1 ? m : 30;
 
     public void SetRefreshMinutes(int minutes)
     {
-        if (minutes < 5) throw new ArgumentException("自动刷新间隔最低 5 分钟");
+        if (minutes < 1) throw new ArgumentException("自动刷新间隔最低 1 分钟");
         _repo.Set("refresh_minutes", minutes.ToString());
     }
 

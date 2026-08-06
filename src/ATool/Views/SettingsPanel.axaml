@@ -9,8 +9,8 @@
     </StackPanel>
     <TextBlock Text="日志存储路径" FontWeight="SemiBold" FontSize="14" Margin="0,8,0,0" />
     <TextBox Text="{Binding LogPath}" Width="420" />
-    <TextBlock Text="自动刷新间隔（分钟，最低 5）" FontWeight="SemiBold" FontSize="14" Margin="0,8,0,0" />
-    <NumericUpDown Value="{Binding RefreshMinutes}" Minimum="5" Maximum="1440" Increment="5" Width="160" />
+    <TextBlock Text="自动刷新间隔（分钟，最低 1）" FontWeight="SemiBold" FontSize="14" Margin="0,8,0,0" />
+    <NumericUpDown Value="{Binding RefreshMinutes}" Minimum="1" Maximum="1440" Increment="5" Width="160" />
     <CheckBox IsChecked="{Binding AutoStart}" Content="开机自启（Windows）" Margin="0,8,0,0"
               IsEnabled="{Binding AutoStartSupported}" />
     <TextBlock Text="该功能仅 Windows 支持" Foreground="Gray" FontSize="12"
