@@ -78,13 +78,13 @@ public partial class ReminderListViewModel : ObservableObject
         RebuildToday();
     }
 
-    /// <summary>重建中控台「今日提醒」：Pending 且今天还会触发（下一次触发点落在今天且晚于当前），按时间升序。</summary>
+    /// <summary>重建中控台「今日提醒」：Pending 且今天有触发点（含已过未完成），按时间升序。</summary>
     private void RebuildToday()
     {
         TodayItems.Clear();
-        var now = DateTime.Now;
+        var today = DateOnly.FromDateTime(DateTime.Now);
         var items = _repo.GetAll(ReminderStatus.Pending)
-            .Where(r => ReminderScheduler.TriggersToday(r, now))
+            .Where(r => ReminderScheduler.HasTriggerOnDate(r, today))
             .OrderBy(r => r.TriggerTime)
             .Select(r => new ReminderItemVm(r, OnCompleteRequested))
             .ToList();

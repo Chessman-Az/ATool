@@ -88,10 +88,17 @@ public static class ReminderScheduler
         return result;
     }
 
-    /// <summary>该提醒在 now 当天是否还会触发：下一次触发点严格晚于 now 且落在 now 当天（中控台「今日提醒」判定）。</summary>
+    /// <summary>该提醒在 now 当天是否还会触发：下一次触发点严格晚于 now 且落在 now 当天（调度器视角）。</summary>
     public static bool TriggersToday(Reminder r, DateTime now)
     {
         var next = NextTriggerTime(r, now);
         return next is { } n && DateOnly.FromDateTime(n) == DateOnly.FromDateTime(now);
+    }
+
+    /// <summary>该提醒是否有触发点落在指定日期（中控台「今日提醒」判定：今天的提醒都算，含已过但未完成的）。</summary>
+    public static bool HasTriggerOnDate(Reminder r, DateOnly date)
+    {
+        var next = NextTriggerTime(r, date.ToDateTime(TimeOnly.MinValue));
+        return next is { } n && DateOnly.FromDateTime(n) == date;
     }
 }
