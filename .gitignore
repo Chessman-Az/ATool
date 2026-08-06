@@ -5,3 +5,6 @@ obj/
 .idea/
 *.suo
 TestResults/
+
+publish/
+.rivet/
