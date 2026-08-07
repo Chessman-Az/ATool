@@ -79,10 +79,10 @@ public class UsageAggregatorTests
         Assert.Equal(150, s.OfficeSeconds);
         Assert.Equal(120, s.BrowserSeconds);
         Assert.Equal(30, s.GameSeconds);
-        // 应用排行按秒降序（120/90/60/30/10）
-        Assert.Equal(new[] { "chrome", "notepad", "winword", "steam", "unknown" },
+        // 应用排行按秒降序；浏览器记录不进应用排行（网站只在网站明细）
+        Assert.Equal(new[] { "notepad", "winword", "steam", "unknown" },
             s.ByApp.Select(x => x.Name).ToArray());
-        Assert.Equal(310, s.ByApp.Sum(x => x.Seconds));
+        Assert.Equal(190, s.ByApp.Sum(x => x.Seconds));
     }
 
     [Fact]
@@ -130,11 +130,30 @@ public class UsageAggregatorTests
         var site = Assert.Single(s.BySite);
         Assert.Equal("B站", site.Name);
         Assert.Equal(120, site.Seconds);
-        // 应用排行：不再全部聚合成"未知"，标题兜底为浏览器名/原标题
-        Assert.Equal(new[] { "Google Chrome", "无标题 - 记事本" },
-            s.ByApp.Select(x => x.Name).ToArray());
-        Assert.Equal(120, s.ByApp[0].Seconds);
-        Assert.Equal(60, s.ByApp[1].Seconds);
+        // 应用排行：浏览器记录不进排行，只剩非浏览器应用（标题兜底）
+        var app = Assert.Single(s.ByApp);
+        Assert.Equal("无标题 - 记事本", app.Name);
+        Assert.Equal(60, app.Seconds);
+    }
+
+    [Fact]
+    public void Summarize_Edge多配置零宽标题_网站进明细不进应用排行()
+    {
+        // 真实环境形态：进程名解析失败 + Edge 标题带配置名与零宽空格
+        var logs = new[]
+        {
+            Log("", "other", "Releases · Chessman-Az/ATool 和另外 1 个页面 - 个人 - Microsoft\u200bEdge", 200),
+            Log("", "other", "微信", 80),
+        };
+
+        var s = UsageAggregator.Summarize(logs);
+
+        Assert.Equal(200, s.BrowserSeconds); // 标题兜底识别为浏览器
+        var site = Assert.Single(s.BySite);
+        Assert.Equal("Releases · Chessman-Az/ATool", site.Name); // 去「和另外 N 个页面」与配置后缀
+        var app = Assert.Single(s.ByApp);
+        Assert.Equal("微信", app.Name); // 网站不进应用排行
+        Assert.Equal(80, app.Seconds);
     }
 
     [Fact]

@@ -63,12 +63,16 @@ public static class UsageAggregator
                 case "game": summary.GameSeconds += sec; break;
             }
 
-            // 应用名：进程名优先；空时用窗口标题兜底（浏览器 → 浏览器名，其他 → 原标题），避免全部聚合到"未知"
-            var proc = string.IsNullOrWhiteSpace(l.ProcessName)
-                ? AppUsageCategorizer.ExtractAppName(l.WindowTitle)
-                : l.ProcessName;
-            if (string.IsNullOrWhiteSpace(proc)) proc = "未知";
-            apps[proc] = apps.GetValueOrDefault(proc) + sec;
+            // 应用名：进程名优先；空时用窗口标题兜底（浏览器 → 浏览器名，其他 → 原标题），避免全部聚合到"未知"。
+            // 浏览器记录不进应用排行（网站已在网站明细统计，应用排行只列软件）。
+            if (category != AppUsageCategorizer.Browser)
+            {
+                var proc = string.IsNullOrWhiteSpace(l.ProcessName)
+                    ? AppUsageCategorizer.ExtractAppName(l.WindowTitle)
+                    : l.ProcessName;
+                if (string.IsNullOrWhiteSpace(proc)) proc = "未知";
+                apps[proc] = apps.GetValueOrDefault(proc) + sec;
+            }
         }
 
         summary.ByApp = apps.OrderByDescending(kv => kv.Value).Select(kv => (kv.Key, kv.Value)).ToList();
