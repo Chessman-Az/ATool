@@ -32,7 +32,8 @@ public partial class BalanceDetailViewModel : ObservableObject
         _keys = keys;
         _keys.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(ApiKeysViewModel.SelectedKey))
+            // 选中 Key 或余额刷新（TotalBalance 更新）时重算总充值/总消费
+            if (e.PropertyName is nameof(ApiKeysViewModel.SelectedKey) or nameof(ApiKeysViewModel.TotalBalance))
                 Load();
         };
     }
@@ -54,10 +55,12 @@ public partial class BalanceDetailViewModel : ObservableObject
             Rows.Add(row);
         OnPropertyChanged(nameof(HasRows));
 
-        // 总充值 / 总消费（联动当前选中 Key）；总充值含手动补录记录
-        var (recharge, consume) = _history.GetTotals(_keys.SelectedKey is { } k ? k.Key.Id : null);
-        var manual = _recharge.GetManualTotal();
-        TotalRechargeText = $"¥{recharge + manual:F2}";
+        // 总充值 = 余额相邻差累计 + 手动补录；总消费 = 总充值 − 当前实时余额（与 DeepSeek 余额严格对应）
+        var (recharge, _) = _history.GetTotals(_keys.SelectedKey is { } k ? k.Key.Id : null);
+        var totalRecharge = recharge + _recharge.GetManualTotal();
+        var balance = _keys.SelectedKey is { } sel && sel.Balance is { } b ? b : _keys.TotalBalance;
+        var consume = Math.Max(0, totalRecharge - balance);
+        TotalRechargeText = $"¥{totalRecharge:F2}";
         TotalConsumeText = $"¥{consume:F2}";
     }
 
