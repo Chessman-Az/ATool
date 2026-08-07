@@ -14,6 +14,8 @@ public partial class BalanceDetailPanel : UserControl
         if (Program.Services?.GetService<RechargeViewModel>() is { } vm)
         {
             vm.Load(); // 每次打开重新识别充值记录
+            if (DataContext is BalanceDetailViewModel detail)
+                vm.SelectAlias(detail.CurrentKeyAlias); // 初始筛选跟随当前选中 Key（不显示其他别名的记录）
             var win = new RechargeWindow { DataContext = vm };
             win.Closed += (_, _) =>
             {

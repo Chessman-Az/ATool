@@ -102,4 +102,26 @@ public class RechargeViewModelTests
         vm.SelectedAlias = RechargeViewModel.AllAliases;
         Assert.Equal("key2", vm.ManualAlias); // 「全部」不改动手动别名
     }
+
+    [Fact]
+    public void SelectAlias_从余额页带入_初始筛选跟随当前Key()
+    {
+        var (repo, db) = NewRepo();
+        InsertKeyWithRecharge(db, 1, "key1", 10m, 20m);
+        InsertKeyWithRecharge(db, 2, "key2", 5m, 25m);
+
+        var vm = new RechargeViewModel(repo); // 默认第一个别名 key1
+
+        vm.SelectAlias("key2");
+
+        Assert.Equal("key2", vm.SelectedAlias);
+        Assert.Single(vm.Rows);
+        Assert.Equal("key2", vm.Rows[0].Alias);
+        Assert.Equal("¥20.00", vm.TotalDeltaText); // 只统计 key2
+
+        vm.SelectAlias("不存在的别名"); // 无效别名不改变
+        Assert.Equal("key2", vm.SelectedAlias);
+        vm.SelectAlias(null); // null 不改变
+        Assert.Equal("key2", vm.SelectedAlias);
+    }
 }

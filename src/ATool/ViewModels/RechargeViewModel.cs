@@ -78,6 +78,15 @@ public partial class RechargeViewModel : ObservableObject
         Load();
     }
 
+    /// <summary>
+    /// 外部带入初始筛选（如从余额明细页选中某 Key 打开）：别名存在才切换，无效/null 保持现状。
+    /// </summary>
+    public void SelectAlias(string? alias)
+    {
+        if (alias is not null && Aliases.Contains(alias))
+            SelectedAlias = alias;
+    }
+
     /// <summary>手动添加一条充值记录（补录历史充值，归属当前手动别名）。</summary>
     [RelayCommand]
     private void Add()

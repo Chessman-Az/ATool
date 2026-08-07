@@ -39,8 +39,7 @@ public partial class BalanceDetailViewModel : ObservableObject
     }
 
     public void Load()
-    {
-        Rows.Clear();
+    {        Rows.Clear();
         var all = _history.GetAllWithAlias();
         if (_keys.SelectedKey is { } item)
         {
@@ -67,4 +66,7 @@ public partial class BalanceDetailViewModel : ObservableObject
     }
 
     public bool HasRows => Rows.Count > 0;
+
+    /// <summary>当前选中 Key 的别名（充值明细窗口初始筛选用；未选中返回 null）。</summary>
+    public string? CurrentKeyAlias => _keys.SelectedKey?.Alias;
 }
