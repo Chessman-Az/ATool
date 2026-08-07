@@ -335,7 +335,7 @@
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
               </Border>
               <TextBlock Text="A工具" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,16,0,4" />
-              <TextBlock Text="版本 12" Classes="hint" HorizontalAlignment="Center" FontSize="13" />
+              <TextBlock Text="版本 13.1" Classes="hint" HorizontalAlignment="Center" FontSize="13" />
               <TextBlock Text="作者：小泽" Classes="hint" HorizontalAlignment="Center" FontSize="13" Margin="0,3,0,0" />
               <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,18,0,16" />
               <TextBlock Text="灵活重复规则的本地提醒事项，加上 DeepSeek 多 API Key 余额监控的桌面小工具。"
