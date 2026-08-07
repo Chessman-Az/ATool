@@ -56,6 +56,12 @@ public sealed class HardwareInfoService
         }
     }
 
+    /// <summary>内存条列表（WMI Win32_PhysicalMemory：单条容量/频率/品牌/型号）。</summary>
+    public List<string> MemoryModules { get; } = [];
+
+    /// <summary>内存条数（0 表示 WMI 未取到）。</summary>
+    public int MemoryModuleCount => MemoryModules.Count;
+
     /// <summary>系统运行时间（天/时/分）。</summary>
     public string Uptime
     {
@@ -120,6 +126,31 @@ public sealed class HardwareInfoService
             }
         }
         catch { }
+
+        try
+        {
+            using var mos = new ManagementObjectSearcher(
+                "SELECT Capacity, Speed, Manufacturer, PartNumber, BankLabel FROM Win32_PhysicalMemory");
+            foreach (var o in mos.Get())
+            {
+                var capacityGb = Convert.ToDouble(o["Capacity"] ?? 0d) / 1024 / 1024 / 1024;
+                var speed = o["Speed"]?.ToString() ?? "";
+                var manufacturer = o["Manufacturer"]?.ToString() ?? "";
+                var part = o["PartNumber"]?.ToString() ?? "";
+                var bank = o["BankLabel"]?.ToString() ?? "";
+                if (capacityGb < 1) continue;
+                var parts = new List<string> { $"{capacityGb:F0} GB" };
+                if (!string.IsNullOrEmpty(speed)) parts.Add($"{speed} MHz");
+                if (!string.IsNullOrEmpty(manufacturer) && !manufacturer.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
+                    parts.Add(manufacturer.Trim());
+                if (!string.IsNullOrEmpty(part) && !part.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
+                    parts.Add(part.Trim());
+                if (!string.IsNullOrEmpty(bank) && !bank.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
+                    parts.Add($"插槽 {bank.Trim()}");
+                MemoryModules.Add(string.Join(" · ", parts));
+            }
+        }
+        catch { /* 单类查询失败不影响其他 */ }
 
         try
         {

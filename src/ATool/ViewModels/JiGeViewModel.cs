@@ -31,6 +31,13 @@ public partial class JiGeViewModel : ObservableObject
     public string CpuClock => string.IsNullOrEmpty(_hardware.CpuMaxClock) ? "" : $"{_hardware.CpuMaxClock} MHz";
 
     public string TotalMemoryGb => _hardware.TotalMemoryGb;
+
+    /// <summary>内存条列表（单条容量/频率/品牌/插槽）。</summary>
+    public IReadOnlyList<string> MemoryModules => _hardware.MemoryModules;
+
+    /// <summary>内存条数文案（如「共 2 根」；WMI 未取到时为空）。</summary>
+    public string MemoryCountText => _hardware.MemoryModuleCount > 0 ? $"共 {_hardware.MemoryModuleCount} 根" : "";
+
     public string Uptime => _hardware.Uptime;
     public string Arch => _hardware.Arch;
 
