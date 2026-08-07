@@ -108,7 +108,16 @@
                       CornerRadius="8" Padding="12,8" Margin="0,3">
                 <Grid ColumnDefinitions="*,Auto,Auto">
                   <StackPanel Spacing="2" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding QueriedAt}" FontSize="12" FontWeight="SemiBold" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <TextBlock Text="{Binding QueriedAt}" FontSize="12" FontWeight="SemiBold"
+                                 IsVisible="{Binding IsEditingTime, Converter={x:Static BoolConverters.Not}}" />
+                      <TextBox Text="{Binding EditableTime}" Width="160" FontSize="12"
+                               IsVisible="{Binding IsEditingTime}" />
+                      <Button Content="✓" Command="{Binding SaveTimeCommand}" FontSize="11" Padding="8,2"
+                              IsVisible="{Binding IsEditingTime}" ToolTip.Tip="保存时间" />
+                      <Button Content="✕" Command="{Binding CancelTimeCommand}" FontSize="11" Padding="8,2"
+                              IsVisible="{Binding IsEditingTime}" ToolTip.Tip="取消" />
+                    </StackPanel>
                     <TextBlock Text="{Binding Alias}" Classes="hint" FontSize="11" />
                   </StackPanel>
                   <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
@@ -123,10 +132,16 @@
                                    Increment="0.1" FormatString="0.00" Width="88"
                                    ShowButtonSpinner="False" VerticalAlignment="Center" />
                   </StackPanel>
-                  <Button Grid.Column="2" Content="🗑" Command="{Binding DeleteCommand}"
-                          IsEnabled="{Binding CanDelete}" FontSize="12" Padding="10,4"
-                          Margin="10,0,0,0" VerticalAlignment="Center"
-                          ToolTip.Tip="删除该充值记录（自动识别记录不可删除）" />
+                  <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <Button Content="编辑时间" Command="{Binding EditTimeCommand}"
+                            IsEnabled="{Binding CanDelete}" FontSize="11" Padding="10,4"
+                            Margin="10,0,0,0" VerticalAlignment="Center"
+                            ToolTip.Tip="修改该记录的时间（自动识别记录不可修改）" />
+                    <Button Content="🗑" Command="{Binding DeleteCommand}"
+                            IsEnabled="{Binding CanDelete}" FontSize="12" Padding="10,4"
+                            VerticalAlignment="Center"
+                            ToolTip.Tip="删除该充值记录（自动识别记录不可删除）" />
+                  </StackPanel>
                 </Grid>
               </Border>
             </DataTemplate>

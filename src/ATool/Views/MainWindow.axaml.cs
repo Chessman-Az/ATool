@@ -1,4 +1,6 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
@@ -85,7 +87,11 @@ public partial class MainWindow : Window
         dlg.Confirmed += () =>
         {
             _quitting = true;
-            Close();
+            // 显式 Shutdown：浮窗窗口常驻会阻止默认的 OnLastWindowClose 退出（曾致托盘点一次退不干净）
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                desktop.Shutdown();
+            else
+                Close();
         };
         dlg.ShowDialog(this);
     }

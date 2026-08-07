@@ -227,4 +227,37 @@ public class RechargeRepositoryTests
         Assert.NotEqual(id, rebuilt.Id);
         Assert.Equal(2m, rebuilt.Delta);
     }
+
+    // ---- 编辑时间（仅手动补录行）----
+
+    [Fact]
+    public void UpdateManualTime_手动行时间可修改_回读生效()
+    {
+        var (repo, db) = NewRepo();
+        repo.InsertManual("2026-07-01 12:00:00", 5m, 4.5m, 0.3m, "主Key");
+        var id = Assert.Single(repo.EnsureAndGetAll()).Id;
+
+        var affected = repo.UpdateManualTime(id, "2026-07-05 08:30:00");
+
+        Assert.Equal(1, affected);
+        var row = Assert.Single(repo.EnsureAndGetAll());
+        Assert.Equal("2026-07-05 08:30:00", row.QueriedAt);
+        Assert.Equal(5m, row.Delta); // 其他字段不受影响
+    }
+
+    [Fact]
+    public void UpdateManualTime_自动行不可改_返回0()
+    {
+        var (repo, db) = NewRepo();
+        var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        using (var conn = db.GetConnection())
+        {
+            conn.Execute("INSERT INTO api_keys (alias, encrypted_key, created_at) VALUES ('k1', X'01', @a)", new { a = now });
+            conn.Execute("INSERT INTO balance_history (api_key_id, total_balance, currency, queried_at) VALUES (1, 10, 'CNY', @a)", new { a = now });
+            conn.Execute("INSERT INTO balance_history (api_key_id, total_balance, currency, queried_at) VALUES (1, 12, 'CNY', @a)", new { a = now });
+        }
+        var id = Assert.Single(repo.EnsureAndGetAll()).Id;
+
+        Assert.Equal(0, repo.UpdateManualTime(id, "2026-07-05 08:30:00"));
+    }
 }

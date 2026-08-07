@@ -13,6 +13,7 @@ public partial class BalanceDetailPanel : UserControl
     {
         if (Program.Services?.GetService<RechargeViewModel>() is { } vm)
         {
+            vm.RefreshAliasOptions(); // 先刷新别名（期间可能新增过 Key；窗口渲染前执行避免 ComboBox 重置）
             vm.Load(); // 每次打开重新识别充值记录
             if (DataContext is BalanceDetailViewModel detail)
                 vm.SelectAlias(detail.CurrentKeyAlias); // 初始筛选跟随当前选中 Key（不显示其他别名的记录）

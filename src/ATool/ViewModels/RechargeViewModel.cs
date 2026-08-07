@@ -97,6 +97,12 @@ public partial class RechargeViewModel : ObservableObject
             SelectedAlias = alias;
     }
 
+    /// <summary>
+    /// 窗口打开时刷新别名下拉（外部调用，仅在窗口渲染前执行一次——Load 内重建会触发
+    /// ComboBox SelectedItem 写回导致选择重置/递归）。
+    /// </summary>
+    public void RefreshAliasOptions() => RefreshAliases(keepSelection: SelectedAlias);
+
     /// <summary>手动添加一条充值记录（补录历史充值，归属当前手动别名）。</summary>
     [RelayCommand]
     private void Add()
@@ -115,10 +121,12 @@ public partial class RechargeViewModel : ObservableObject
         Load();
     }
 
-    /// <summary>加载：确保充值记录建行，刷新别名列表与当前筛选的明细/汇总。</summary>
+    /// <summary>
+    /// 加载：确保充值记录建行，刷新当前筛选的明细与汇总。
+    /// 注意：不在此重建 Aliases——ComboBox 的 ItemsSource 重建会触发 SelectedItem 写回（TwoWay）导致选择被重置/递归。
+    /// </summary>
     public void Load()
     {
-        RefreshAliases(keepSelection: SelectedAlias);
         var rows = _repo.EnsureAndGetAll();
         var filtered = SelectedAlias == AllAliases
             ? rows
@@ -126,7 +134,7 @@ public partial class RechargeViewModel : ObservableObject
 
         Rows.Clear();
         foreach (var r in filtered)
-            Rows.Add(new RechargeItemVm(r, OnDeleteRequested));
+            Rows.Add(new RechargeItemVm(r, OnDeleteRequested, OnTimeSaved));
         HasRows = Rows.Count > 0;
 
         var s = RechargeService.Summarize(filtered.Select(r => (r.Delta, r.Actual, r.Commission)));
@@ -169,9 +177,16 @@ public partial class RechargeViewModel : ObservableObject
 
     /// <summary>行删除按钮 → 转发删除请求（视图层确认后调 ConfirmDelete）。</summary>
     private void OnDeleteRequested(RechargeItemVm item) => DeleteRequested?.Invoke(item);
+
+    /// <summary>行保存时间（手动补录行）：写入仓库后重载列表（时间排序变化）。</summary>
+    private void OnTimeSaved(RechargeItemVm item)
+    {
+        _repo.UpdateManualTime(item.Row.Id, item.EditableTime);
+        Load();
+    }
 }
 
-/// <summary>充值明细行 VM：实际金额可编辑（NumericUpDown 双向绑定）+ 删除（手动补录行可删）。</summary>
+/// <summary>充值明细行 VM：实际金额可编辑（NumericUpDown 双向绑定）+ 删除/编辑时间（手动补录行可操作）。</summary>
 public partial class RechargeItemVm : ObservableObject
 {
     public RechargeRow Row { get; }
@@ -182,11 +197,28 @@ public partial class RechargeItemVm : ObservableObject
     /// <summary>变动充值金额（余额明细 +delta）。</summary>
     public string DeltaText => $"+{Row.Delta:F2}";
 
-    /// <summary>是否可删除（仅手动补录行；自动识别行删后由余额历史重建）。</summary>
+    /// <summary>是否可操作（删除/编辑时间）：仅手动补录行；自动识别行删后/时间由余额历史驱动。</summary>
     public bool CanDelete => Row.HistoryId is null;
+
+    /// <summary>编辑时间模式下编辑中的时间文本。</summary>
+    [ObservableProperty]
+    private string _editableTime = "";
+
+    /// <summary>是否处于编辑时间模式（行内 TextBox 替换时间显示）。</summary>
+    [ObservableProperty]
+    private bool _isEditingTime;
 
     /// <summary>删除按钮命令（转发删除请求，视图层弹确认框）。</summary>
     public CommunityToolkit.Mvvm.Input.IRelayCommand DeleteCommand { get; }
+
+    /// <summary>进入编辑时间模式。</summary>
+    public CommunityToolkit.Mvvm.Input.IRelayCommand EditTimeCommand { get; }
+
+    /// <summary>保存编辑后的时间（通知 VM 写库并重载）。</summary>
+    public CommunityToolkit.Mvvm.Input.IRelayCommand SaveTimeCommand { get; }
+
+    /// <summary>取消编辑，恢复显示。</summary>
+    public CommunityToolkit.Mvvm.Input.IRelayCommand CancelTimeCommand { get; }
 
     /// <summary>用户设置的实际充值金额。</summary>
     [ObservableProperty]
@@ -196,11 +228,24 @@ public partial class RechargeItemVm : ObservableObject
     [ObservableProperty]
     private decimal _commission;
 
-    public RechargeItemVm(RechargeRow row, Action<RechargeItemVm> deleteRequested)
+    public RechargeItemVm(RechargeRow row, Action<RechargeItemVm> deleteRequested, Action<RechargeItemVm> timeSaved)
     {
         Row = row;
         _actualAmount = row.Actual;
         _commission = row.Commission;
+        _editableTime = row.QueriedAt;
         DeleteCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => deleteRequested(this));
+        EditTimeCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() =>
+        {
+            EditableTime = Row.QueriedAt;
+            IsEditingTime = true;
+        }, () => CanDelete);
+        SaveTimeCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() =>
+        {
+            if (!DateTime.TryParse(EditableTime, out _)) return; // 格式非法不保存（TextBox 文本保留待修正）
+            IsEditingTime = false;
+            timeSaved(this);
+        }, () => CanDelete);
+        CancelTimeCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => IsEditingTime = false);
     }
 }

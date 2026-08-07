@@ -120,4 +120,16 @@ public sealed class RechargeRepository(Db db)
         using var conn = db.GetConnection();
         conn.Execute("DELETE FROM recharge_details WHERE id = @id", new { id });
     }
+
+    /// <summary>
+    /// 修改手动补录行的时间（history_id 为空的行）。自动识别行时间来自 balance_history，
+    /// 不在本方法范围内（改它会影响余额相邻差计算）。返回受影响行数（0 = 非手动行或不存在）。
+    /// </summary>
+    public int UpdateManualTime(long id, string newTime)
+    {
+        using var conn = db.GetConnection();
+        return conn.Execute(
+            "UPDATE recharge_details SET manual_time = @t, updated_at = @now WHERE id = @id AND history_id IS NULL",
+            new { id, t = newTime, now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
+    }
 }
