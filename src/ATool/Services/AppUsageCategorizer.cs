@@ -45,9 +45,30 @@ public static class AppUsageCategorizer
     /// <summary>网站名里的多标签页尾缀（" 和另外 3 个页面"）。</summary>
     private static readonly System.Text.RegularExpressions.Regex ExtraPagesSuffix = new(@"\s*和另外\s*\d+\s*个页面$");
 
-    /// <summary>把标题中的零宽/不可见字符替换为普通空格（Edge 标题常含 ZWSP，直接删除会让 "Microsoft Edge" 变 "MicrosoftEdge"）。</summary>
+    /// <summary>
+    /// 标题规范化：零宽/不可见字符与普通空格统一折叠为单个空格（Edge 标题 ZWSP 位置不定：
+    /// "Microsoft\u200bEdge" 或 "Microsoft\u200b Edge" 都要归一为 "Microsoft Edge"）。
+    /// </summary>
     public static string NormalizeTitle(string? title)
-        => title is null ? "" : new string(title.Select(c => c is '\u200b' or '\u200c' or '\u200d' or '\ufeff' or '\u00a0' ? ' ' : c).ToArray());
+    {
+        if (title is null) return "";
+        var sb = new System.Text.StringBuilder(title.Length);
+        var lastWasSpace = false;
+        foreach (var c in title)
+        {
+            if (c is '\u200b' or '\u200c' or '\u200d' or '\ufeff' or '\u00a0' or ' ')
+            {
+                if (!lastWasSpace) sb.Append(' ');
+                lastWasSpace = true;
+            }
+            else
+            {
+                sb.Append(c);
+                lastWasSpace = false;
+            }
+        }
+        return sb.ToString().Trim();
+    }
 
     /// <summary>
     /// 规范化标题后匹配浏览器后缀；成功时输出浏览器名与网站名部分。

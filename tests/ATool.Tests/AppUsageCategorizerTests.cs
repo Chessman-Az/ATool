@@ -129,16 +129,22 @@ public class AppUsageCategorizerTests
 
     private const string EdgeProfileTitle = "Releases · Chessman-Az/ATool 和另外 1 个页面 - 个人 - Microsoft\u200bEdge";
 
+    /// <summary>真实环境形态：ZWSP 在 "Microsoft" 与空格之间（"Microsoft\u200b Edge"）。</summary>
+    private const string EdgeProfileTitleZwspSpace = "抖音-记录美好生活 - 个人 - Microsoft\u200b Edge";
+
     [Fact]
     public void TitleLooksLikeBrowser_Edge多配置后缀含零宽空格_返回true()
     {
         Assert.True(AppUsageCategorizer.TitleLooksLikeBrowser(EdgeProfileTitle));
-        Assert.True(AppUsageCategorizer.TitleLooksLikeBrowser("抖音-记录美好生活 和另外 1 个页面 - 个人 - Microsoft\u200bEdge"));
+        Assert.True(AppUsageCategorizer.TitleLooksLikeBrowser(EdgeProfileTitleZwspSpace)); // ZWSP+空格形态
     }
 
     [Fact]
     public void ExtractAppName_Edge多配置标题_返回浏览器名()
-        => Assert.Equal("Microsoft Edge", AppUsageCategorizer.ExtractAppName(EdgeProfileTitle));
+    {
+        Assert.Equal("Microsoft Edge", AppUsageCategorizer.ExtractAppName(EdgeProfileTitle));
+        Assert.Equal("Microsoft Edge", AppUsageCategorizer.ExtractAppName(EdgeProfileTitleZwspSpace));
+    }
 
     [Fact]
     public void ExtractSiteName_Edge多配置标题_去后缀与多标签尾缀()
@@ -146,11 +152,16 @@ public class AppUsageCategorizerTests
         var site = AppUsageCategorizer.ExtractSiteName(EdgeProfileTitle, "");
         Assert.Equal("Releases · Chessman-Az/ATool", site);
         Assert.Equal("抖音-记录美好生活",
-            AppUsageCategorizer.ExtractSiteName("抖音-记录美好生活 和另外 1 个页面 - 个人 - Microsoft\u200bEdge", ""));
+            AppUsageCategorizer.ExtractSiteName(EdgeProfileTitleZwspSpace, ""));
     }
 
     [Fact]
-    public void NormalizeTitle_零宽字符替换为空格()
+    public void NormalizeTitle_零宽字符折叠为单空格()
         => Assert.Equal("Releases · Chessman-Az/ATool 和另外 1 个页面 - 个人 - Microsoft Edge",
             AppUsageCategorizer.NormalizeTitle(EdgeProfileTitle));
+
+    [Fact]
+    public void NormalizeTitle_ZWSP与空格相邻_折叠为单空格()
+        => Assert.Equal("抖音-记录美好生活 - 个人 - Microsoft Edge",
+            AppUsageCategorizer.NormalizeTitle(EdgeProfileTitleZwspSpace));
 }

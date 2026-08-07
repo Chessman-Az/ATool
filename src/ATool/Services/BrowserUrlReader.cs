@@ -17,8 +17,8 @@ public static class BrowserUrlReader
         if (hwnd == IntPtr.Zero || !OperatingSystem.IsWindows()) return null;
         try
         {
-            // UIA 树查询可能较慢（Chromium 大窗口树），5s 轮询中限时兜底
-            using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(400));
+            // UIA 树查询可能较慢（Chromium 大窗口树 + 首次 COM 初始化），5s 轮询中给足余量
+            using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(1500));
             return Task.Run(() => QueryUrl(hwnd), cts.Token)
                 .WaitAsync(cts.Token).GetAwaiter().GetResult();
         }
