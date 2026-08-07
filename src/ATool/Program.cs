@@ -73,6 +73,7 @@ internal static class Program
         services.AddSingleton<ApiKeyRepository>();
         services.AddSingleton<BalanceHistoryRepository>();
         services.AddSingleton<UsageLogRepository>();
+        services.AddSingleton<RechargeRepository>();
 
         // 应用层服务
     services.AddSingleton<DeepSeekClient>();
@@ -93,6 +94,7 @@ internal static class Program
     services.AddSingleton<SettingsViewModel>();
     services.AddSingleton<BalanceChartViewModel>();
     services.AddSingleton<BalanceDetailViewModel>();
+    services.AddSingleton<RechargeViewModel>();
     services.AddSingleton<TimeMasterViewModel>();
     services.AddSingleton<JiGeViewModel>();
     services.AddSingleton<MainWindowViewModel>();

@@ -93,8 +93,18 @@ public sealed class Db
               end_time TEXT,
               duration_sec INTEGER NOT NULL DEFAULT 0
             );
+            CREATE TABLE IF NOT EXISTS recharge_details (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              history_id INTEGER REFERENCES balance_history(id) ON DELETE CASCADE,
+              delta_amount REAL NOT NULL,
+              actual_amount REAL NOT NULL DEFAULT 0,
+              commission_amount REAL NOT NULL DEFAULT 0,
+              manual_time TEXT,
+              updated_at TEXT NOT NULL
+            );
             CREATE INDEX IF NOT EXISTS idx_balance_history_key ON balance_history(api_key_id, queried_at);
             CREATE INDEX IF NOT EXISTS idx_usage_log_start ON usage_log(start_time);
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_recharge_history ON recharge_details(history_id);
             """;
         cmd.ExecuteNonQuery();
 
@@ -108,6 +118,54 @@ public sealed class Db
         catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.Message.Contains("duplicate column", StringComparison.OrdinalIgnoreCase))
         {
             // 列已存在（新库 CREATE TABLE 已含）——忽略
+        }
+
+        // schema 迁移：recharge_details 补佣金列（旧库）
+        try
+        {
+            using var mig2 = conn.CreateCommand();
+            mig2.CommandText = "ALTER TABLE recharge_details ADD COLUMN commission_amount REAL NOT NULL DEFAULT 0";
+            mig2.ExecuteNonQuery();
+        }
+        catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.Message.Contains("duplicate column", StringComparison.OrdinalIgnoreCase))
+        {
+            // 列已存在——忽略
+        }
+
+        // schema 迁移：recharge_details 重建——history_id 可空 + manual_time 列（支持手动添加充值记录）
+        try
+        {
+            using var chk = conn.CreateCommand();
+            chk.CommandText = "SELECT COUNT(*) FROM pragma_table_info('recharge_details') WHERE name='manual_time'";
+            if (Convert.ToInt32(chk.ExecuteScalar()) == 0)
+            {
+                using var tx = conn.BeginTransaction();
+                using (var rebuild = conn.CreateCommand())
+                {
+                    rebuild.CommandText = """
+                        CREATE TABLE recharge_details_new (
+                          id INTEGER PRIMARY KEY AUTOINCREMENT,
+                          history_id INTEGER REFERENCES balance_history(id) ON DELETE CASCADE,
+                          delta_amount REAL NOT NULL,
+                          actual_amount REAL NOT NULL DEFAULT 0,
+                          commission_amount REAL NOT NULL DEFAULT 0,
+                          manual_time TEXT,
+                          updated_at TEXT NOT NULL
+                        );
+                        INSERT INTO recharge_details_new (id, history_id, delta_amount, actual_amount, commission_amount, updated_at)
+                          SELECT id, history_id, delta_amount, actual_amount, commission_amount, updated_at FROM recharge_details;
+                        DROP TABLE recharge_details;
+                        ALTER TABLE recharge_details_new RENAME TO recharge_details;
+                        CREATE UNIQUE INDEX IF NOT EXISTS idx_recharge_history ON recharge_details(history_id);
+                        """;
+                    rebuild.ExecuteNonQuery();
+                }
+                tx.Commit();
+            }
+        }
+        catch (Microsoft.Data.Sqlite.SqliteException)
+        {
+            // 表不存在或已是最新——忽略
         }
     }
 }

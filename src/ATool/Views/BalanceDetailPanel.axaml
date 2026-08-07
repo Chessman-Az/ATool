@@ -7,7 +7,24 @@
     <views:DeltaBackgroundBrushConverter x:Key="DeltaBg" />
   </UserControl.Resources>
   <DockPanel>
-    <TextBlock DockPanel.Dock="Top" Text="余额变动明细" Classes="h2" Margin="2,0,0,8" />
+    <DockPanel DockPanel.Dock="Top" Margin="2,0,0,8">
+      <TextBlock Text="余额变动明细" Classes="h2" VerticalAlignment="Center" />
+      <Button DockPanel.Dock="Right" Content="充值明细" Click="OpenRecharge" FontSize="12"
+              Padding="12,5" HorizontalAlignment="Right" />
+    </DockPanel>
+    <!-- 总充值 / 总消费 -->
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="18" Margin="2,0,0,8">
+      <StackPanel Orientation="Horizontal" Spacing="6">
+        <TextBlock Text="总充值金额" Classes="hint" VerticalAlignment="Center" />
+        <TextBlock Text="{Binding TotalRechargeText}" FontSize="15" FontWeight="Bold"
+                   Foreground="#34D399" VerticalAlignment="Center" />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="6">
+        <TextBlock Text="总消费金额" Classes="hint" VerticalAlignment="Center" />
+        <TextBlock Text="{Binding TotalConsumeText}" FontSize="15" FontWeight="Bold"
+                   Foreground="#F87171" VerticalAlignment="Center" />
+      </StackPanel>
+    </StackPanel>
     <TextBlock Text="{Binding EmptyHint}" Classes="hint" HorizontalAlignment="Center" VerticalAlignment="Center"
                IsVisible="{Binding HasRows, Converter={x:Static BoolConverters.Not}}" />
     <ScrollViewer IsVisible="{Binding HasRows}">

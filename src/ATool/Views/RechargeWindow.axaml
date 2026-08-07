@@ -1,0 +1,116 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ATool.Views.RechargeWindow"
+        Title="充值明细"
+        Width="660" Height="580"
+        Icon="/Assets/icon.ico"
+        Background="{DynamicResource BgBrush}">
+  <DockPanel Margin="16">
+    <!-- 保存按钮：右下角 -->
+    <Border DockPanel.Dock="Bottom" Padding="0,10,0,0">
+      <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+        <Button Content="保存实际金额" Command="{Binding SaveCommand}" Classes="accent" Padding="20,8" />
+      </StackPanel>
+    </Border>
+
+    <StackPanel Spacing="10">
+      <!-- 顶部汇总：充值金额 / 实际充值金额 / 佣金 / 差值 -->
+      <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+              BorderThickness="1" CornerRadius="10" Padding="16,12">
+        <Grid ColumnDefinitions="1*,1*,1*,1*" ColumnSpacing="8">
+          <Border Background="#101C30" CornerRadius="8" Padding="12,10">
+            <StackPanel Spacing="3">
+              <TextBlock Text="充值金额" Classes="hint" FontSize="11" />
+              <TextBlock Text="{Binding TotalDeltaText}" FontSize="18" FontWeight="Bold"
+                         Foreground="#34D399" />
+            </StackPanel>
+          </Border>
+          <Border Grid.Column="1" Background="#101C30" CornerRadius="8" Padding="12,10">
+            <StackPanel Spacing="3">
+              <TextBlock Text="实际充值金额" Classes="hint" FontSize="11" />
+              <TextBlock Text="{Binding TotalActualText}" FontSize="18" FontWeight="Bold"
+                         Foreground="{DynamicResource PrimaryBrush}" />
+            </StackPanel>
+          </Border>
+          <Border Grid.Column="2" Background="#101C30" CornerRadius="8" Padding="12,10">
+            <StackPanel Spacing="3">
+              <TextBlock Text="佣金" Classes="hint" FontSize="11" />
+              <TextBlock Text="{Binding TotalCommissionText}" FontSize="18" FontWeight="Bold"
+                         Foreground="#F87171" />
+            </StackPanel>
+          </Border>
+          <Border Grid.Column="3" Background="#101C30" CornerRadius="8" Padding="12,10">
+            <StackPanel Spacing="3">
+              <TextBlock Text="差值" Classes="hint" FontSize="11" />
+              <TextBlock Text="{Binding DiffText}" FontSize="18" FontWeight="Bold"
+                         Foreground="#FBBF24" />
+            </StackPanel>
+          </Border>
+        </Grid>
+      </Border>
+
+      <!-- 说明 -->
+      <TextBlock Text="检测到余额增加即自动计入；也可手动添加历史充值记录。每条可设置实际充值金额与佣金（差值 = 充值 − 实际 − 佣金）。"
+                 Classes="hint" TextWrapping="Wrap" />
+
+      <!-- 手动添加区 -->
+      <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+              BorderThickness="1" CornerRadius="10" Padding="14,10">
+        <StackPanel Spacing="8">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="添加充值" FontWeight="Bold" FontSize="13" VerticalAlignment="Center" />
+            <TextBlock Text="时间" Classes="hint" FontSize="12" VerticalAlignment="Center" />
+            <TextBox Text="{Binding NewTime}" Width="180" FontSize="12" />
+            <TextBlock Text="充值金额" Classes="hint" FontSize="12" VerticalAlignment="Center" />
+            <NumericUpDown Value="{Binding NewDelta}" Minimum="0" Maximum="100000" Increment="1"
+                           FormatString="0.00" Width="90" ShowButtonSpinner="False" />
+            <TextBlock Text="实际" Classes="hint" FontSize="12" VerticalAlignment="Center" />
+            <NumericUpDown Value="{Binding NewActual}" Minimum="0" Maximum="100000" Increment="1"
+                           FormatString="0.00" Width="90" ShowButtonSpinner="False" />
+            <TextBlock Text="佣金" Classes="hint" FontSize="12" VerticalAlignment="Center" />
+            <NumericUpDown Value="{Binding NewCommission}" Minimum="0" Maximum="100000" Increment="0.1"
+                           FormatString="0.00" Width="80" ShowButtonSpinner="False" />
+            <Button Content="添加" Command="{Binding AddCommand}" Classes="accent" FontSize="12" Padding="14,5" />
+          </StackPanel>
+          <TextBlock Text="{Binding AddError}" Classes="danger" FontSize="12" />
+        </StackPanel>
+      </Border>
+
+      <!-- 空态 -->
+      <TextBlock Text="暂无充值记录（余额增加时自动出现）" Classes="hint"
+                 HorizontalAlignment="Center" Margin="0,30"
+                 IsVisible="{Binding HasRows, Converter={x:Static BoolConverters.Not}}" />
+
+      <!-- 明细列表 -->
+      <ScrollViewer MaxHeight="340" IsVisible="{Binding HasRows}">
+        <ItemsControl ItemsSource="{Binding Rows}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Background="#101C30" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                      CornerRadius="8" Padding="12,8" Margin="0,3">
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel Spacing="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding QueriedAt}" FontSize="12" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding Alias}" Classes="hint" FontSize="11" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding DeltaText}" FontWeight="Bold" FontSize="13"
+                               Foreground="#34D399" VerticalAlignment="Center" />
+                    <TextBlock Text="实际" Classes="hint" FontSize="12" VerticalAlignment="Center" />
+                    <NumericUpDown Value="{Binding ActualAmount}" Minimum="0" Maximum="100000"
+                                   Increment="0.5" FormatString="0.00" Width="96"
+                                   ShowButtonSpinner="False" VerticalAlignment="Center" />
+                    <TextBlock Text="佣金" Classes="hint" FontSize="12" VerticalAlignment="Center" />
+                    <NumericUpDown Value="{Binding Commission}" Minimum="0" Maximum="100000"
+                                   Increment="0.1" FormatString="0.00" Width="88"
+                                   ShowButtonSpinner="False" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </StackPanel>
+  </DockPanel>
+</Window>

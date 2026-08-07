@@ -16,6 +16,14 @@ public partial class BalanceDetailViewModel : ObservableObject
     [ObservableProperty]
     private string _emptyHint = "选择左侧 Key 查看余额变动明细";
 
+    /// <summary>总充值金额（相邻余额差 &gt;0 累计；按当前选中 Key）。</summary>
+    [ObservableProperty]
+    private string _totalRechargeText = "¥0.00";
+
+    /// <summary>总消费金额（相邻余额差 &lt;0 绝对值累计；按当前选中 Key）。</summary>
+    [ObservableProperty]
+    private string _totalConsumeText = "¥0.00";
+
     public BalanceDetailViewModel(BalanceHistoryRepository history, ApiKeysViewModel keys)
     {
         _history = history;
@@ -43,6 +51,11 @@ public partial class BalanceDetailViewModel : ObservableObject
         foreach (var row in BalanceHistoryDetailService.BuildRows(all))
             Rows.Add(row);
         OnPropertyChanged(nameof(HasRows));
+
+        // 总充值 / 总消费（联动当前选中 Key）
+        var (recharge, consume) = _history.GetTotals(_keys.SelectedKey is { } k ? k.Key.Id : null);
+        TotalRechargeText = $"¥{recharge:F2}";
+        TotalConsumeText = $"¥{consume:F2}";
     }
 
     public bool HasRows => Rows.Count > 0;

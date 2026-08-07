@@ -36,4 +36,28 @@ public sealed class BalanceHistoryRepository(Db db)
         return conn.Query<BalanceRecord>(
             "SELECT h.*, k.alias AS Alias FROM balance_history h JOIN api_keys k ON h.api_key_id = k.id ORDER BY h.queried_at").ToList();
     }
+
+    /// <summary>
+    /// 总充值金额 / 总消费金额：按 Key 分组、时间升序，相邻余额差 &gt;0 累加为充值、&lt;0 累加为消费（绝对值）。
+    /// 首条无前一条不计。
+    /// </summary>
+    public (decimal Recharge, decimal Consume) GetTotals(long? apiKeyId = null)
+    {
+        var records = GetAllWithAlias();
+        decimal recharge = 0, consume = 0;
+        foreach (var group in records.Where(r => apiKeyId is null || r.ApiKeyId == apiKeyId).GroupBy(r => r.ApiKeyId))
+        {
+            var ordered = group
+                .Where(r => DateTime.TryParse(r.QueriedAt, out _))
+                .OrderBy(r => DateTime.Parse(r.QueriedAt))
+                .ToList();
+            for (var i = 1; i < ordered.Count; i++)
+            {
+                var delta = ordered[i].TotalBalance - ordered[i - 1].TotalBalance;
+                if (delta > 0) recharge += delta;
+                else if (delta < 0) consume += -delta;
+            }
+        }
+        return (recharge, consume);
+    }
 }
