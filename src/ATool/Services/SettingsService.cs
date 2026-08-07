@@ -117,4 +117,19 @@ public sealed class SettingsService
         int.TryParse(_repo.Get("float_reminder_scope"), out var s) && s is 0 or 1 ? s : 0;
 
     public void SetFloatReminderScope(int scope) => _repo.Set("float_reminder_scope", scope.ToString());
+
+    /// <summary>中控台快捷启动的工具列表（Executable 名）；未配置过返回全部机哥工具。</summary>
+    public List<string> GetQuickTools()
+    {
+        var v = _repo.Get("quick_tools");
+        if (string.IsNullOrWhiteSpace(v))
+            return ToolCatalog.All.Select(t => t.Executable).ToList();
+        return v.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(e => ToolCatalog.All.Any(t => t.Executable == e))
+            .ToList();
+    }
+
+    /// <summary>保存中控台快捷启动的工具列表（Executable 名，逗号分隔）。</summary>
+    public void SetQuickTools(IEnumerable<string> executables)
+        => _repo.Set("quick_tools", string.Join(",", executables));
 }

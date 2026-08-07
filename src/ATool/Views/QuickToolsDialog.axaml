@@ -1,0 +1,25 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ATool.Views.QuickToolsDialog"
+        Title="选择快捷启动工具" Width="420" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" Topmost="True" ShowInTaskbar="False"
+        Background="{DynamicResource BgBrush}">
+  <DockPanel Margin="18">
+    <Border DockPanel.Dock="Bottom" Padding="0,12,0,0">
+      <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+        <Button Content="取消" Click="OnCancel" FontSize="12" Padding="16,6" />
+        <Button Content="保存" Click="OnConfirm" Classes="accent" FontSize="12" Padding="16,6" />
+      </StackPanel>
+    </Border>
+    <StackPanel Spacing="10">
+      <TextBlock Text="勾选要在中控台快捷启动的工具（点击启动对应软件）" Classes="hint" TextWrapping="Wrap" />
+      <ItemsControl x:Name="ToolList">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <CheckBox IsChecked="{Binding Selected}" Content="{Binding Name}" FontSize="13" Margin="0,3" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </DockPanel>
+</Window>

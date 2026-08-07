@@ -5,6 +5,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using ATool.Models;
+using ATool.Services;
 using ATool.ViewModels;
 
 namespace ATool.Views;
@@ -92,6 +93,20 @@ public partial class MainWindow : Window
                 desktop.Shutdown();
             else
                 Close();
+        };
+        dlg.ShowDialog(this);
+    }
+
+    /// <summary>中控台「选择工具」：弹出勾选对话框，保存后刷新快捷启动列表。</summary>
+    private void SelectQuickTools(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is not MainWindowViewModel vm) return;
+        var dlg = new QuickToolsDialog(vm.QuickTools.Select(t => t.Entry.Executable));
+        dlg.Confirmed += executables =>
+        {
+            if (Program.Services?.GetService<SettingsService>() is { } settings)
+                settings.SetQuickTools(executables);
+            vm.RefreshQuickTools();
         };
         dlg.ShowDialog(this);
     }

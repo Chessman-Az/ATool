@@ -72,6 +72,38 @@
               </DockPanel>
               <Border Height="1" Background="#22FFFFFF" />
 
+              <!-- 今日使用时长：总/办公/浏览器/游戏 -->
+              <Grid ColumnDefinitions="1*,1*,1*,1*" ColumnSpacing="10">
+                <Border Background="#16FFFFFF" CornerRadius="8" Padding="12,8">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="今日使用" FontSize="10" Foreground="#7A93B0" />
+                    <TextBlock Text="{Binding TodayTotalText}" FontSize="16" FontWeight="Bold"
+                               Foreground="White" FontFamily="Consolas" />
+                  </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Background="#16FFFFFF" CornerRadius="8" Padding="12,8">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="办公" FontSize="10" Foreground="#7A93B0" />
+                    <TextBlock Text="{Binding TodayOfficeText}" FontSize="16" FontWeight="Bold"
+                               Foreground="#34D399" FontFamily="Consolas" />
+                  </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="#16FFFFFF" CornerRadius="8" Padding="12,8">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="浏览器" FontSize="10" Foreground="#7A93B0" />
+                    <TextBlock Text="{Binding TodayBrowserText}" FontSize="16" FontWeight="Bold"
+                               Foreground="#7DD3FC" FontFamily="Consolas" />
+                  </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Background="#16FFFFFF" CornerRadius="8" Padding="12,8">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="游戏" FontSize="10" Foreground="#7A93B0" />
+                    <TextBlock Text="{Binding TodayGameText}" FontSize="16" FontWeight="Bold"
+                               Foreground="#FBBF24" FontFamily="Consolas" />
+                  </StackPanel>
+                </Border>
+              </Grid>
+
               <!-- 两栏：今日提醒 | DeepSeek 余额 -->
               <Grid ColumnDefinitions="1*,26,1.1*">
                 <StackPanel Grid.Column="0" Spacing="6">
@@ -139,6 +171,40 @@
                   </ItemsControl>
                 </StackPanel>
               </Grid>
+
+              <!-- 快捷启动：自定义机哥工具 -->
+              <Border Height="1" Background="#22FFFFFF" Margin="0,6,0,0" />
+              <DockPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="⚡ 快捷启动" FontSize="12" FontWeight="Bold" Foreground="#FBBF24" />
+                  <TextBlock Text="QUICK LAUNCH" FontSize="9" Foreground="#5A708C" VerticalAlignment="Center"
+                             FontFamily="Consolas" LetterSpacing="1" />
+                </StackPanel>
+                <Button DockPanel.Dock="Right" Content="选择工具" Click="SelectQuickTools"
+                        FontSize="11" Padding="10,4" VerticalAlignment="Center" />
+              </DockPanel>
+              <ItemsControl ItemsSource="{Binding QuickTools}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <WrapPanel />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Button Command="{Binding LaunchCommand}" Background="Transparent" BorderThickness="0"
+                            Padding="6,4" Margin="0,0,4,4" ToolTip.Tip="{Binding Name}">
+                      <StackPanel Spacing="2" HorizontalAlignment="Center">
+                        <Border Width="34" Height="34" CornerRadius="8" Background="#18FFFFFF"
+                                HorizontalAlignment="Center">
+                          <Image Source="{Binding Icon}" Width="24" Height="24" Stretch="Uniform" />
+                        </Border>
+                        <TextBlock Text="{Binding Name}" FontSize="9" Foreground="#C9D9EC"
+                                   HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="52" />
+                      </StackPanel>
+                    </Button>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
             </StackPanel>
           </Border>
         </Grid>
