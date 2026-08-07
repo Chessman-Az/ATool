@@ -97,9 +97,8 @@ public class UsageAggregatorTests
 
         var s = UsageAggregator.Summarize(logs);
 
-        var site = Assert.Single(s.BySite.Where(x => x.Name.Contains("B站")));
-        Assert.Equal(150, site.Seconds);
-        Assert.Equal(30, s.BySite.Single(x => x.Name.Contains("GitHub")).Seconds);
+        // 无 URL 的记录不显示标题文字，统一归「未知域名」
+        Assert.Equal(180, s.BySite.Single(x => x.Name == "未知域名").Seconds);
     }
 
     [Fact]
@@ -124,12 +123,10 @@ public class UsageAggregatorTests
 
         var s = UsageAggregator.Summarize(logs);
 
-        // 浏览器：标题后缀兜底重判 → 浏览器时长统计 + 网站明细去后缀
+        // 浏览器：标题后缀兜底重判 → 浏览器时长统计；无 URL → 归「未知域名」
         Assert.Equal(180, s.TotalSeconds);
         Assert.Equal(120, s.BrowserSeconds);
-        var site = Assert.Single(s.BySite);
-        Assert.Equal("B站", site.Name);
-        Assert.Equal(120, site.Seconds);
+        Assert.Equal(120, Assert.Single(s.BySite).Seconds);
         // 应用排行：浏览器记录不进排行，只剩非浏览器应用（标题兜底）
         var app = Assert.Single(s.ByApp);
         Assert.Equal("无标题 - 记事本", app.Name);
@@ -149,8 +146,7 @@ public class UsageAggregatorTests
         var s = UsageAggregator.Summarize(logs);
 
         Assert.Equal(200, s.BrowserSeconds); // 标题兜底识别为浏览器
-        var site = Assert.Single(s.BySite);
-        Assert.Equal("Releases · Chessman-Az/ATool", site.Name); // 去「和另外 N 个页面」与配置后缀
+        Assert.Equal(200, Assert.Single(s.BySite).Seconds); // 无 URL → 未知域名，不再显示标题文字
         var app = Assert.Single(s.ByApp);
         Assert.Equal("微信", app.Name); // 网站不进应用排行
         Assert.Equal(80, app.Seconds);
@@ -190,7 +186,7 @@ public class UsageAggregatorTests
     }
 
     [Fact]
-    public void Summarize_URL无效退回标题聚合()
+    public void Summarize_URL无效_归未知域名()
     {
         var logs = new[]
         {
@@ -199,6 +195,6 @@ public class UsageAggregatorTests
 
         var s = UsageAggregator.Summarize(logs);
 
-        Assert.Equal("B站", Assert.Single(s.BySite).Name); // 标题兜底
+        Assert.Equal(60, s.BySite.Single(x => x.Name == "未知域名").Seconds); // 无效 URL 不显示标题文字
     }
 }

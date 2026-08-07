@@ -43,7 +43,7 @@ public class SiteDomainTests
     }
 
     [Fact]
-    public void Summarize_无URL_退回标题兜底()
+    public void Summarize_无URL_归未知域名()
     {
         var logs = new[]
         {
@@ -52,7 +52,7 @@ public class SiteDomainTests
 
         var s = UsageAggregator.Summarize(logs);
 
-        Assert.Equal("B站", Assert.Single(s.BySite).Name);
+        Assert.Equal("未知域名", Assert.Single(s.BySite).Name); // 不显示标题文字
     }
 
     private static UsageLog Log(string proc, string cat, string title, string? url, int sec) => new()
