@@ -78,12 +78,19 @@ public sealed class RechargeRepository(Db db)
             new { d = delta, a = actual, c = commission, t = time, alias, now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
     }
 
-    /// <summary>手动补录充值合计（history_id 为空的行）；自动识别行已在余额相邻差中，不计入。</summary>
-    public decimal GetManualTotal()
+    /// <summary>
+    /// 手动补录充值合计（history_id 为空的行）；自动识别行已在余额相邻差中，不计入。
+    /// alias 为 null 统计全部手动行；指定别名只统计归属该别名的手动行（旧记录无别名不计入任何别名）。
+    /// </summary>
+    public decimal GetManualTotal(string? alias = null)
     {
         using var conn = db.GetConnection();
-        return conn.ExecuteScalar<decimal>(
-            "SELECT COALESCE(SUM(delta_amount), 0) FROM recharge_details WHERE history_id IS NULL");
+        return alias is null
+            ? conn.ExecuteScalar<decimal>(
+                "SELECT COALESCE(SUM(delta_amount), 0) FROM recharge_details WHERE history_id IS NULL")
+            : conn.ExecuteScalar<decimal>(
+                "SELECT COALESCE(SUM(delta_amount), 0) FROM recharge_details WHERE history_id IS NULL AND alias = @alias",
+                new { alias });
     }
 
     /// <summary>更新一条充值记录的实际充值金额。</summary>

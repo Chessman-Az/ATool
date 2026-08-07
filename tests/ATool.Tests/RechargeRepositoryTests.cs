@@ -101,6 +101,21 @@ public class RechargeRepositoryTests
     }
 
     [Fact]
+    public void GetManualTotal_按别名过滤_各别名单独统计()
+    {
+        var (repo, db) = NewRepo();
+
+        repo.InsertManual("2026-07-01 12:00:00", 5m, 4.5m, 0.3m, "主Key");
+        repo.InsertManual("2026-07-02 12:00:00", 8m, 7m, 0.5m, "备用Key");
+        repo.InsertManual("2026-07-03 12:00:00", 2m, 2m, 0m); // 旧记录无别名
+
+        Assert.Equal(5m, repo.GetManualTotal("主Key"));
+        Assert.Equal(8m, repo.GetManualTotal("备用Key"));
+        Assert.Equal(15m, repo.GetManualTotal()); // 全部手动行（含无别名）
+        Assert.Equal(0m, repo.GetManualTotal("不存在的别名"));
+    }
+
+    [Fact]
     public void UpdateActual_写入实际金额_回读生效()
     {
         var (repo, db) = NewRepo();

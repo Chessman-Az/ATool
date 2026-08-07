@@ -55,9 +55,11 @@ public partial class BalanceDetailViewModel : ObservableObject
             Rows.Add(row);
         OnPropertyChanged(nameof(HasRows));
 
-        // 总充值 = 余额相邻差累计 + 手动补录；总消费 = 总充值 − 当前实时余额（与 DeepSeek 余额严格对应）
+        // 总充值 = 余额相邻差累计 + 手动补录（手动补录按选中别名归属，各别名单独统计）；
+        // 总消费 = 总充值 − 当前实时余额（与 DeepSeek 余额严格对应）
         var (recharge, _) = _history.GetTotals(_keys.SelectedKey is { } k ? k.Key.Id : null);
-        var totalRecharge = recharge + _recharge.GetManualTotal();
+        var manualTotal = _keys.SelectedKey is { } selected ? _recharge.GetManualTotal(selected.Alias) : _recharge.GetManualTotal();
+        var totalRecharge = recharge + manualTotal;
         var balance = _keys.SelectedKey is { } sel && sel.Balance is { } b ? b : _keys.TotalBalance;
         var consume = Math.Max(0, totalRecharge - balance);
         TotalRechargeText = $"¥{totalRecharge:F2}";
