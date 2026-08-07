@@ -5,7 +5,7 @@ namespace ATool.Services;
 /// <summary>充值识别候选：一条余额增加记录。</summary>
 public sealed record RechargeCandidate(long HistoryId, string Alias, string QueriedAt, decimal Delta);
 
-/// <summary>充值汇总：充值金额合计 / 实际充值合计 / 佣金合计 / 差值（充值-实际-佣金）。</summary>
+/// <summary>充值汇总：充值金额合计 / 实际充值合计 / 佣金合计 / 差值（充值-实际+佣金）。</summary>
 public sealed record RechargeSummary(decimal TotalDelta, decimal TotalActual, decimal TotalCommission, decimal Diff);
 
 /// <summary>充值明细纯逻辑（无 I/O，可单测）：从余额记录识别充值（余额增加），汇总差值。</summary>
@@ -35,7 +35,7 @@ public static class RechargeService
         return result;
     }
 
-    /// <summary>汇总：(变动充值金额, 实际充值金额, 佣金) → 合计；差值 = 充值 - 实际 - 佣金。</summary>
+    /// <summary>汇总：(变动充值金额, 实际充值金额, 佣金) → 合计；差值 = 充值 - 实际 + 佣金。</summary>
     public static RechargeSummary Summarize(IEnumerable<(decimal Delta, decimal Actual, decimal Commission)> items)
     {
         decimal totalDelta = 0, totalActual = 0, totalCommission = 0;
@@ -45,6 +45,6 @@ public static class RechargeService
             totalActual += a;
             totalCommission += c;
         }
-        return new RechargeSummary(totalDelta, totalActual, totalCommission, totalDelta - totalActual - totalCommission);
+        return new RechargeSummary(totalDelta, totalActual, totalCommission, totalDelta - totalActual + totalCommission);
     }
 }

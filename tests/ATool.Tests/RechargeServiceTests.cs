@@ -70,7 +70,7 @@ public class RechargeServiceTests
         Assert.Equal(3m, s.TotalDelta);       // 充值金额合计
         Assert.Equal(2.5m, s.TotalActual);    // 实际充值合计
         Assert.Equal(0.1m, s.TotalCommission); // 佣金合计
-        Assert.Equal(0.4m, s.Diff);           // 差值 = 充值 - 实际 - 佣金
+        Assert.Equal(0.6m, s.Diff);           // 差值 = 充值 - 实际 + 佣金（3 - 2.5 + 0.1）
     }
 
     [Fact]
