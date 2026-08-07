@@ -100,7 +100,10 @@ public sealed class UsageTrackerService : IDisposable
                     _curProcess = process;
                     _curTitle = title;
                     _segmentStart = now;
-                    _currentId = _repo.Insert(process, title, CategorizeWithFallback(process, title), now);
+                    var category = CategorizeWithFallback(process, title);
+                    // 浏览器窗口顺带采集地址栏 URL（用于按主域名聚合网站时长）；失败退回标题兜底
+                    var siteUrl = category == AppUsageCategorizer.Browser ? BrowserUrlReader.TryGetUrl(hwnd) : null;
+                    _currentId = _repo.Insert(process, title, category, now, siteUrl);
                     _ticksSinceFlush = 0;
                     CurrentActivity = string.IsNullOrWhiteSpace(process)
                         ? title

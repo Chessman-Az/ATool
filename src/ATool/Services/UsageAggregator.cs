@@ -56,7 +56,9 @@ public static class UsageAggregator
                 case "office": summary.OfficeSeconds += sec; break;
                 case "browser":
                     summary.BrowserSeconds += sec;
-                    var site = AppUsageCategorizer.ExtractSiteName(l.WindowTitle, l.ProcessName);
+                    // 网站聚合口径：有 URL 按主域名（同域名下所有页面合并）；无 URL（历史数据/采集失败）退回标题
+                    var site = SiteDomain.ExtractMainDomain(l.SiteUrl)
+                               ?? AppUsageCategorizer.ExtractSiteName(l.WindowTitle, l.ProcessName);
                     if (string.IsNullOrWhiteSpace(site)) site = "未知";
                     sites[site] = sites.GetValueOrDefault(site) + sec;
                     break;

@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ATool</RootNamespace>
@@ -16,6 +17,12 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\icon.ico" />
     <InternalsVisibleTo Include="ATool.Tests" />
+  </ItemGroup>
+
+  <!-- net8.0-windows + UseWPF 的隐式 using 不含 System.IO/System.Net.Http，显式补回 -->
+  <ItemGroup>
+    <Using Include="System.IO" />
+    <Using Include="System.Net.Http" />
   </ItemGroup>
 
   <!-- Windows 专属能力（注册表/DPAPI）。包本身跨平台可编译，运行时用 OperatingSystem.IsWindows() 守卫 -->

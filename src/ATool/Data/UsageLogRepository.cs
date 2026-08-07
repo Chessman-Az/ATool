@@ -11,6 +11,7 @@ public sealed class UsageLog
     public long Id { get; set; }
     public string ProcessName { get; set; } = "";
     public string WindowTitle { get; set; } = "";
+    public string? SiteUrl { get; set; }
     public string Category { get; set; } = "other";
     public string StartTime { get; set; } = "";
     public string? EndTime { get; set; }
@@ -20,17 +21,17 @@ public sealed class UsageLog
 /// <summary>usage_log 表仓储：开段/闭段/区间查询/过期清理。</summary>
 public sealed class UsageLogRepository(Db db)
 {
-    /// <summary>打开新段：写入未闭合记录，返回自增 id。</summary>
-    public long Insert(string process, string title, string category, DateTime startTime)
+    /// <summary>打开新段：写入未闭合记录，返回自增 id。siteUrl 为浏览器当前页 URL（用于按主域名聚合网站时长）。</summary>
+    public long Insert(string process, string title, string category, DateTime startTime, string? siteUrl = null)
     {
         using var conn = db.GetConnection();
         return conn.ExecuteScalar<long>(
             """
-            INSERT INTO usage_log (process_name, window_title, category, start_time)
-            VALUES (@process, @title, @category, @start);
+            INSERT INTO usage_log (process_name, window_title, site_url, category, start_time)
+            VALUES (@process, @title, @siteUrl, @category, @start);
             SELECT last_insert_rowid();
             """,
-            new { process, title, category, start = startTime.ToString("yyyy-MM-dd HH:mm:ss") });
+            new { process, title, siteUrl, category, start = startTime.ToString("yyyy-MM-dd HH:mm:ss") });
     }
 
     /// <summary>闭合一段：写入 end_time 与累计时长（秒）。</summary>

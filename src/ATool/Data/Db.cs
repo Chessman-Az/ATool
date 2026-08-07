@@ -88,6 +88,7 @@ public sealed class Db
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               process_name TEXT NOT NULL,
               window_title TEXT NOT NULL DEFAULT '',
+              site_url TEXT,
               category TEXT NOT NULL DEFAULT 'other',
               start_time TEXT NOT NULL,
               end_time TEXT,
@@ -131,6 +132,23 @@ public sealed class Db
         catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.Message.Contains("duplicate column", StringComparison.OrdinalIgnoreCase))
         {
             // 列已存在——忽略
+        }
+
+        // schema 迁移：usage_log 补 site_url 列（浏览器 URL → 主域名聚合，旧库）
+        try
+        {
+            using var chkUrl = conn.CreateCommand();
+            chkUrl.CommandText = "SELECT COUNT(*) FROM pragma_table_info('usage_log') WHERE name='site_url'";
+            if (Convert.ToInt32(chkUrl.ExecuteScalar()) == 0)
+            {
+                using var migUrl = conn.CreateCommand();
+                migUrl.CommandText = "ALTER TABLE usage_log ADD COLUMN site_url TEXT";
+                migUrl.ExecuteNonQuery();
+            }
+        }
+        catch (Microsoft.Data.Sqlite.SqliteException)
+        {
+            // 表不存在或已是最新——忽略
         }
 
         // schema 迁移：recharge_details 补别名列（手动记录归属别名，旧库）

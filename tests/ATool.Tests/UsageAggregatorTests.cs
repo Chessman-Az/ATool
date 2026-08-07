@@ -7,10 +7,10 @@ namespace ATool.Tests;
 /// <summary>时间大师聚合：范围边界（今日/本周/本月/指定日期）+ 汇总口径（总/办公/浏览器/游戏/应用排行/网站明细）。</summary>
 public class UsageAggregatorTests
 {
-    private static UsageLog Log(string proc, string cat, string title, int sec) => new()
+    private static UsageLog Log(string proc, string cat, string title, int sec, string? siteUrl = null) => new()
     {
         ProcessName = proc, Category = cat, WindowTitle = title, DurationSec = sec,
-        StartTime = "2026-08-06 10:00:00",
+        StartTime = "2026-08-06 10:00:00", SiteUrl = siteUrl,
     };
 
     // ---- 范围边界 ----
@@ -166,5 +166,39 @@ public class UsageAggregatorTests
         Assert.Equal(30, s.TotalSeconds);
         Assert.Equal("未知", Assert.Single(s.ByApp).Name);
         Assert.Empty(s.BySite);
+    }
+
+    // ---- 主域名聚合（浏览器 URL 采集后按域名合并）----
+
+    [Fact]
+    public void Summarize_有URL按主域名聚合_同域名合并()
+    {
+        var logs = new[]
+        {
+            Log("", "browser", "Releases · Chessman-Az/ATool - Microsoft Edge", 100, "https://github.com/Chessman-Az/ATool/releases"),
+            Log("", "browser", "Issues · Chessman-Az/ATool - Microsoft Edge", 50, "https://github.com/Chessman-Az/ATool/issues"),
+            Log("", "browser", "抖音精选 - Microsoft Edge", 80, "https://www.douyin.com/jingxuan?modal_id=1"),
+        };
+
+        var s = UsageAggregator.Summarize(logs);
+
+        // 同域名（github.com）下不同页面合并；www 前缀去除
+        Assert.Equal(2, s.BySite.Count);
+        Assert.Equal(150, s.BySite.Single(x => x.Name == "github.com").Seconds);
+        Assert.Equal(80, s.BySite.Single(x => x.Name == "douyin.com").Seconds);
+        Assert.Equal(230, s.BrowserSeconds);
+    }
+
+    [Fact]
+    public void Summarize_URL无效退回标题聚合()
+    {
+        var logs = new[]
+        {
+            Log("", "browser", "B站 - Google Chrome", 60, "not-a-url"),
+        };
+
+        var s = UsageAggregator.Summarize(logs);
+
+        Assert.Equal("B站", Assert.Single(s.BySite).Name); // 标题兜底
     }
 }
