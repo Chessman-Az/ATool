@@ -110,4 +110,42 @@ public class UsageAggregatorTests
         Assert.Empty(s.ByApp);
         Assert.Empty(s.BySite);
     }
+
+    // ---- 进程名解析失败兜底（提权/受保护进程：ProcessName 为空、Category=other）----
+
+    [Fact]
+    public void Summarize_进程名为空_标题兜底应用名且浏览器重判()
+    {
+        var logs = new[]
+        {
+            Log("", "other", "B站 - Google Chrome", 120),
+            Log("", "other", "无标题 - 记事本", 60),
+        };
+
+        var s = UsageAggregator.Summarize(logs);
+
+        // 浏览器：标题后缀兜底重判 → 浏览器时长统计 + 网站明细去后缀
+        Assert.Equal(180, s.TotalSeconds);
+        Assert.Equal(120, s.BrowserSeconds);
+        var site = Assert.Single(s.BySite);
+        Assert.Equal("B站", site.Name);
+        Assert.Equal(120, site.Seconds);
+        // 应用排行：不再全部聚合成"未知"，标题兜底为浏览器名/原标题
+        Assert.Equal(new[] { "Google Chrome", "无标题 - 记事本" },
+            s.ByApp.Select(x => x.Name).ToArray());
+        Assert.Equal(120, s.ByApp[0].Seconds);
+        Assert.Equal(60, s.ByApp[1].Seconds);
+    }
+
+    [Fact]
+    public void Summarize_进程名与标题都空_仍显示未知()
+    {
+        var logs = new[] { Log("", "other", "", 30) };
+
+        var s = UsageAggregator.Summarize(logs);
+
+        Assert.Equal(30, s.TotalSeconds);
+        Assert.Equal("未知", Assert.Single(s.ByApp).Name);
+        Assert.Empty(s.BySite);
+    }
 }

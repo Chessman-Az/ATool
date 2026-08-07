@@ -100,7 +100,7 @@ public sealed class UsageTrackerService : IDisposable
                     _curProcess = process;
                     _curTitle = title;
                     _segmentStart = now;
-                    _currentId = _repo.Insert(process, title, AppUsageCategorizer.Categorize(process), now);
+                    _currentId = _repo.Insert(process, title, CategorizeWithFallback(process, title), now);
                     _ticksSinceFlush = 0;
                     CurrentActivity = string.IsNullOrWhiteSpace(process)
                         ? title
@@ -123,6 +123,15 @@ public sealed class UsageTrackerService : IDisposable
             _repo.CloseSegment(id, now, (int)(now - _segmentStart).TotalSeconds);
             _currentId = null;
         }
+    }
+
+    /// <summary>分类：进程名优先；进程名解析失败（提权/受保护进程）时按窗口标题后缀兜底识别浏览器。</summary>
+    private static string CategorizeWithFallback(string? process, string? title)
+    {
+        var category = AppUsageCategorizer.Categorize(process);
+        return category == AppUsageCategorizer.Other && AppUsageCategorizer.TitleLooksLikeBrowser(title)
+            ? AppUsageCategorizer.Browser
+            : category;
     }
 
     private void FlushCurrent(DateTime now)

@@ -77,4 +77,51 @@ public class AppUsageCategorizerTests
     [Fact]
     public void ExtractSiteName_非浏览器进程_返回原标题()
         => Assert.Equal("某文档.docx", AppUsageCategorizer.ExtractSiteName("某文档.docx", "winword"));
+
+    // ---- 标题兜底（进程名解析失败：提权/受保护进程）----
+
+    [Theory]
+    [InlineData("百度 - Google Chrome")]
+    [InlineData("GitHub - Microsoft Edge")]
+    [InlineData("B站 - Mozilla Firefox")]
+    [InlineData("知乎 - 360安全浏览器")]
+    [InlineData("无标题 - Opera")]
+    public void TitleLooksLikeBrowser_浏览器后缀标题_返回true(string title)
+        => Assert.True(AppUsageCategorizer.TitleLooksLikeBrowser(title));
+
+    [Theory]
+    [InlineData("无后缀页面标题")]
+    [InlineData("文档1 - Word")]
+    [InlineData("")]
+    [InlineData(null)]
+    public void TitleLooksLikeBrowser_普通标题_返回false(string? title)
+        => Assert.False(AppUsageCategorizer.TitleLooksLikeBrowser(title));
+
+    [Theory]
+    [InlineData("百度 - Google Chrome", "Google Chrome")]
+    [InlineData("GitHub - Microsoft Edge", "Microsoft Edge")]
+    [InlineData("B站 - Mozilla Firefox", "Mozilla Firefox")]
+    [InlineData("知乎 - 360安全浏览器", "360安全浏览器")]
+    public void ExtractAppName_浏览器标题_返回浏览器名(string title, string expected)
+        => Assert.Equal(expected, AppUsageCategorizer.ExtractAppName(title));
+
+    [Theory]
+    [InlineData("文档1 - Word", "文档1 - Word")]
+    [InlineData("  无标题 - 记事本  ", "无标题 - 记事本")]
+    public void ExtractAppName_普通标题_返回原标题(string title, string expected)
+        => Assert.Equal(expected, AppUsageCategorizer.ExtractAppName(title));
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void ExtractAppName_空标题_返回空(string? title)
+        => Assert.Equal("", AppUsageCategorizer.ExtractAppName(title));
+
+    [Fact]
+    public void ExtractSiteName_进程名为空_标题兜底去后缀()
+        => Assert.Equal("百度", AppUsageCategorizer.ExtractSiteName("百度 - Google Chrome", ""));
+
+    [Fact]
+    public void ExtractSiteName_进程名为空且非浏览器标题_返回原标题()
+        => Assert.Equal("某文档.docx", AppUsageCategorizer.ExtractSiteName("某文档.docx", ""));
 }

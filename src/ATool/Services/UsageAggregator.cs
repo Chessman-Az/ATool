@@ -46,17 +46,28 @@ public static class UsageAggregator
             var sec = (long)l.DurationSec;
             if (sec <= 0) continue;
             summary.TotalSeconds += sec;
-            switch (l.Category)
+
+            // 分类：库中类别优先；标题带浏览器后缀时修正（进程名解析失败写库的历史记录兜底）
+            var category = l.Category;
+            if (category != AppUsageCategorizer.Browser && AppUsageCategorizer.TitleLooksLikeBrowser(l.WindowTitle))
+                category = AppUsageCategorizer.Browser;
+            switch (category)
             {
                 case "office": summary.OfficeSeconds += sec; break;
                 case "browser":
                     summary.BrowserSeconds += sec;
-                    var site = string.IsNullOrWhiteSpace(l.WindowTitle) ? "未知" : l.WindowTitle;
+                    var site = AppUsageCategorizer.ExtractSiteName(l.WindowTitle, l.ProcessName);
+                    if (string.IsNullOrWhiteSpace(site)) site = "未知";
                     sites[site] = sites.GetValueOrDefault(site) + sec;
                     break;
                 case "game": summary.GameSeconds += sec; break;
             }
-            var proc = string.IsNullOrWhiteSpace(l.ProcessName) ? "未知" : l.ProcessName;
+
+            // 应用名：进程名优先；空时用窗口标题兜底（浏览器 → 浏览器名，其他 → 原标题），避免全部聚合到"未知"
+            var proc = string.IsNullOrWhiteSpace(l.ProcessName)
+                ? AppUsageCategorizer.ExtractAppName(l.WindowTitle)
+                : l.ProcessName;
+            if (string.IsNullOrWhiteSpace(proc)) proc = "未知";
             apps[proc] = apps.GetValueOrDefault(proc) + sec;
         }
 

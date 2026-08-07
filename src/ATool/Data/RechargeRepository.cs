@@ -19,7 +19,7 @@ public sealed class RechargeRepository(Db db)
 {
     /// <summary>
     /// 确保每条余额增加记录都有充值明细行（幂等：已存在 history_id 不重复建），返回全部充值行（按时间倒序）。
-    /// 新行 actual_amount 默认 = delta_amount。
+    /// 新行 actual_amount 默认 = delta_amount。别名归属：手动行用 r.alias（空则「手动记录」），自动行取 Key 别名。
     /// </summary>
     public List<RechargeRow> EnsureAndGetAll()
     {
@@ -40,7 +40,8 @@ public sealed class RechargeRepository(Db db)
             """, new { now });
         return conn.Query<RechargeRow>(
             """
-            SELECT r.id AS Id, r.history_id AS HistoryId, COALESCE(k.alias, '手动记录') AS Alias,
+            SELECT r.id AS Id, r.history_id AS HistoryId,
+                   CASE WHEN r.alias IS NULL OR r.alias = '' THEN COALESCE(k.alias, '手动记录') ELSE r.alias END AS Alias,
                    COALESCE(h.queried_at, r.manual_time) AS QueriedAt, r.delta_amount AS Delta,
                    r.actual_amount AS Actual, r.commission_amount AS Commission
             FROM recharge_details r
@@ -50,16 +51,31 @@ public sealed class RechargeRepository(Db db)
             """).ToList();
     }
 
-    /// <summary>手动添加一条充值记录（无对应余额历史，如历史充值补录）。</summary>
-    public void InsertManual(string time, decimal delta, decimal actual, decimal commission)
+    /// <summary>全部充值别名（自动行取 Key 别名 + 手动行归属别名，去重升序）。</summary>
+    public List<string> GetAliases()
+    {
+        using var conn = db.GetConnection();
+        return conn.Query<string>(
+            """
+            SELECT alias FROM (
+                SELECT alias AS alias FROM api_keys
+                UNION
+                SELECT alias FROM recharge_details WHERE history_id IS NULL AND alias IS NOT NULL AND alias != ''
+            ) WHERE alias IS NOT NULL AND alias != ''
+            ORDER BY alias
+            """).ToList();
+    }
+
+    /// <summary>手动添加一条充值记录（无对应余额历史，如历史充值补录）；alias 为空显示「手动记录」。</summary>
+    public void InsertManual(string time, decimal delta, decimal actual, decimal commission, string alias = "")
     {
         using var conn = db.GetConnection();
         conn.Execute(
             """
-            INSERT INTO recharge_details (delta_amount, actual_amount, commission_amount, manual_time, updated_at)
-            VALUES (@d, @a, @c, @t, @now)
+            INSERT INTO recharge_details (delta_amount, actual_amount, commission_amount, manual_time, alias, updated_at)
+            VALUES (@d, @a, @c, @t, @alias, @now)
             """,
-            new { d = delta, a = actual, c = commission, t = time, now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
+            new { d = delta, a = actual, c = commission, t = time, alias, now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
     }
 
     /// <summary>手动补录充值合计（history_id 为空的行）；自动识别行已在余额相邻差中，不计入。</summary>

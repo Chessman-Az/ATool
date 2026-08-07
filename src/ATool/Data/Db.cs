@@ -100,6 +100,7 @@ public sealed class Db
               actual_amount REAL NOT NULL DEFAULT 0,
               commission_amount REAL NOT NULL DEFAULT 0,
               manual_time TEXT,
+              alias TEXT,
               updated_at TEXT NOT NULL
             );
             CREATE INDEX IF NOT EXISTS idx_balance_history_key ON balance_history(api_key_id, queried_at);
@@ -132,6 +133,23 @@ public sealed class Db
             // 列已存在——忽略
         }
 
+        // schema 迁移：recharge_details 补别名列（手动记录归属别名，旧库）
+        try
+        {
+            using var chkAlias = conn.CreateCommand();
+            chkAlias.CommandText = "SELECT COUNT(*) FROM pragma_table_info('recharge_details') WHERE name='alias'";
+            if (Convert.ToInt32(chkAlias.ExecuteScalar()) == 0)
+            {
+                using var migAlias = conn.CreateCommand();
+                migAlias.CommandText = "ALTER TABLE recharge_details ADD COLUMN alias TEXT";
+                migAlias.ExecuteNonQuery();
+            }
+        }
+        catch (Microsoft.Data.Sqlite.SqliteException)
+        {
+            // 表不存在或已是最新——忽略
+        }
+
         // schema 迁移：recharge_details 重建——history_id 可空 + manual_time 列（支持手动添加充值记录）
         try
         {
@@ -150,10 +168,11 @@ public sealed class Db
                           actual_amount REAL NOT NULL DEFAULT 0,
                           commission_amount REAL NOT NULL DEFAULT 0,
                           manual_time TEXT,
+                          alias TEXT,
                           updated_at TEXT NOT NULL
                         );
-                        INSERT INTO recharge_details_new (id, history_id, delta_amount, actual_amount, commission_amount, updated_at)
-                          SELECT id, history_id, delta_amount, actual_amount, commission_amount, updated_at FROM recharge_details;
+                        INSERT INTO recharge_details_new (id, history_id, delta_amount, actual_amount, commission_amount, manual_time, alias, updated_at)
+                          SELECT id, history_id, delta_amount, actual_amount, commission_amount, manual_time, alias, updated_at FROM recharge_details;
                         DROP TABLE recharge_details;
                         ALTER TABLE recharge_details_new RENAME TO recharge_details;
                         CREATE UNIQUE INDEX IF NOT EXISTS idx_recharge_history ON recharge_details(history_id);

@@ -118,4 +118,59 @@ public class RechargeRepositoryTests
         var after = repo.EnsureAndGetAll();
         Assert.Equal(0.5m, after[0].Actual);
     }
+
+    // ---- 按别名分离 ----
+
+    [Fact]
+    public void InsertManual_带别名_手动行归属指定别名()
+    {
+        var (repo, db) = NewRepo();
+
+        repo.InsertManual("2026-07-01 12:00:00", 5m, 4.5m, 0.3m, "主Key");
+        repo.InsertManual("2026-07-02 12:00:00", 8m, 7m, 0.5m, "备用Key");
+
+        var rows = repo.EnsureAndGetAll();
+        Assert.Equal(2, rows.Count);
+        Assert.Equal("主Key", rows.Single(r => r.QueriedAt == "2026-07-01 12:00:00").Alias);
+        Assert.Equal("备用Key", rows.Single(r => r.QueriedAt == "2026-07-02 12:00:00").Alias);
+    }
+
+    [Fact]
+    public void GetAliases_返回Key别名与手动别名_去重()
+    {
+        var (repo, db) = NewRepo();
+        var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        using (var conn = db.GetConnection())
+        {
+            conn.Execute("INSERT INTO api_keys (alias, encrypted_key, created_at) VALUES ('主Key', X'01', @a)", new { a = now });
+            conn.Execute("INSERT INTO api_keys (alias, encrypted_key, created_at) VALUES ('备用Key', X'02', @a)", new { a = now });
+        }
+        repo.InsertManual("2026-07-01 12:00:00", 5m, 4.5m, 0.3m, "主Key"); // 与 Key 别名重复
+        repo.InsertManual("2026-07-02 12:00:00", 8m, 7m, 0.5m, "手动补录"); // 独有
+
+        var aliases = repo.GetAliases();
+
+        // SQLite 中文按 UTF-8 字节序（主 < 备 < 手），去重升序
+        Assert.Equal(new[] { "主Key", "备用Key", "手动补录" }, aliases);
+    }
+
+    [Fact]
+    public void EnsureAndGetAll_自动行取Key别名_手动行未指定显示手动记录()
+    {
+        var (repo, db) = NewRepo();
+        var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        using (var conn = db.GetConnection())
+        {
+            conn.Execute("INSERT INTO api_keys (alias, encrypted_key, created_at) VALUES ('主Key', X'01', @a)", new { a = now });
+            conn.Execute("INSERT INTO balance_history (api_key_id, total_balance, currency, queried_at) VALUES (1, 10, 'CNY', @a)", new { a = now });
+            conn.Execute("INSERT INTO balance_history (api_key_id, total_balance, currency, queried_at) VALUES (1, 13, 'CNY', @a)", new { a = now }); // 自动 +3
+        }
+        _ = repo.EnsureAndGetAll();
+        repo.InsertManual("2026-07-01 12:00:00", 5m, 4.5m, 0.3m); // 不带别名
+
+        var rows = repo.EnsureAndGetAll();
+
+        Assert.Equal("主Key", rows.Single(r => r.HistoryId is not null).Alias);
+        Assert.Equal("手动记录", rows.Single(r => r.HistoryId is null).Alias);
+    }
 }
