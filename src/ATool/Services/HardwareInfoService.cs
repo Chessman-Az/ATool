@@ -1,3 +1,4 @@
+using System.Management;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
@@ -63,6 +64,70 @@ public sealed class HardwareInfoService
 
     /// <summary>操作系统位数（64 位 / 32 位）。</summary>
     public string Arch => Environment.Is64BitOperatingSystem ? "64 位" : "32 位";
+
+    /// <summary>显卡列表（WMI Win32_VideoController：名称/显存/驱动）。</summary>
+    public List<string> Gpus { get; } = [];
+
+    /// <summary>硬盘列表（WMI Win32_DiskDrive：型号/容量/接口）。</summary>
+    public List<string> Disks { get; } = [];
+
+    /// <summary>显示器列表（WMI Win32_DesktopMonitor：名称/分辨率）。</summary>
+    public List<string> Monitors { get; } = [];
+
+    /// <summary>CPU 最大频率（MHz，注册表）。</summary>
+    public string CpuMaxClock => ReadRegistry(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0", "~MHz", "");
+
+    public HardwareInfoService()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        try { QueryWmi(); } catch { /* WMI 不可用时静默降级（仅基础信息） */ }
+    }
+
+    /// <summary>WMI 查询显卡/硬盘/显示器（非 Windows 或权限不足时跳过）。</summary>
+    private void QueryWmi()
+    {
+        try
+        {
+            using var mos = new ManagementObjectSearcher(
+                "SELECT Name, AdapterRAM, DriverVersion FROM Win32_VideoController");
+            foreach (var o in mos.Get())
+            {
+                var name = o["Name"]?.ToString() ?? "未知显卡";
+                var ramMb = Convert.ToDouble(o["AdapterRAM"] ?? 0d) / 1024 / 1024;
+                var ver = o["DriverVersion"]?.ToString() ?? "";
+                Gpus.Add(ramMb >= 1 ? $"{name}（{ramMb:F0} MB · 驱动 {ver}）" : name);
+            }
+        }
+        catch { /* 单类查询失败不影响其他 */ }
+
+        try
+        {
+            using var mos = new ManagementObjectSearcher(
+                "SELECT Model, Size, InterfaceType FROM Win32_DiskDrive");
+            foreach (var o in mos.Get())
+            {
+                var model = o["Model"]?.ToString() ?? "未知硬盘";
+                var sizeGb = Convert.ToDouble(o["Size"] ?? 0d) / 1024 / 1024 / 1024;
+                var iface = o["InterfaceType"]?.ToString() ?? "";
+                Disks.Add(sizeGb >= 1 ? $"{model}（{sizeGb:F0} GB · {iface}）" : model);
+            }
+        }
+        catch { }
+
+        try
+        {
+            using var mos = new ManagementObjectSearcher(
+                "SELECT Name, ScreenWidth, ScreenHeight FROM Win32_DesktopMonitor");
+            foreach (var o in mos.Get())
+            {
+                var name = o["Name"]?.ToString() ?? "未知显示器";
+                var w = o["ScreenWidth"]?.ToString() ?? "";
+                var h = o["ScreenHeight"]?.ToString() ?? "";
+                Monitors.Add(string.IsNullOrEmpty(w) ? name : $"{name}（{w}×{h}）");
+            }
+        }
+        catch { }
+    }
 
     private static string ReadRegistry(string path, string name, string fallback)
     {

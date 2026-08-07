@@ -26,9 +26,22 @@ public partial class JiGeViewModel : ObservableObject
     public string OsBuild => _hardware.OsBuild;
     public string Processor => _hardware.Processor;
     public string CpuCount => _hardware.CpuCount;
+
+    /// <summary>CPU 最大频率（如 4500 MHz）。</summary>
+    public string CpuClock => string.IsNullOrEmpty(_hardware.CpuMaxClock) ? "" : $"{_hardware.CpuMaxClock} MHz";
+
     public string TotalMemoryGb => _hardware.TotalMemoryGb;
     public string Uptime => _hardware.Uptime;
     public string Arch => _hardware.Arch;
+
+    /// <summary>显卡列表（WMI）。</summary>
+    public IReadOnlyList<string> Gpus => _hardware.Gpus;
+
+    /// <summary>硬盘列表（WMI）。</summary>
+    public IReadOnlyList<string> Disks => _hardware.Disks;
+
+    /// <summary>显示器列表（WMI）。</summary>
+    public IReadOnlyList<string> Monitors => _hardware.Monitors;
 
     /// <summary>磁盘工具列表。</summary>
     public ObservableCollection<ToolItemVm> DiskTools { get; } = [];
@@ -46,7 +59,7 @@ public partial class JiGeViewModel : ObservableObject
     }
 }
 
-/// <summary>工具条目 VM：状态（已内置/未内置）+ 启动 / 打开官网命令。</summary>
+/// <summary>工具条目 VM：图标（exe 提取）+ 状态（已内置/未内置）+ 启动 / 打开官网命令。</summary>
 public partial class ToolItemVm : ObservableObject
 {
     public ToolEntry Entry { get; }
@@ -56,9 +69,35 @@ public partial class ToolItemVm : ObservableObject
     public string StatusText => IsInstalled ? "✅ 已内置" : "⚠ 未内置";
     public bool IsInstalled => ToolCatalog.IsInstalled(Entry);
 
+    /// <summary>软件图标（从可执行文件提取；提取失败或非 Windows 时为 null）。</summary>
+    public Avalonia.Media.Imaging.Bitmap? Icon { get; }
+
     public ToolItemVm(ToolEntry entry)
     {
         Entry = entry;
+        Icon = TryExtractIcon();
+    }
+
+    private Avalonia.Media.Imaging.Bitmap? TryExtractIcon()
+    {
+        var dir = ToolCatalog.ToolsDir;
+        if (!OperatingSystem.IsWindows() || dir is null) return null;
+        var path = Path.Combine(dir, Entry.Executable);
+        if (!File.Exists(path)) return null;
+        try
+        {
+            using var icon = System.Drawing.Icon.ExtractAssociatedIcon(path);
+            if (icon is null) return null;
+            using var bmp = icon.ToBitmap();
+            using var ms = new MemoryStream();
+            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+            ms.Position = 0;
+            return new Avalonia.Media.Imaging.Bitmap(ms);
+        }
+        catch
+        {
+            return null; // 图标提取失败（损坏/权限）——显示占位
+        }
     }
 
     [RelayCommand]
