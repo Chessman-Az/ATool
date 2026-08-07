@@ -82,6 +82,25 @@ public class RechargeRepositoryTests
     }
 
     [Fact]
+    public void GetManualTotal_只统计手动记录()
+    {
+        var (repo, db) = NewRepo();
+        var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        using (var conn = db.GetConnection())
+        {
+            conn.Execute("INSERT INTO api_keys (alias, encrypted_key, created_at) VALUES ('k1', X'01', @a)", new { a = now });
+            conn.Execute("INSERT INTO balance_history (api_key_id, total_balance, currency, queried_at) VALUES (1, 10, 'CNY', @a)", new { a = now });
+            conn.Execute("INSERT INTO balance_history (api_key_id, total_balance, currency, queried_at) VALUES (1, 12, 'CNY', @a)", new { a = now }); // 自动充值 +2
+        }
+        _ = repo.EnsureAndGetAll(); // 自动行 +2
+        repo.InsertManual("2026-07-01 12:00:00", 5m, 4.5m, 0.3m); // 手动 +5
+
+        var manual = repo.GetManualTotal();
+
+        Assert.Equal(5m, manual); // 只算手动记录，自动 +2 不计
+    }
+
+    [Fact]
     public void UpdateActual_写入实际金额_回读生效()
     {
         var (repo, db) = NewRepo();

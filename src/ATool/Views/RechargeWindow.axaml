@@ -2,7 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ATool.Views.RechargeWindow"
         Title="充值明细"
-        Width="660" Height="580"
+        Width="760" Height="760"
+        MinWidth="560" MinHeight="480"
         Icon="/Assets/icon.ico"
         Background="{DynamicResource BgBrush}">
   <DockPanel Margin="16">
@@ -13,9 +14,9 @@
       </StackPanel>
     </Border>
 
-    <StackPanel Spacing="10">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Margin="0,10,0,0">
       <!-- 顶部汇总：充值金额 / 实际充值金额 / 佣金 / 差值 -->
-      <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+      <Border Grid.Row="0" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
               BorderThickness="1" CornerRadius="10" Padding="16,12">
         <Grid ColumnDefinitions="1*,1*,1*,1*" ColumnSpacing="8">
           <Border Background="#101C30" CornerRadius="8" Padding="12,10">
@@ -50,39 +51,41 @@
       </Border>
 
       <!-- 说明 -->
-      <TextBlock Text="检测到余额增加即自动计入；也可手动添加历史充值记录。每条可设置实际充值金额与佣金（差值 = 充值 − 实际 + 佣金）。"
+      <TextBlock Grid.Row="1" Text="检测到余额增加即自动计入；也可手动添加历史充值记录。每条可设置实际充值金额与佣金（差值 = 充值 − 实际 + 佣金）。"
                  Classes="hint" TextWrapping="Wrap" />
 
-      <!-- 手动添加区 -->
-      <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+      <!-- 手动添加区（WrapPanel：窗口缩小时自动换行不溢出） -->
+      <Border Grid.Row="2" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
               BorderThickness="1" CornerRadius="10" Padding="14,10">
         <StackPanel Spacing="8">
-          <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBlock Text="添加充值" FontWeight="Bold" FontSize="13" VerticalAlignment="Center" />
-            <TextBlock Text="时间" Classes="hint" FontSize="12" VerticalAlignment="Center" />
-            <TextBox Text="{Binding NewTime}" Width="180" FontSize="12" />
-            <TextBlock Text="充值金额" Classes="hint" FontSize="12" VerticalAlignment="Center" />
-            <NumericUpDown Value="{Binding NewDelta}" Minimum="0" Maximum="100000" Increment="1"
-                           FormatString="0.00" Width="90" ShowButtonSpinner="False" />
-            <TextBlock Text="实际" Classes="hint" FontSize="12" VerticalAlignment="Center" />
-            <NumericUpDown Value="{Binding NewActual}" Minimum="0" Maximum="100000" Increment="1"
-                           FormatString="0.00" Width="90" ShowButtonSpinner="False" />
-            <TextBlock Text="佣金" Classes="hint" FontSize="12" VerticalAlignment="Center" />
-            <NumericUpDown Value="{Binding NewCommission}" Minimum="0" Maximum="100000" Increment="0.1"
-                           FormatString="0.00" Width="80" ShowButtonSpinner="False" />
-            <Button Content="添加" Command="{Binding AddCommand}" Classes="accent" FontSize="12" Padding="14,5" />
-          </StackPanel>
+          <WrapPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,12,4">
+              <TextBlock Text="添加充值" FontWeight="Bold" FontSize="13" VerticalAlignment="Center" />
+              <TextBlock Text="时间" Classes="hint" FontSize="12" VerticalAlignment="Center" />
+              <TextBox Text="{Binding NewTime}" Width="170" FontSize="12" />
+              <TextBlock Text="充值金额" Classes="hint" FontSize="12" VerticalAlignment="Center" />
+              <NumericUpDown Value="{Binding NewDelta}" Minimum="0" Maximum="100000" Increment="1"
+                             FormatString="0.00" Width="84" ShowButtonSpinner="False" />
+              <TextBlock Text="实际" Classes="hint" FontSize="12" VerticalAlignment="Center" />
+              <NumericUpDown Value="{Binding NewActual}" Minimum="0" Maximum="100000" Increment="1"
+                             FormatString="0.00" Width="84" ShowButtonSpinner="False" />
+              <TextBlock Text="佣金" Classes="hint" FontSize="12" VerticalAlignment="Center" />
+              <NumericUpDown Value="{Binding NewCommission}" Minimum="0" Maximum="100000" Increment="0.1"
+                             FormatString="0.00" Width="76" ShowButtonSpinner="False" />
+              <Button Content="添加" Command="{Binding AddCommand}" Classes="accent" FontSize="12" Padding="14,5" />
+            </StackPanel>
+          </WrapPanel>
           <TextBlock Text="{Binding AddError}" Classes="danger" FontSize="12" />
         </StackPanel>
       </Border>
 
       <!-- 空态 -->
-      <TextBlock Text="暂无充值记录（余额增加时自动出现）" Classes="hint"
+      <TextBlock Grid.Row="3" Text="暂无充值记录（余额增加时自动出现）" Classes="hint"
                  HorizontalAlignment="Center" Margin="0,30"
                  IsVisible="{Binding HasRows, Converter={x:Static BoolConverters.Not}}" />
 
-      <!-- 明细列表 -->
-      <ScrollViewer MaxHeight="340" IsVisible="{Binding HasRows}">
+      <!-- 明细列表：撑满剩余空间，随窗口全屏 -->
+      <ScrollViewer Grid.Row="4" VerticalScrollBarVisibility="Auto" IsVisible="{Binding HasRows}">
         <ItemsControl ItemsSource="{Binding Rows}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
@@ -111,6 +114,6 @@
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </ScrollViewer>
-    </StackPanel>
+    </Grid>
   </DockPanel>
 </Window>

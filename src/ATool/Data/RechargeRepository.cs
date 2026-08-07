@@ -62,6 +62,14 @@ public sealed class RechargeRepository(Db db)
             new { d = delta, a = actual, c = commission, t = time, now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
     }
 
+    /// <summary>手动补录充值合计（history_id 为空的行）；自动识别行已在余额相邻差中，不计入。</summary>
+    public decimal GetManualTotal()
+    {
+        using var conn = db.GetConnection();
+        return conn.ExecuteScalar<decimal>(
+            "SELECT COALESCE(SUM(delta_amount), 0) FROM recharge_details WHERE history_id IS NULL");
+    }
+
     /// <summary>更新一条充值记录的实际充值金额。</summary>
     public void UpdateActual(long id, decimal actualAmount)
     {

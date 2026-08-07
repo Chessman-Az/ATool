@@ -9,6 +9,7 @@ namespace ATool.ViewModels;
 public partial class BalanceDetailViewModel : ObservableObject
 {
     private readonly BalanceHistoryRepository _history;
+    private readonly RechargeRepository _recharge;
     private readonly ApiKeysViewModel _keys;
 
     public ObservableCollection<BalanceHistoryDetailService.HistoryRow> Rows { get; } = [];
@@ -24,9 +25,10 @@ public partial class BalanceDetailViewModel : ObservableObject
     [ObservableProperty]
     private string _totalConsumeText = "¥0.00";
 
-    public BalanceDetailViewModel(BalanceHistoryRepository history, ApiKeysViewModel keys)
+    public BalanceDetailViewModel(BalanceHistoryRepository history, RechargeRepository recharge, ApiKeysViewModel keys)
     {
         _history = history;
+        _recharge = recharge;
         _keys = keys;
         _keys.PropertyChanged += (_, e) =>
         {
@@ -52,9 +54,10 @@ public partial class BalanceDetailViewModel : ObservableObject
             Rows.Add(row);
         OnPropertyChanged(nameof(HasRows));
 
-        // 总充值 / 总消费（联动当前选中 Key）
+        // 总充值 / 总消费（联动当前选中 Key）；总充值含手动补录记录
         var (recharge, consume) = _history.GetTotals(_keys.SelectedKey is { } k ? k.Key.Id : null);
-        TotalRechargeText = $"¥{recharge:F2}";
+        var manual = _recharge.GetManualTotal();
+        TotalRechargeText = $"¥{recharge + manual:F2}";
         TotalConsumeText = $"¥{consume:F2}";
     }
 
