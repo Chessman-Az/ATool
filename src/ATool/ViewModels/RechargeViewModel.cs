@@ -70,8 +70,13 @@ public partial class RechargeViewModel : ObservableObject
         Load();
     }
 
-    /// <summary>筛选切换 → 重载列表与汇总。</summary>
-    partial void OnSelectedAliasChanged(string value) => Load();
+    /// <summary>筛选切换 → 手动添加别名跟随（在哪个别名视图下添加默认归哪个别名）+ 重载列表与汇总。</summary>
+    partial void OnSelectedAliasChanged(string value)
+    {
+        if (value != AllAliases && ManualAliases.Contains(value))
+            ManualAlias = value;
+        Load();
+    }
 
     /// <summary>手动添加一条充值记录（补录历史充值，归属当前手动别名）。</summary>
     [RelayCommand]

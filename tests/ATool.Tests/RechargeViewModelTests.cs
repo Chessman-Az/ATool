@@ -84,4 +84,22 @@ public class RechargeViewModelTests
         Assert.Equal(2, vm.Rows.Count);
         Assert.All(vm.Rows, r => Assert.Equal("key1", r.Alias));
     }
+
+    [Fact]
+    public void 切换筛选别名_手动添加别名跟随筛选()
+    {
+        var (repo, db) = NewRepo();
+        InsertKeyWithRecharge(db, 1, "key1", 10m, 20m);
+        InsertKeyWithRecharge(db, 2, "key2", 5m, 25m);
+
+        var vm = new RechargeViewModel(repo);
+        Assert.Equal("key1", vm.SelectedAlias);
+        Assert.Equal("key1", vm.ManualAlias); // 默认跟随第一个别名
+
+        vm.SelectedAlias = "key2";
+        Assert.Equal("key2", vm.ManualAlias); // 在 key2 视图下添加默认归 key2
+
+        vm.SelectedAlias = RechargeViewModel.AllAliases;
+        Assert.Equal("key2", vm.ManualAlias); // 「全部」不改动手动别名
+    }
 }
