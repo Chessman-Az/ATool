@@ -154,4 +154,54 @@ public class FloatReminderTests
     {
         Assert.Equal(expected, FloatReminderService.IsForegroundVisible(fgPid, cls, ownPid));
     }
+
+    // ---- 当日过滤（浮窗只显示今天的提醒）----
+
+    private static Reminder ReminderWithTime(string title, string triggerTime, ReminderStatus status = ReminderStatus.Pending)
+        => new()
+        {
+            Title = title,
+            TriggerTime = triggerTime,
+            RepeatType = RepeatType.Single,
+            Status = status,
+        };
+
+    [Fact]
+    public void FilterToday_只保留今天有触发点的提醒()
+    {
+        var today = new DateOnly(2026, 8, 7); // 周五（ISO day=4）
+        var weeklyToday = new Reminder
+        {
+            Title = "周五例会",
+            RepeatType = RepeatType.Weekly,
+            RepeatSchedule = """[{"day":4,"time":"10:00:00"}]""",
+        };
+        var weeklyOther = new Reminder
+        {
+            Title = "周日提醒",
+            RepeatType = RepeatType.Weekly,
+            RepeatSchedule = """[{"day":6,"time":"10:00:00"}]""",
+        };
+        var single = ReminderWithTime("单次10点", "10:00:00"); // 单次/每日无日期概念，时间上总是当天
+        var daily = new Reminder { Title = "每日", RepeatType = RepeatType.Daily, TriggerTime = "09:00:00" };
+
+        var items = FloatReminderService.FilterToday(new[] { weeklyToday, weeklyOther, single, daily }, today).ToList();
+
+        var titles = items.Select(r => r.Title).ToList();
+        Assert.Equal(3, items.Count);
+        Assert.Contains("周五例会", titles);   // 今天（周五）有触发点的周几提醒
+        Assert.Contains("单次10点", titles);   // 单次/每日无日期概念，时间上总是当天
+        Assert.Contains("每日", titles);
+        Assert.DoesNotContain("周日提醒", titles); // 其他星期不显示
+    }
+
+    [Fact]
+    public void FilterToday_已完成单次_当日过滤排除()
+    {
+        var today = new DateOnly(2026, 8, 7);
+        var done = ReminderWithTime("今天已完成", "10:00:00", ReminderStatus.Done);
+
+        // 单次已完成 = 调度器不再视为今天有触发点（SingleNext 对 Done 返回 null）
+        Assert.Empty(FloatReminderService.FilterToday(new[] { done }, today));
+    }
 }

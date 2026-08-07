@@ -156,11 +156,16 @@ public sealed class FloatReminderService
     public static IEnumerable<Reminder> FilterScope(IEnumerable<Reminder> all, int scope)
         => scope == 1 ? all : all.Where(r => r.Status == ReminderStatus.Pending);
 
+    /// <summary>当日过滤（静态纯函数，可测）：今天有触发点的提醒（含已过未完成；重复规则按日期判定）。</summary>
+    public static IEnumerable<Reminder> FilterToday(IEnumerable<Reminder> all, DateOnly today)
+        => all.Where(r => ReminderScheduler.HasTriggerOnDate(r, today));
+
     private void RefreshReminders()
     {
         try
         {
-            var items = FilterScope(_repo.GetAll(), _scope)
+            // 浮窗只显示当日的提醒（今天有触发点，含已过未完成），再按展示范围过滤
+            var items = FilterToday(FilterScope(_repo.GetAll(), _scope), DateOnly.FromDateTime(DateTime.Now))
                 .OrderBy(r => r.TriggerTime)
                 .Select(r => new FloatReminderItem(r.Id, r.Title, r.Status == ReminderStatus.Done))
                 .ToList();
