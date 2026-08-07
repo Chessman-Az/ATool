@@ -16,13 +16,14 @@ public static class TrackerSegmentLogic
         className is "Progman" or "WorkerW" or "Shell_TrayWnd";
 
     /// <summary>
-    /// 决定动作：系统窗口/空进程 → Skip；首次采样 → Switch（开新段）；与上次一致 → Flush（续时）；否则 → Switch。
-    /// 标题变化即视为切换（浏览器切标签页按网站分段）。
+    /// 决定动作：系统窗口或进程名/标题都空 → Skip；首次采样 → Switch（开新段）；与上次一致 → Flush（续时）；否则 → Switch。
+    /// 进程名解析失败（提权进程）但有窗口标题时仍记录——标题兜底，避免漏采。
     /// </summary>
     public static Action Decide(string? curProcess, string? curTitle,
         string? prevProcess, string? prevTitle, bool isSystemWindow)
     {
-        if (isSystemWindow || string.IsNullOrWhiteSpace(curProcess)) return Action.Skip;
+        if (isSystemWindow) return Action.Skip;
+        if (string.IsNullOrWhiteSpace(curProcess) && string.IsNullOrWhiteSpace(curTitle)) return Action.Skip;
         if (prevProcess is null) return Action.Switch;
         var same = string.Equals(curProcess, prevProcess, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(curTitle ?? "", prevTitle ?? "", StringComparison.Ordinal);
@@ -101,7 +102,9 @@ public sealed class UsageTrackerService : IDisposable
                     _segmentStart = now;
                     _currentId = _repo.Insert(process, title, AppUsageCategorizer.Categorize(process), now);
                     _ticksSinceFlush = 0;
-                    CurrentActivity = string.IsNullOrWhiteSpace(title) ? process : $"{process} · {title}";
+                    CurrentActivity = string.IsNullOrWhiteSpace(process)
+                        ? title
+                        : string.IsNullOrWhiteSpace(title) ? process : $"{process} · {title}";
                     break;
 
                 case TrackerSegmentLogic.Action.Flush:
@@ -162,14 +165,42 @@ public sealed class UsageTrackerService : IDisposable
 
     private static string GetProcessName(uint pid)
     {
+        // 优先 .NET API；对提权进程抛异常时回退 Win32 QueryFullProcessImageName（权限要求更低）
         try
         {
             using var p = Process.GetProcessById((int)pid);
             return p.ProcessName;
         }
+        catch { /* 回退 Win32 */ }
+
+        try
+        {
+            var h = OpenProcess(0x1000 /* PROCESS_QUERY_LIMITED_INFORMATION */, false, pid);
+            if (h == IntPtr.Zero) return "";
+            try
+            {
+                var sb = new StringBuilder(1024);
+                var size = sb.Capacity;
+                return QueryFullProcessImageName(h, 0, sb, ref size) && size > 0
+                    ? Path.GetFileNameWithoutExtension(sb.ToString())
+                    : "";
+            }
+            finally { CloseHandle(h); }
+        }
         catch
         {
-            return ""; // 进程已退出（竞态）
+            return "";
         }
     }
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr OpenProcess(uint desiredAccess, bool inheritHandle, uint processId);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool QueryFullProcessImageName(IntPtr hProcess, uint flags, StringBuilder lpExeName, ref int lpdwSize);
+
+    [DllImport("kernel32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool CloseHandle(IntPtr hObject);
 }

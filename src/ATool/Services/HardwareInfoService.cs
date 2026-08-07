@@ -19,8 +19,12 @@ public sealed class HardwareInfoService
         get
         {
             var name = ReadRegistry(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductName", "Windows");
+            var build = ReadRegistry(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "CurrentBuild", "");
             var display = ReadRegistry(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "DisplayVersion", "");
             var edition = ReadRegistry(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "EditionID", "");
+            // 微软兼容性设计：Win11 的 ProductName 仍返回 "Windows 10 Pro"——按构建号（>=22000）修正
+            if (int.TryParse(build, out var b) && b >= 22000)
+                name = name.Replace("Windows 10", "Windows 11");
             var parts = new List<string> { name };
             if (!string.IsNullOrEmpty(edition)) parts.Add(edition.Replace("Professional", "专业版").Replace("Home", "家庭版"));
             if (!string.IsNullOrEmpty(display)) parts.Add(display);
@@ -74,6 +78,9 @@ public sealed class HardwareInfoService
     /// <summary>显示器列表（WMI Win32_DesktopMonitor：名称/分辨率）。</summary>
     public List<string> Monitors { get; } = [];
 
+    /// <summary>网卡列表（WMI Win32_NetworkAdapter：物理网卡/已连接）。</summary>
+    public List<string> Nets { get; } = [];
+
     /// <summary>CPU 最大频率（MHz，注册表）。</summary>
     public string CpuMaxClock => ReadRegistry(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0", "~MHz", "");
 
@@ -124,6 +131,19 @@ public sealed class HardwareInfoService
                 var w = o["ScreenWidth"]?.ToString() ?? "";
                 var h = o["ScreenHeight"]?.ToString() ?? "";
                 Monitors.Add(string.IsNullOrEmpty(w) ? name : $"{name}（{w}×{h}）");
+            }
+        }
+        catch { }
+
+        try
+        {
+            using var mos = new ManagementObjectSearcher(
+                "SELECT Name, Speed FROM Win32_NetworkAdapter WHERE PhysicalAdapter = true AND NetConnectionStatus = 2");
+            foreach (var o in mos.Get())
+            {
+                var name = o["Name"]?.ToString() ?? "未知网卡";
+                var speedMbps = Convert.ToDouble(o["Speed"] ?? 0d) / 1e6;
+                Nets.Add(speedMbps >= 1 ? $"{name}（{speedMbps:F0} Mbps）" : name);
             }
         }
         catch { }

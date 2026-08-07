@@ -43,6 +43,9 @@ public partial class JiGeViewModel : ObservableObject
     /// <summary>显示器列表（WMI）。</summary>
     public IReadOnlyList<string> Monitors => _hardware.Monitors;
 
+    /// <summary>网卡列表（WMI）。</summary>
+    public IReadOnlyList<string> Nets => _hardware.Nets;
+
     /// <summary>磁盘工具列表。</summary>
     public ObservableCollection<ToolItemVm> DiskTools { get; } = [];
 

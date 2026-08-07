@@ -62,6 +62,27 @@ public class TrackerSegmentTests
     }
 
     [Fact]
+    public void Decide_进程名解析失败但有标题_仍记录()
+    {
+        // 提权进程 GetProcessName 返回空：有窗口标题时照常分段（标题兜底，修复漏采）
+        var action = TrackerSegmentLogic.Decide(
+            curProcess: "", curTitle: "天枢 · Tianshu",
+            prevProcess: null, prevTitle: null,
+            isSystemWindow: false);
+        Assert.Equal(TrackerSegmentLogic.Action.Switch, action);
+    }
+
+    [Fact]
+    public void Decide_进程名与标题都空_返回Skip()
+    {
+        var action = TrackerSegmentLogic.Decide(
+            curProcess: "", curTitle: "",
+            prevProcess: "chrome", prevTitle: "B站 - Google Chrome",
+            isSystemWindow: false);
+        Assert.Equal(TrackerSegmentLogic.Action.Skip, action);
+    }
+
+    [Fact]
     public void IsSystemWindow_任务栏与桌面_为真()
     {
         Assert.True(TrackerSegmentLogic.IsSystemWindow("Shell_TrayWnd"));

@@ -27,86 +27,92 @@
                 BorderThickness="1" CornerRadius="10" Padding="18,14">
           <StackPanel Spacing="10">
             <TextBlock Text="🖥️ 硬件信息" FontWeight="Bold" FontSize="15" />
-            <StackPanel Spacing="6">
-              <Grid ColumnDefinitions="140,*">
-                <TextBlock Text="电脑型号" Classes="hint" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="{Binding Model}" FontWeight="SemiBold" />
-              </Grid>
-              <Grid ColumnDefinitions="140,*">
-                <TextBlock Text="品牌" Classes="hint" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="{Binding Manufacturer}" FontWeight="SemiBold" />
-              </Grid>
-              <Border Height="1" Background="{DynamicResource BorderBrush}" />
-              <Grid ColumnDefinitions="140,*">
-                <TextBlock Text="系统" Classes="hint" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="{Binding OsName}" FontWeight="SemiBold" />
-              </Grid>
-              <Grid ColumnDefinitions="140,*">
-                <TextBlock Text="构建号" Classes="hint" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="{Binding OsBuild}" FontWeight="SemiBold" />
-              </Grid>
-              <Grid ColumnDefinitions="140,*">
-                <TextBlock Text="系统位数" Classes="hint" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="{Binding Arch}" FontWeight="SemiBold" />
-              </Grid>
-              <Border Height="1" Background="{DynamicResource BorderBrush}" />
-              <Grid ColumnDefinitions="140,*">
-                <TextBlock Text="处理器" Classes="hint" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="{Binding Processor}" FontWeight="SemiBold" TextWrapping="Wrap" />
-              </Grid>
-              <Grid ColumnDefinitions="140,*">
-                <TextBlock Text="核心/线程" Classes="hint" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="{Binding CpuCount}" FontWeight="SemiBold" />
-              </Grid>
-              <Grid ColumnDefinitions="140,*">
-                <TextBlock Text="物理内存" Classes="hint" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="{Binding TotalMemoryGb}" FontWeight="SemiBold" />
-              </Grid>
-              <Border Height="1" Background="{DynamicResource BorderBrush}" />
-              <Grid ColumnDefinitions="140,*">
-                <TextBlock Text="处理器频率" Classes="hint" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="{Binding CpuClock}" FontWeight="SemiBold" />
-              </Grid>
-              <Border Height="1" Background="{DynamicResource BorderBrush}" />
-              <Grid ColumnDefinitions="140,*">
-                <TextBlock Text="系统运行时间" Classes="hint" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="{Binding Uptime}" FontWeight="SemiBold"
+            <Grid ColumnDefinitions="1*,1*" ColumnSpacing="10">
+              <StackPanel Spacing="3">
+                <TextBlock Text="{Binding Model}" FontWeight="SemiBold" FontSize="13" />
+                <TextBlock Text="{Binding Manufacturer}" Classes="hint" FontSize="11" />
+              </StackPanel>
+              <StackPanel Grid.Column="1" Spacing="3">
+                <TextBlock Text="{Binding OsName}" FontWeight="SemiBold" FontSize="13" />
+                <TextBlock Text="构建 {Binding OsBuild} · {Binding Arch}" Classes="hint" FontSize="11" />
+                <TextBlock Text="运行时间：{Binding Uptime}" FontSize="12"
                            Foreground="{DynamicResource PrimaryBrush}" />
-              </Grid>
-              <Border Height="1" Background="{DynamicResource BorderBrush}" />
+              </StackPanel>
+            </Grid>
 
-              <!-- 显卡 -->
-              <TextBlock Text="🖥️ 显卡" FontWeight="Bold" FontSize="13" Margin="0,6,0,0" />
-              <ItemsControl ItemsSource="{Binding Gpus}">
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate>
-                    <TextBlock Text="{Binding}" FontSize="12" Margin="0,1" TextWrapping="Wrap" />
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-              <Border Height="1" Background="{DynamicResource BorderBrush}" />
-
-              <!-- 硬盘 -->
-              <TextBlock Text="💾 硬盘" FontWeight="Bold" FontSize="13" Margin="0,6,0,0" />
-              <ItemsControl ItemsSource="{Binding Disks}">
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate>
-                    <TextBlock Text="{Binding}" FontSize="12" Margin="0,1" TextWrapping="Wrap" />
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-              <Border Height="1" Background="{DynamicResource BorderBrush}" />
-
-              <!-- 显示器 -->
-              <TextBlock Text="🖵 显示器" FontWeight="Bold" FontSize="13" Margin="0,6,0,0" />
-              <ItemsControl ItemsSource="{Binding Monitors}">
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate>
-                    <TextBlock Text="{Binding}" FontSize="12" Margin="0,1" TextWrapping="Wrap" />
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-            </StackPanel>
+            <!-- 硬件分类卡片：CPU / 内存 / 显卡 / 硬盘 / 显示器 / 网卡 -->
+            <WrapPanel>
+              <Border Width="250" Background="#101C30" BorderBrush="{DynamicResource BorderBrush}"
+                      BorderThickness="1" CornerRadius="10" Padding="12,10" Margin="0,0,10,10">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="🧠 CPU" FontWeight="Bold" FontSize="13" Foreground="#7DD3FC" />
+                  <TextBlock Text="{Binding Processor}" FontSize="12" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding CpuCount}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <TextBlock Text="{Binding CpuClock}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" />
+                </StackPanel>
+              </Border>
+              <Border Width="250" Background="#101C30" BorderBrush="{DynamicResource BorderBrush}"
+                      BorderThickness="1" CornerRadius="10" Padding="12,10" Margin="0,0,10,10">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="💾 内存" FontWeight="Bold" FontSize="13" Foreground="#34D399" />
+                  <TextBlock Text="{Binding TotalMemoryGb}" FontSize="13" FontWeight="SemiBold" />
+                  <TextBlock Text="逻辑处理器 {Binding CpuCount}" FontSize="11"
+                             Foreground="{DynamicResource TextSecondaryBrush}" />
+                </StackPanel>
+              </Border>
+              <Border Width="250" Background="#101C30" BorderBrush="{DynamicResource BorderBrush}"
+                      BorderThickness="1" CornerRadius="10" Padding="12,10" Margin="0,0,10,10">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="🖥️ 显卡" FontWeight="Bold" FontSize="13" Foreground="#FBBF24" />
+                  <ItemsControl ItemsSource="{Binding Gpus}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding}" FontSize="12" TextWrapping="Wrap" Margin="0,1" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+              <Border Width="250" Background="#101C30" BorderBrush="{DynamicResource BorderBrush}"
+                      BorderThickness="1" CornerRadius="10" Padding="12,10" Margin="0,0,10,10">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="💽 硬盘" FontWeight="Bold" FontSize="13" Foreground="#7DD3FC" />
+                  <ItemsControl ItemsSource="{Binding Disks}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding}" FontSize="12" TextWrapping="Wrap" Margin="0,1" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+              <Border Width="250" Background="#101C30" BorderBrush="{DynamicResource BorderBrush}"
+                      BorderThickness="1" CornerRadius="10" Padding="12,10" Margin="0,0,10,10">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="🖵 显示器" FontWeight="Bold" FontSize="13" Foreground="#F87171" />
+                  <ItemsControl ItemsSource="{Binding Monitors}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding}" FontSize="12" TextWrapping="Wrap" Margin="0,1" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+              <Border Width="250" Background="#101C30" BorderBrush="{DynamicResource BorderBrush}"
+                      BorderThickness="1" CornerRadius="10" Padding="12,10" Margin="0,0,10,10">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="🌐 网卡" FontWeight="Bold" FontSize="13" Foreground="#A78BFA" />
+                  <ItemsControl ItemsSource="{Binding Nets}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding}" FontSize="12" TextWrapping="Wrap" Margin="0,1" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+            </WrapPanel>
           </StackPanel>
         </Border>
 
@@ -134,6 +140,10 @@
                       </Border>
                       <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12"
                                  HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="132" />
+                      <TextBlock Text="{Binding Note}" FontSize="10"
+                                 Foreground="{DynamicResource TextSecondaryBrush}"
+                                 HorizontalAlignment="Center" TextAlignment="Center"
+                                 TextWrapping="Wrap" MaxWidth="132" MaxHeight="26" />
                       <TextBlock Text="{Binding StatusText}" FontSize="10" HorizontalAlignment="Center" />
                       <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
                         <Button Content="启动" Command="{Binding LaunchCommand}" Classes="accent"
@@ -173,6 +183,10 @@
                       </Border>
                       <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12"
                                  HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="132" />
+                      <TextBlock Text="{Binding Note}" FontSize="10"
+                                 Foreground="{DynamicResource TextSecondaryBrush}"
+                                 HorizontalAlignment="Center" TextAlignment="Center"
+                                 TextWrapping="Wrap" MaxWidth="132" MaxHeight="26" />
                       <TextBlock Text="{Binding StatusText}" FontSize="10" HorizontalAlignment="Center" />
                       <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
                         <Button Content="启动" Command="{Binding LaunchCommand}" Classes="accent"
