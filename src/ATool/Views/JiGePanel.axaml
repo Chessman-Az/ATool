@@ -1,0 +1,144 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ATool.Views.JiGePanel">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <Grid ColumnDefinitions="180,*" ColumnSpacing="14" Margin="4">
+
+      <!-- 左：大分类 -->
+      <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+              BorderThickness="1" CornerRadius="10" Padding="10">
+        <StackPanel Spacing="2">
+          <TextBlock Text="机哥 · 工具舱" Classes="hint" Margin="10,8,10,12" />
+          <RadioButton x:Name="RbHardware" Content="🖥️ 硬件信息" GroupName="JiGeNav" IsChecked="True"
+                       FontSize="15" FontWeight="SemiBold" Margin="10,6" Padding="8,8" />
+          <RadioButton x:Name="RbDisk" Content="💽 磁盘工具" GroupName="JiGeNav"
+                       FontSize="15" FontWeight="SemiBold" Margin="10,6" Padding="8,8" />
+          <RadioButton x:Name="RbOther" Content="🧰 其他工具" GroupName="JiGeNav"
+                       FontSize="15" FontWeight="SemiBold" Margin="10,6" Padding="8,8" />
+        </StackPanel>
+      </Border>
+
+      <!-- 右：页面 -->
+      <StackPanel Grid.Column="1" Spacing="10">
+
+        <!-- 硬件信息 -->
+        <Border IsVisible="{Binding #RbHardware.IsChecked}"
+                Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1" CornerRadius="10" Padding="18,14">
+          <StackPanel Spacing="10">
+            <TextBlock Text="🖥️ 硬件信息" FontWeight="Bold" FontSize="15" />
+            <StackPanel Spacing="6">
+              <Grid ColumnDefinitions="140,*">
+                <TextBlock Text="电脑型号" Classes="hint" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding Model}" FontWeight="SemiBold" />
+              </Grid>
+              <Grid ColumnDefinitions="140,*">
+                <TextBlock Text="品牌" Classes="hint" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding Manufacturer}" FontWeight="SemiBold" />
+              </Grid>
+              <Border Height="1" Background="{DynamicResource BorderBrush}" />
+              <Grid ColumnDefinitions="140,*">
+                <TextBlock Text="系统" Classes="hint" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding OsName}" FontWeight="SemiBold" />
+              </Grid>
+              <Grid ColumnDefinitions="140,*">
+                <TextBlock Text="构建号" Classes="hint" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding OsBuild}" FontWeight="SemiBold" />
+              </Grid>
+              <Grid ColumnDefinitions="140,*">
+                <TextBlock Text="系统位数" Classes="hint" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding Arch}" FontWeight="SemiBold" />
+              </Grid>
+              <Border Height="1" Background="{DynamicResource BorderBrush}" />
+              <Grid ColumnDefinitions="140,*">
+                <TextBlock Text="处理器" Classes="hint" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding Processor}" FontWeight="SemiBold" TextWrapping="Wrap" />
+              </Grid>
+              <Grid ColumnDefinitions="140,*">
+                <TextBlock Text="核心/线程" Classes="hint" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding CpuCount}" FontWeight="SemiBold" />
+              </Grid>
+              <Grid ColumnDefinitions="140,*">
+                <TextBlock Text="物理内存" Classes="hint" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding TotalMemoryGb}" FontWeight="SemiBold" />
+              </Grid>
+              <Border Height="1" Background="{DynamicResource BorderBrush}" />
+              <Grid ColumnDefinitions="140,*">
+                <TextBlock Text="系统运行时间" Classes="hint" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding Uptime}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource PrimaryBrush}" />
+              </Grid>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- 磁盘工具 -->
+        <Border IsVisible="{Binding #RbDisk.IsChecked}"
+                Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1" CornerRadius="10" Padding="18,14">
+          <StackPanel Spacing="10">
+            <TextBlock Text="💽 磁盘工具（内置官方便携版，无需安装）" FontWeight="Bold" FontSize="15" />
+            <ItemsControl ItemsSource="{Binding DiskTools}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Background="#101C30" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                          CornerRadius="8" Padding="12,8" Margin="0,4">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" />
+                          <TextBlock Text="{Binding StatusText}" FontSize="11" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding Note}" Classes="hint" FontSize="11" />
+                      </StackPanel>
+                      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <Button Content="启动" Command="{Binding LaunchCommand}" Classes="accent"
+                                FontSize="12" Padding="14,6" />
+                        <Button Content="官网" Command="{Binding OpenOfficialCommand}"
+                                FontSize="12" Padding="14,6" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <!-- 其他工具 -->
+        <Border IsVisible="{Binding #RbOther.IsChecked}"
+                Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1" CornerRadius="10" Padding="18,14">
+          <StackPanel Spacing="10">
+            <TextBlock Text="🧰 其他工具（内置官方便携版，无需安装）" FontWeight="Bold" FontSize="15" />
+            <ItemsControl ItemsSource="{Binding OtherTools}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Background="#101C30" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                          CornerRadius="8" Padding="12,8" Margin="0,4">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" />
+                          <TextBlock Text="{Binding StatusText}" FontSize="11" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding Note}" Classes="hint" FontSize="11" />
+                      </StackPanel>
+                      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <Button Content="启动" Command="{Binding LaunchCommand}" Classes="accent"
+                                FontSize="12" Padding="14,6" />
+                        <Button Content="官网" Command="{Binding OpenOfficialCommand}"
+                                FontSize="12" Padding="14,6" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+      </StackPanel>
+    </Grid>
+  </ScrollViewer>
+</UserControl>

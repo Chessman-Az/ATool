@@ -83,6 +83,7 @@ internal static class Program
         services.AddSingleton<ReminderSchedulerService>();
         services.AddSingleton<FloatReminderService>();
         services.AddSingleton<UsageTrackerService>();
+        services.AddSingleton<HardwareInfoService>();
 
         // 表现层 VM
     services.AddSingleton<ReminderEditViewModel>();
@@ -93,6 +94,7 @@ internal static class Program
     services.AddSingleton<BalanceChartViewModel>();
     services.AddSingleton<BalanceDetailViewModel>();
     services.AddSingleton<TimeMasterViewModel>();
+    services.AddSingleton<JiGeViewModel>();
     services.AddSingleton<MainWindowViewModel>();
 
         var provider = services.BuildServiceProvider();

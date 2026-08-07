@@ -37,6 +37,7 @@
             <ListBoxItem Content="提醒事项" />
             <ListBoxItem Content="DeepSeek 余额" />
             <ListBoxItem Content="时间大师" />
+            <ListBoxItem Content="机哥" />
             <ListBoxItem Content="系统设置" />
             <ListBoxItem Content="A工具" />
           </ListBox>
@@ -240,15 +241,22 @@
           <views:TimeMasterPanel DataContext="{Binding TimeMaster}" />
         </Border>
 
-        <!-- 系统设置 -->
+        <!-- 机哥：硬件信息 + 磁盘工具 + 其他工具（左右布局） -->
         <Border IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=4}"
+                Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1" Padding="4">
+          <views:JiGePanel DataContext="{Binding JiGe}" />
+        </Border>
+
+        <!-- 系统设置 -->
+        <Border IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=5}"
                 Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1" Padding="4">
           <views:SettingsPanel DataContext="{Binding Settings}" />
         </Border>
 
         <!-- A工具（关于页）：居中卡片 -->
-        <Border IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=5}"
+        <Border IsVisible="{Binding NavIndex, Converter={StaticResource NavEq}, ConverterParameter=6}"
                 Background="{DynamicResource CardBrush}" CornerRadius="10" BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1" Padding="40">
           <Border Background="#101C30" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"

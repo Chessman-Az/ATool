@@ -20,11 +20,12 @@ public partial class MainWindowViewModel : ObservableObject
     public ReminderCalendarViewModel Calendar { get; }
     public BalanceDetailViewModel BalanceDetail { get; }
     public TimeMasterViewModel TimeMaster { get; }
+    public JiGeViewModel JiGe { get; }
 
     public event Action? ShowWindowRequested;
     public event Action? QuitRequested;
 
-    /// <summary>左侧导航选中项：0=中控台 1=提醒事项 2=DeepSeek 余额 3=时间大师 4=系统设置 5=A工具。</summary>
+    /// <summary>左侧导航选中项：0=中控台 1=提醒事项 2=DeepSeek 余额 3=时间大师 4=机哥 5=系统设置 6=A工具。</summary>
     [ObservableProperty]
     private int _navIndex;
 
@@ -48,7 +49,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private string _peakStatusText = "";
 
-    public MainWindowViewModel(BalanceService balance, ReminderListViewModel reminders, ApiKeysViewModel apiKeys, SettingsViewModel settings, BalanceChartViewModel chart, ReminderCalendarViewModel calendar, BalanceDetailViewModel balanceDetail, TimeMasterViewModel timeMaster)
+    public MainWindowViewModel(BalanceService balance, ReminderListViewModel reminders, ApiKeysViewModel apiKeys, SettingsViewModel settings, BalanceChartViewModel chart, ReminderCalendarViewModel calendar, BalanceDetailViewModel balanceDetail, TimeMasterViewModel timeMaster, JiGeViewModel jiGe)
     {
         _balance = balance;
         Reminders = reminders;
@@ -58,6 +59,7 @@ public partial class MainWindowViewModel : ObservableObject
         Calendar = calendar;
         BalanceDetail = balanceDetail;
         TimeMaster = timeMaster;
+        JiGe = jiGe;
         RefreshPeakStatus();
         _balance.StateChanged += () => OnPropertyChanged(nameof(IsRefreshing));
     }

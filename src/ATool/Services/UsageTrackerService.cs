@@ -83,6 +83,11 @@ public sealed class UsageTrackerService : IDisposable
         var className = GetClassName(hwnd);
         var isSystem = TrackerSegmentLogic.IsSystemWindow(className);
 
+        // 诊断：每 60 个 tick（5 分钟）记录一次前台窗口状态，定位真实环境不写库问题
+        if (_ticksSinceFlush % 60 == 0)
+            Serilog.Log.Information("时间大师采样诊断: pid={Pid} proc=[{Proc}] title=[{Title}] class=[{Class}] system={Sys}",
+                pid, process, title, className, isSystem);
+
         var now = DateTime.Now;
         lock (_lock)
         {
