@@ -110,4 +110,14 @@ public sealed class RechargeRepository(Db db)
             "UPDATE recharge_details SET commission_amount = @c, updated_at = @now WHERE id = @id",
             new { id, c = commission, now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
     }
+
+    /// <summary>
+    /// 删除一条充值记录。注意：自动识别行（history_id 非空）由余额历史驱动，
+    /// 下次 EnsureAndGetAll 会重建——仅手动补录行（history_id 为空）删除是持久的。
+    /// </summary>
+    public void Delete(long id)
+    {
+        using var conn = db.GetConnection();
+        conn.Execute("DELETE FROM recharge_details WHERE id = @id", new { id });
+    }
 }

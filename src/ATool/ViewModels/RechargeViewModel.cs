@@ -70,6 +70,16 @@ public partial class RechargeViewModel : ObservableObject
         Load();
     }
 
+    /// <summary>请求删除确认（视图层弹 ConfirmDialog，确认后调 ConfirmDelete）。</summary>
+    public event Action<RechargeItemVm>? DeleteRequested;
+
+    /// <summary>删除一条充值记录（仅手动补录行持久；自动识别行删后重建，按钮已禁用）。</summary>
+    public void ConfirmDelete(RechargeItemVm item)
+    {
+        _repo.Delete(item.Row.Id);
+        Load();
+    }
+
     /// <summary>筛选切换 → 手动添加别名跟随（在哪个别名视图下添加默认归哪个别名）+ 重载列表与汇总。</summary>
     partial void OnSelectedAliasChanged(string value)
     {
@@ -116,7 +126,7 @@ public partial class RechargeViewModel : ObservableObject
 
         Rows.Clear();
         foreach (var r in filtered)
-            Rows.Add(new RechargeItemVm(r));
+            Rows.Add(new RechargeItemVm(r, OnDeleteRequested));
         HasRows = Rows.Count > 0;
 
         var s = RechargeService.Summarize(filtered.Select(r => (r.Delta, r.Actual, r.Commission)));
@@ -156,9 +166,12 @@ public partial class RechargeViewModel : ObservableObject
         }
         Load(); // 刷新汇总
     }
+
+    /// <summary>行删除按钮 → 转发删除请求（视图层确认后调 ConfirmDelete）。</summary>
+    private void OnDeleteRequested(RechargeItemVm item) => DeleteRequested?.Invoke(item);
 }
 
-/// <summary>充值明细行 VM：实际金额可编辑（NumericUpDown 双向绑定）。</summary>
+/// <summary>充值明细行 VM：实际金额可编辑（NumericUpDown 双向绑定）+ 删除（手动补录行可删）。</summary>
 public partial class RechargeItemVm : ObservableObject
 {
     public RechargeRow Row { get; }
@@ -169,6 +182,12 @@ public partial class RechargeItemVm : ObservableObject
     /// <summary>变动充值金额（余额明细 +delta）。</summary>
     public string DeltaText => $"+{Row.Delta:F2}";
 
+    /// <summary>是否可删除（仅手动补录行；自动识别行删后由余额历史重建）。</summary>
+    public bool CanDelete => Row.HistoryId is null;
+
+    /// <summary>删除按钮命令（转发删除请求，视图层弹确认框）。</summary>
+    public CommunityToolkit.Mvvm.Input.IRelayCommand DeleteCommand { get; }
+
     /// <summary>用户设置的实际充值金额。</summary>
     [ObservableProperty]
     private decimal _actualAmount;
@@ -177,10 +196,11 @@ public partial class RechargeItemVm : ObservableObject
     [ObservableProperty]
     private decimal _commission;
 
-    public RechargeItemVm(RechargeRow row)
+    public RechargeItemVm(RechargeRow row, Action<RechargeItemVm> deleteRequested)
     {
         Row = row;
         _actualAmount = row.Actual;
         _commission = row.Commission;
+        DeleteCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => deleteRequested(this));
     }
 }

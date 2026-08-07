@@ -106,7 +106,7 @@
             <DataTemplate>
               <Border Background="#101C30" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                       CornerRadius="8" Padding="12,8" Margin="0,3">
-                <Grid ColumnDefinitions="*,Auto">
+                <Grid ColumnDefinitions="*,Auto,Auto">
                   <StackPanel Spacing="2" VerticalAlignment="Center">
                     <TextBlock Text="{Binding QueriedAt}" FontSize="12" FontWeight="SemiBold" />
                     <TextBlock Text="{Binding Alias}" Classes="hint" FontSize="11" />
@@ -123,6 +123,10 @@
                                    Increment="0.1" FormatString="0.00" Width="88"
                                    ShowButtonSpinner="False" VerticalAlignment="Center" />
                   </StackPanel>
+                  <Button Grid.Column="2" Content="🗑" Command="{Binding DeleteCommand}"
+                          IsEnabled="{Binding CanDelete}" FontSize="12" Padding="10,4"
+                          Margin="10,0,0,0" VerticalAlignment="Center"
+                          ToolTip.Tip="删除该充值记录（自动识别记录不可删除）" />
                 </Grid>
               </Border>
             </DataTemplate>

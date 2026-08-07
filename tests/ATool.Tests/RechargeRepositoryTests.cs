@@ -188,4 +188,43 @@ public class RechargeRepositoryTests
         Assert.Equal("主Key", rows.Single(r => r.HistoryId is not null).Alias);
         Assert.Equal("手动记录", rows.Single(r => r.HistoryId is null).Alias);
     }
+
+    // ---- 删除 ----
+
+    [Fact]
+    public void Delete_手动记录删除后不再返回()
+    {
+        var (repo, db) = NewRepo();
+        repo.InsertManual("2026-07-01 12:00:00", 5m, 4.5m, 0.3m, "主Key");
+
+        var rows = repo.EnsureAndGetAll();
+        var id = Assert.Single(rows).Id;
+
+        repo.Delete(id);
+
+        Assert.Empty(repo.EnsureAndGetAll());
+    }
+
+    [Fact]
+    public void Delete_自动识别记录_下次Ensure会重建()
+    {
+        var (repo, db) = NewRepo();
+        var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        using (var conn = db.GetConnection())
+        {
+            conn.Execute("INSERT INTO api_keys (alias, encrypted_key, created_at) VALUES ('k1', X'01', @a)", new { a = now });
+            conn.Execute("INSERT INTO balance_history (api_key_id, total_balance, currency, queried_at) VALUES (1, 10, 'CNY', @a)", new { a = now });
+            conn.Execute("INSERT INTO balance_history (api_key_id, total_balance, currency, queried_at) VALUES (1, 12, 'CNY', @a)", new { a = now }); // 自动 +2
+        }
+        var rows = repo.EnsureAndGetAll();
+        var id = Assert.Single(rows).Id;
+
+        repo.Delete(id);
+
+        // 自动识别行由余额历史驱动，下次 Ensure 重建（因此自动行删除按钮应禁用）
+        var after = repo.EnsureAndGetAll();
+        var rebuilt = Assert.Single(after);
+        Assert.NotEqual(id, rebuilt.Id);
+        Assert.Equal(2m, rebuilt.Delta);
+    }
 }

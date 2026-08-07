@@ -124,4 +124,53 @@ public class RechargeViewModelTests
         vm.SelectAlias(null); // null 不改变
         Assert.Equal("key2", vm.SelectedAlias);
     }
+
+    [Fact]
+    public void 删除手动记录_列表与汇总联动()
+    {
+        var (repo, db) = NewRepo();
+        InsertKeyWithRecharge(db, 1, "key1", 10m, 20m);
+
+        var vm = new RechargeViewModel(repo);
+        vm.ManualAlias = "key1";
+        vm.NewDelta = 5m;
+        vm.NewActual = 4m;
+        vm.NewCommission = 0.5m;
+        vm.NewTime = "2026-07-01 12:00:00";
+        vm.AddCommand.Execute(null);
+        Assert.Equal(2, vm.Rows.Count);
+
+        // 手动行可删；自动识别行不可删
+        var manual = vm.Rows.Single(r => r.CanDelete);
+        Assert.Equal(5m, manual.Row.Delta);
+
+        vm.ConfirmDelete(manual);
+
+        Assert.Single(vm.Rows); // 剩自动识别行
+        Assert.Equal("¥10.00", vm.TotalDeltaText); // 手动 5 被删，剩自动 10
+        Assert.Equal("¥10.00", vm.TotalActualText);
+    }
+
+    [Fact]
+    public void 删除按钮触发删除请求事件()
+    {
+        var (repo, db) = NewRepo();
+        InsertKeyWithRecharge(db, 1, "key1", 10m, 20m);
+
+        var vm = new RechargeViewModel(repo);
+        vm.ManualAlias = "key1";
+        vm.NewDelta = 5m;
+        vm.NewActual = 4m;
+        vm.NewCommission = 0.5m;
+        vm.NewTime = "2026-07-01 12:00:00";
+        vm.AddCommand.Execute(null);
+
+        RechargeItemVm? requested = null;
+        vm.DeleteRequested += item => requested = item;
+
+        var manual = vm.Rows.Single(r => r.CanDelete);
+        manual.DeleteCommand.Execute(null);
+
+        Assert.Same(manual, requested); // 视图层据此弹确认框
+    }
 }
